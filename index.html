@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blufil — Sitio en construcción</title>
+<meta name="description" content="Blufil. Estamos construyendo algo nuevo. Vuelve pronto.">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --fg: #f5f7fa;
+    --muted: #9aa5b1;
+    --accent: #3ea6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 20%, #131a22 0%, var(--bg) 70%);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    text-align: center;
+    padding: 24px;
+  }
+  .wrap {
+    max-width: 560px;
+  }
+  .logo {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+  .logo span {
+    color: var(--accent);
+  }
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin: 0 0 28px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border: 1px solid rgba(62, 166, 255, 0.35);
+    border-radius: 999px;
+    padding: 6px 14px;
+    margin-bottom: 24px;
+  }
+  a.contact {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  a.contact:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">En construcción</span>
+    <p class="logo">Blu<span>fil</span></p>
+    <h1>Estamos preparando algo nuevo. Vuelve pronto.</h1>
+    <a class="contact" href="mailto:hola@blufil.com">hola@blufil.com</a>
+    <footer>&copy; 2026 Blufil</footer>
+  </div>
+</body>
+</html>
