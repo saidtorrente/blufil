@@ -3,6 +3,7 @@
 import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { iniciarSesionTecnico } from "./actions";
 
 export default function LoginTecnicoPage() {
@@ -75,6 +76,12 @@ function LoginTecnicoForm() {
             {pending ? "Ingresando…" : "Ingresar"}
           </button>
         </form>
+
+        <p className="mt-4 text-center text-sm">
+          <Link href="/recuperar" className="text-[#1a8fac] underline underline-offset-2">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
       </div>
     </main>
   );

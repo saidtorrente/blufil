@@ -7,9 +7,16 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return NextResponse.redirect(`${origin}/dashboard`);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error && data.user) {
+      const { data: tecnico } = await supabase
+        .from("tecnicos")
+        .select("id")
+        .eq("auth_user_id", data.user.id)
+        .maybeSingle();
+
+      return NextResponse.redirect(`${origin}${tecnico ? "/tecnico/dashboard" : "/dashboard"}`);
     }
   }
 

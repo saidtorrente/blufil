@@ -3,6 +3,7 @@
 import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { iniciarSesion } from "./actions";
 
 export default function LoginPage() {
@@ -75,6 +76,12 @@ function LoginForm() {
             {pending ? "Ingresando…" : "Ingresar"}
           </button>
         </form>
+
+        <p className="mt-4 text-center text-sm">
+          <Link href="/recuperar" className="text-[#1a8fac] underline underline-offset-2">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
 
         <p className="mt-6 text-center text-xs text-neutral-400">
           Tu primera contraseña es tu número de cédula. Puedes cambiarla desde tu perfil
