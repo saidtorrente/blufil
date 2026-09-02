@@ -1,0 +1,957 @@
+<!-- Blufil — Estudio de Mercado y Competencia -->
+<title>Estudio de Mercado Blufil</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper: #f6f8f9;
+    --paper-raised: #ffffff;
+    --ink: #10202b;
+    --ink-muted: #4d6270;
+    --ink-faint: #7f909c;
+    --accent: #1f7fb8;
+    --accent-deep: #135a85;
+    --accent-soft: #e4f0f7;
+    --line: #d9e2e6;
+    --line-soft: #e9eef1;
+    --positive: #2b8a5e;
+    --positive-soft: #e4f3ec;
+    --warn: #b8502c;
+    --warn-soft: #fbe9e1;
+    --tag-local: #6b4fa0;
+    --tag-local-soft: #ede7f7;
+    --shadow: 0 1px 2px rgba(16,32,43,0.04), 0 8px 24px -12px rgba(16,32,43,0.12);
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #0d1417;
+      --paper-raised: #131c21;
+      --ink: #e7eef1;
+      --ink-muted: #a3b4bc;
+      --ink-faint: #6d7f88;
+      --accent: #5fb3e0;
+      --accent-deep: #8fd0ee;
+      --accent-soft: #17323f;
+      --line: #24343c;
+      --line-soft: #1b282e;
+      --positive: #5cc796;
+      --positive-soft: #16332a;
+      --warn: #e08a5f;
+      --warn-soft: #3a2419;
+      --tag-local: #b9a4e0;
+      --tag-local-soft: #2a2340;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #0d1417;
+    --paper-raised: #131c21;
+    --ink: #e7eef1;
+    --ink-muted: #a3b4bc;
+    --ink-faint: #6d7f88;
+    --accent: #5fb3e0;
+    --accent-deep: #8fd0ee;
+    --accent-soft: #17323f;
+    --line: #24343c;
+    --line-soft: #1b282e;
+    --positive: #5cc796;
+    --positive-soft: #16332a;
+    --warn: #e08a5f;
+    --warn-soft: #3a2419;
+    --tag-local: #b9a4e0;
+    --tag-local-soft: #2a2340;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Sans 3', -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--accent-soft); color: var(--ink); }
+
+  h1,h2,h3{
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+  .mono{ font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  a{ color: var(--accent-deep); }
+  a:focus-visible, button:focus-visible, .jump:focus-visible{
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  .wrap{ max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+  .prose{ max-width: 720px; }
+
+  /* ---------- Masthead ---------- */
+  header.masthead{
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 40px;
+    background:
+      radial-gradient(1200px 320px at 12% -10%, var(--accent-soft), transparent 60%),
+      var(--paper);
+  }
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .eyebrow::before{
+    content: "";
+    width: 22px; height: 1px;
+    background: var(--accent-deep);
+  }
+  .brand-logo{
+    height: 40px;
+    width: auto;
+    display: block;
+    margin-bottom: 22px;
+  }
+  h1.title{
+    font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+  h1.title em{ font-style: italic; color: var(--accent-deep); }
+  .dek{
+    margin-top: 18px;
+    max-width: 640px;
+    color: var(--ink-muted);
+    font-size: 1.08rem;
+  }
+  .meta-row{
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+  .meta-item{ display: flex; flex-direction: column; gap: 3px; }
+  .meta-item .k{ font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+  .meta-item .v{ font-family: 'IBM Plex Mono', monospace; font-size: 14.5px; color: var(--ink); }
+
+  /* ---------- Jump nav ---------- */
+  nav.jumpnav{
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.jumpnav .row{
+    display: flex; gap: 4px; overflow-x: auto;
+    padding: 10px 28px;
+    scrollbar-width: none;
+  }
+  nav.jumpnav .row::-webkit-scrollbar{ display: none; }
+  .jump{
+    flex: 0 0 auto;
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    padding: 7px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .jump:hover{ background: var(--line-soft); color: var(--ink); }
+
+  /* ---------- Sections ---------- */
+  section{ padding: 64px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type{ border-bottom: none; }
+  .section-head{ margin-bottom: 36px; }
+  .section-num{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px; color: var(--ink-faint);
+    letter-spacing: 0.08em;
+  }
+  h2.section-title{
+    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+    margin-top: 8px;
+  }
+  .section-intro{ color: var(--ink-muted); max-width: 680px; margin-top: 12px; }
+
+  /* ---------- Stat strip ---------- */
+  .stats{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+  .stat{ background: var(--paper-raised); padding: 20px 22px; }
+  .stat .n{ font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600; color: var(--accent-deep); }
+  .stat .l{ font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+
+  /* ---------- Market scope cards ---------- */
+  .scope-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 8px;
+  }
+  @media (max-width: 720px){ .scope-grid{ grid-template-columns: 1fr; } }
+  .scope-card{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+  }
+  .scope-card .tag{
+    display: inline-block;
+    font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+    background: var(--tag-local-soft); color: var(--tag-local);
+    margin-bottom: 12px;
+  }
+  .scope-card.national .tag{ background: var(--accent-soft); color: var(--accent-deep); }
+  .scope-card h3{ font-size: 1.15rem; }
+  .scope-card p{ color: var(--ink-muted); font-size: 15px; margin-top: 8px; }
+  .scope-card .cities{ margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .city-chip{
+    font-size: 12.5px; font-family: 'IBM Plex Mono', monospace;
+    background: var(--line-soft); border: 1px solid var(--line);
+    padding: 3px 8px; border-radius: 6px; color: var(--ink-muted);
+  }
+
+  /* ---------- Source table ---------- */
+  table.sources{ width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14.5px; }
+  table.sources th{
+    text-align: left; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; padding: 0 14px 10px 0; border-bottom: 1px solid var(--line);
+  }
+  table.sources td{ padding: 13px 14px 13px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  table.sources tr:last-child td{ border-bottom: none; }
+  table.sources .src-name{ font-weight: 600; color: var(--ink); }
+  table.sources .src-count{ font-family: 'IBM Plex Mono', monospace; color: var(--accent-deep); white-space: nowrap; }
+
+  /* ---------- Competitor cards ---------- */
+  .comp-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .comp-card{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .comp-card .top{ display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .comp-card h4{ font-size: 15px; font-weight: 600; margin: 0; line-height: 1.3; }
+  .comp-card .rating{ font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: var(--accent-deep); white-space: nowrap; }
+  .comp-card .city{ font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
+  .comp-card blockquote{
+    margin: 12px 0 0; padding-left: 12px; border-left: 2px solid var(--line);
+    font-size: 14px; color: var(--ink-muted); font-style: italic;
+  }
+  .comp-card blockquote.neg{ border-left-color: var(--warn); }
+  .comp-card blockquote.pos{ border-left-color: var(--positive); }
+
+  /* ---------- Price table ---------- */
+  table.prices{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 15px; }
+  table.prices th{
+    text-align: left; padding: 10px 16px; background: var(--paper-raised);
+    border-bottom: 2px solid var(--line); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted);
+  }
+  table.prices td{ padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+  table.prices tr:hover td{ background: var(--line-soft); }
+  table.prices .price{ font-family: 'IBM Plex Mono', monospace; color: var(--ink); white-space: nowrap; }
+  .tbl-wrap{ overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .tbl-wrap table{ margin-top: 0; }
+  .leader-badge{
+    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 5px;
+    background: var(--positive-soft); color: var(--positive); font-weight: 600; margin-left: 8px;
+  }
+
+  /* ---------- Pain point cards ---------- */
+  .pain-list{ display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+  .pain-card{
+    display: grid; grid-template-columns: 220px 1fr; gap: 22px;
+    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px 24px;
+  }
+  @media (max-width: 680px){ .pain-card{ grid-template-columns: 1fr; } }
+  .pain-label{ display: flex; flex-direction: column; gap: 6px; }
+  .pain-label .src{ font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace; }
+  .pain-label h4{ font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--warn); }
+  .pain-quotes{ display: flex; flex-direction: column; gap: 8px; }
+  .pain-quotes q{
+    display: block; font-size: 14.5px; color: var(--ink-muted); font-style: italic;
+    padding: 10px 14px; background: var(--warn-soft); border-radius: 8px; quotes: none;
+  }
+  .pain-solution{
+    margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line);
+    font-size: 14.5px; color: var(--ink);
+  }
+  .pain-solution b{ color: var(--positive); }
+
+  /* ---------- Ad cards ---------- */
+  .ad-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; margin-top: 20px; }
+  .ad-card{ background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .ad-card .brand{ font-weight: 600; font-size: 14.5px; }
+  .ad-card .angle{ font-size: 12px; color: var(--accent-deep); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .ad-card p{ font-size: 14px; color: var(--ink-muted); margin: 10px 0 0; }
+
+  /* ---------- Persona cards ---------- */
+  .persona-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 24px; }
+  .persona-card{
+    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 14px;
+    padding: 26px 26px 22px; position: relative; overflow: hidden;
+  }
+  .persona-card::before{
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--tag-local));
+  }
+  .persona-name{ font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 600; }
+  .persona-tagline{ color: var(--ink-muted); font-size: 14px; margin-top: 2px; }
+  .persona-facts{ display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .persona-facts span{ font-size: 12px; font-family: 'IBM Plex Mono', monospace; background: var(--line-soft); padding: 3px 8px; border-radius: 6px; color: var(--ink-muted); }
+  .persona-card dl{ margin: 14px 0 0; }
+  .persona-card dt{ font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); margin-top: 12px; }
+  .persona-card dd{ margin: 4px 0 0; font-size: 14.5px; color: var(--ink); }
+
+  /* ---------- Recommendations ---------- */
+  .rec-list{ counter-reset: rec; margin-top: 28px; display: flex; flex-direction: column; }
+  .rec-item{
+    counter-increment: rec;
+    display: grid; grid-template-columns: 44px 1fr; gap: 18px;
+    padding: 22px 0; border-top: 1px solid var(--line);
+  }
+  .rec-item:last-child{ border-bottom: 1px solid var(--line); }
+  .rec-item::before{
+    content: counter(rec, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', monospace; color: var(--accent-deep); font-size: 15px; padding-top: 2px;
+  }
+  .rec-item h4{ font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.05rem; }
+  .rec-item p{ color: var(--ink-muted); font-size: 15px; margin-top: 6px; max-width: 620px; }
+  .rec-item .impact{
+    display: inline-block; margin-top: 8px; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 5px; background: var(--positive-soft); color: var(--positive);
+  }
+
+  footer{ padding: 44px 0 70px; }
+  footer p{ color: var(--ink-faint); font-size: 13px; max-width: 640px; }
+
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior: auto; } }
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <img src="data:image/png;base64,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" alt="Blufil" class="brand-logo">
+    <div class="eyebrow">Blufil · Filtración y tratamiento de agua residencial</div>
+    <h1 class="title">Estudio de mercado y <em>voz del cliente</em></h1>
+    <p class="dek">Panorama competitivo, precios, publicidad y quejas reales de clientes en filtración de agua residencial — cruzando el mercado piloto (Barranquilla, Soledad, Puerto Colombia) con el mercado nacional, para fundamentar el posicionamiento y la propuesta de valor de Blufil.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="k">Fecha</span><span class="v">Agosto 2026</span></div>
+      <div class="meta-item"><span class="k">Cobertura</span><span class="v">Atlántico + 20 ciudades de Colombia</span></div>
+      <div class="meta-item"><span class="k">Fuentes</span><span class="v">5 independientes</span></div>
+      <div class="meta-item"><span class="k">Registros analizados</span><span class="v">~530</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="jumpnav">
+  <div class="wrap row">
+    <a class="jump" href="#alcance">Alcance</a>
+    <a class="jump" href="#competencia">Competencia</a>
+    <a class="jump" href="#precios">Precios</a>
+    <a class="jump" href="#voz-cliente">Voz del cliente</a>
+    <a class="jump" href="#publicidad">Publicidad</a>
+    <a class="jump" href="#dolor-solucion">Dolor → solución</a>
+    <a class="jump" href="#personas">Buyer personas</a>
+    <a class="jump" href="#recomendaciones">Recomendaciones</a>
+    <a class="jump" href="#expansion">Expansión industrial</a>
+    <a class="jump" href="#voz-real">Voz real (WhatsApp)</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="alcance">
+    <div class="section-head prose">
+      <div class="section-num">01 — Metodología</div>
+      <h2 class="section-title">Dos mercados, cinco fuentes independientes</h2>
+      <p class="section-intro">El estudio cruza evidencia estructurada (reseñas, precios, anuncios) de fuentes distintas para que ningún hallazgo dependa de una sola plataforma. Cuando un mismo problema aparece en Google Maps <em>y</em> en Amazon <em>y</em> en foros de búsqueda, deja de ser un caso aislado.</p>
+    </div>
+
+    <div class="scope-grid">
+      <div class="scope-card local">
+        <span class="tag">Mercado piloto</span>
+        <h3>Área metropolitana de Barranquilla</h3>
+        <p>El lanzamiento de Blufil según el plan de negocios. 16 competidores identificados con reseñas activas en Google Maps.</p>
+        <div class="cities">
+          <span class="city-chip">Barranquilla</span>
+          <span class="city-chip">Soledad</span>
+          <span class="city-chip">Puerto Colombia</span>
+        </div>
+      </div>
+      <div class="scope-card national">
+        <span class="tag">Mercado nacional</span>
+        <h3>Colombia — expansión</h3>
+        <p>Cobertura orgánica de 20+ ciudades vía búsqueda geográfica de Google Maps, más marketplaces y publicidad que ya operan a nivel país.</p>
+        <div class="cities">
+          <span class="city-chip">Bogotá</span>
+          <span class="city-chip">Medellín</span>
+          <span class="city-chip">Cali</span>
+          <span class="city-chip">Bucaramanga</span>
+          <span class="city-chip">Cartagena</span>
+          <span class="city-chip">+15 más</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n mono">86</div><div class="l">Negocios competidores (Maps)</div></div>
+      <div class="stat"><div class="n mono">313</div><div class="l">Productos en Mercado Libre</div></div>
+      <div class="stat"><div class="n mono">88</div><div class="l">Reseñas Amazon analizadas</div></div>
+      <div class="stat"><div class="n mono">19</div><div class="l">Anuncios activos (Meta)</div></div>
+      <div class="stat"><div class="n mono">66</div><div class="l">Resultados SERP</div></div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:28px;">
+      <table class="sources">
+        <thead><tr><th>Fuente</th><th>Qué mide</th><th>Volumen</th></tr></thead>
+        <tbody>
+          <tr><td class="src-name">Google Maps</td><td>Competidores locales y nacionales + reseñas de servicio/instalación</td><td class="src-count">86 negocios · ~300 reseñas</td></tr>
+          <tr><td class="src-name">Mercado Libre Colombia</td><td>Catálogo y precios de la competencia (doble filtración, UF, ósmosis inversa)</td><td class="src-count">313 productos</td></tr>
+          <tr><td class="src-name">Amazon (US)</td><td>Experiencia de producto detallada — instalación, durabilidad, mantenimiento</td><td class="src-count">11 productos · 88 reseñas</td></tr>
+          <tr><td class="src-name">Google Search</td><td>Qué busca el consumidor y quién domina el SEO de la categoría</td><td class="src-count">13 queries · 108 resultados</td></tr>
+          <tr><td class="src-name">Meta Ad Library</td><td>Mensajes y ofertas activas de la competencia publicitaria</td><td class="src-count">19 anuncios activos</td></tr>
+          <tr><td class="src-name">Alibaba</td><td>Precios de referencia de equipos industriales y de desalinización (B2B)</td><td class="src-count">121 productos comparables</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="competencia">
+    <div class="section-head prose">
+      <div class="section-num">02 — Panorama competitivo</div>
+      <h2 class="section-title">Nadie domina el mercado local; Ecotrade domina el nacional</h2>
+      <p class="section-intro">En Barranquilla y a nivel nacional, la categoría está fragmentada entre decenas de instaladores pequeños con calificaciones altas pero volumen bajo de reseñas. La única marca con presencia consistente en Google Maps, Mercado Libre, SEO y publicidad activa es <strong>Ecotrade</strong> (Bogotá) — es el competidor de referencia a vigilar.</p>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="top"><h4>Ecotrade SAS</h4><span class="rating mono">4.7 ★ · 82</span></div>
+        <div class="city">Bogotá · líder nacional confirmado en 4 de 5 fuentes</div>
+        <blockquote class="pos">"El filtro de agua es grandioso, no consume energía... se siente el cambio en el sabor."</blockquote>
+      </div>
+      <div class="comp-card">
+        <div class="top"><h4>Filtros y Ozono Barranquilla</h4><span class="rating mono">4.7 ★ · 22</span></div>
+        <div class="city">Barranquilla · mejor calificado localmente</div>
+        <blockquote class="neg">"No tienen un servicio de atención competente. Me han reprogramado 2 veces..."</blockquote>
+      </div>
+      <div class="comp-card">
+        <div class="top"><h4>PureWater Colombia SAS</h4><span class="rating mono">4.8 ★ · 42</span></div>
+        <div class="city">Villamaría, Caldas</div>
+        <blockquote class="neg">"Pésimo servicio al cliente... si no me gusta el servicio que busque otra empresa."</blockquote>
+      </div>
+      <div class="comp-card">
+        <div class="top"><h4>OzonoLux de Colombia</h4><span class="rating mono">4.7 ★ · 75</span></div>
+        <div class="city">Bogotá</div>
+        <blockquote class="neg">"Dicen instalación gratuita y salen con el cuento de que uno tiene que tenerle todo listo."</blockquote>
+      </div>
+      <div class="comp-card">
+        <div class="top"><h4>Mountain Water SAS</h4><span class="rating mono">5.0 ★ · 9</span></div>
+        <div class="city">Sin ubicación pública</div>
+        <blockquote class="pos">"Se presentó un problema... lo atendieron de manera rápida y oportuna. Super recomendados."</blockquote>
+      </div>
+      <div class="comp-card">
+        <div class="top"><h4>Filtroaguas</h4><span class="rating mono">3.9 ★ · 30</span></div>
+        <div class="city">Bogotá · el peor calificado con volumen relevante</div>
+        <blockquote class="neg">"Información falsa, no están ubicados donde dicen, no contestan."</blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section id="precios">
+    <div class="section-head prose">
+      <div class="section-num">03 — Precios de referencia</div>
+      <h2 class="section-title">Bandas de precio por tecnología (Mercado Libre Colombia)</h2>
+      <p class="section-intro">Los tres niveles del portafolio de Blufil tienen equivalentes directos ya posicionados en el mercado colombiano. Ecotrade y Keykel operan como tiendas oficiales en el segmento de entrada.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="prices">
+        <thead><tr><th>Tecnología</th><th>Rango de precio (COP)</th><th>Referencia típica</th><th>Jugador dominante</th></tr></thead>
+        <tbody>
+          <tr><td>Doble filtración</td><td class="price">$80.000 – $900.000</td><td class="price">~$200.000</td><td>Ecotrade <span class="leader-badge">tienda oficial</span></td></tr>
+          <tr><td>Ultrafiltración</td><td class="price">$215.000 – $2.515.000</td><td class="price">~$350.000</td><td>Ecotrade <span class="leader-badge">1.000+ vendidos</span></td></tr>
+          <tr><td>Ósmosis inversa</td><td class="price">$667.000 – $2.260.000</td><td class="price">~$1.100.000–$1.700.000</td><td>Waterdrop, sin distribuidor CO dominante</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-intro" style="margin-top:18px;">Retail masivo (Homecenter/Falabella) ya vende versiones de entrada de "purificador" desde $150.000 — no es competencia técnica directa, pero fija el ancla de precio bajo que un comprador desinformado usa para comparar contra un sistema real de ósmosis inversa.</p>
+  </section>
+
+  <section id="voz-cliente">
+    <div class="section-head prose">
+      <div class="section-num">04 — Voz del cliente</div>
+      <h2 class="section-title">Lo que nadie cuenta hasta que ya compró</h2>
+      <p class="section-intro">Las reseñas de Amazon —más largas y detalladas que las de Mercado Libre— exponen fricciones de producto que ningún anuncio menciona. Cubren los tres niveles del portafolio de Blufil: doble filtración, ultrafiltración y ósmosis inversa, con marcas específicas señaladas por el usuario (Waterdrop, iSpring, iFilters). Se muestran junto a su equivalente en reseñas de Google Maps cuando el mismo patrón se repite en Colombia.</p>
+    </div>
+
+    <div class="pain-list">
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Producto · Amazon</span>
+          <h4>Cambiar el filtro es un calvario</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"You're expected to completely uninstall the product... redo the ENTIRE PROCESS." — reseña 1★, Waterdrop TST-UF</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> el mantenimiento programado ya es parte del modelo de negocio declarado — convertirlo en argumento de venta explícito ("nosotros cambiamos tu filtro, tú no tienes que desarmar nada") es un diferenciador directo contra el DIY que domina Mercado Libre y Amazon.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Servicio · Google Maps</span>
+          <h4>Nadie contesta el teléfono</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Uno llama a todos los números de contacto y nunca contestan." — Caliaguas, Cali</q>
+            <q>"No atienden, te tiran el teléfono cuando uno está solicitando asesoría." — Filtros y Ozono Barranquilla</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> el proceso de ventas ya definido (WhatsApp → calificación → diagnóstico) resuelve esto de raíz si se opera con SLA de respuesta visible — es el pain point más citado de las cinco fuentes.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Marketing · Amazon</span>
+          <h4>Promesas que no se sostienen</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Dishonest claims about 1000's of substances removed... certified tests include only 16-18." — DREO RO, reseña 4★</q>
+            <q>"Does NOT filter anything... water is actually dirtier than tap water." — Ecoviva UF, reseña 1★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> comunicar solo lo que la certificación del fabricante respalda, y mostrar la comparativa de tecnologías (ya redactada en el plan de negocios) como prueba de transparencia frente a competidores que exageran.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Durabilidad · Amazon</span>
+          <h4>Fugas y fisuras después de 1–2 años</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"My first one cracked after about two years at the fittings... it just burst." — reseña APEC ROES-PH75, 4★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> una garantía extendida explícita sobre conexiones y carcasa —no solo sobre la membrana— ataca un miedo real que casi ningún competidor colombiano menciona en su ficha de producto.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Dimensionamiento · Amazon</span>
+          <h4>El sistema queda pequeño para el hogar real</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"The system was too small for my house after a significant drop in water pressure... wish the item description was more clear on sizing." — reseña iSpring, 4★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> las preguntas de calificación ya incluyen "¿cuántas personas viven en el hogar?" — usarlas para recomendar explícitamente la tecnología correcta es una ventaja que el e-commerce puro no puede ofrecer.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Confianza · Ambas</span>
+          <h4>Cotizaciones que nunca llegan</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Se les pidió una cotización que nunca enviaron a pesar de tratar de comunicarme en repetidas ocasiones." — Ozono Pura, Villavicencio, 1★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> un flujo de cotización con tiempo de respuesta comprometido (ej. "cotización en menos de 2 horas") convierte una queja universal en una promesa de marca verificable.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Repuestos · Amazon</span>
+          <h4>Repuestos propietarios que atrapan al cliente</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Their inferior filters are shorter and aren't compatible with any other unit... this seller is dishonest for deliberately concealing this." — iFilters 2 etapas, reseña 1★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> comunicar explícitamente que los cartuchos son de medida estándar (no propietaria) es una garantía de transparencia que ningún competidor está usando como argumento de venta — convierte un candado comercial típico del sector en una promesa de marca.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Lealtad · Amazon + Maps</span>
+          <h4>El técnico con nombre propio es lo que convierte una queja en un fan</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Shout out to Becky, who stayed on top of things all the way through." — Waterdrop UF, reseña 5★</q>
+            <q>"Nick was very helpful... he took good care of me and made sure my system was fixed." — iSpring RO, reseña 5★</q>
+            <q>"Que nivel! Excelente servicio el del señor Julio." — Filtros de agua Barranquilla, Google Maps</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> patrón confirmado en tres fuentes distintas (Amazon US, Google Maps Colombia local y nacional) — el cliente no recuerda la marca, recuerda al técnico por su nombre. Asignar un técnico identificado con nombre visible desde la primera cotización es la palanca de retención más barata y mejor respaldada de todo el estudio.</div>
+        </div>
+      </div>
+
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Precio de instalación · Amazon</span>
+          <h4>La instalación profesional cara empuja al DIY riesgoso</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Called 2 plumbers... lowest price was $450. I decided I was gonna SharkBite this piece of art myself." — iFilters 2 etapas, reseña 5★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> el modelo de Blufil ya incluye instalación en el paquete — hacer el precio de instalación visible y competitivo antes de la cotización evita que el cliente se autoexcluya del servicio profesional (y de las fugas que trae el DIY, ver arriba).</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="publicidad">
+    <div class="section-head prose">
+      <div class="section-num">05 — Publicidad activa</div>
+      <h2 class="section-title">El molde creativo que ya está funcionando</h2>
+      <p class="section-intro">De los anuncios activos en la categoría (excluyendo publicidad de salud ajena que aparece por coincidencia de palabra clave), tres patrones se repiten: diseño/estética como argumento de venta, especificaciones técnicas como prueba de credibilidad, y WhatsApp como único CTA.</p>
+    </div>
+    <div class="ad-grid">
+      <div class="ad-card">
+        <div class="brand">Ecotrade</div>
+        <div class="angle">Diseño + precisión técnica</div>
+        <p>"La ciencia de la pureza en el diseño más elegante... membrana de fibra hueca de 0.01 micras." Posiciona el filtro como objeto de diseño, no solo utilitario.</p>
+      </div>
+      <div class="ad-card">
+        <div class="brand">MyWater Filtros de Agua</div>
+        <div class="angle">Salud familiar + precio visible</div>
+        <p>"¿Todavía tomas agua de la llave?" — declara precio en el propio anuncio ($555.000) y enfatiza minerales/pH junto con estética decorativa de vidrio.</p>
+      </div>
+      <div class="ad-card">
+        <div class="brand">Agualogic</div>
+        <div class="angle">Artesanal + respaldo científico</div>
+        <p>"Fabricado por manos artesanas... comprobado y respaldado científicamente." CTA directo a WhatsApp, sin landing page.</p>
+      </div>
+      <div class="ad-card">
+        <div class="brand">Filtros AyZ</div>
+        <div class="angle">Cobertura nacional B2B + B2C</div>
+        <p>"Estamos en Bogotá y hacemos envíos a toda Colombia." Mensaje funcional, sin diferenciación emocional — el hueco que Blufil puede ocupar con la narrativa de servicio.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="dolor-solucion">
+    <div class="section-head prose">
+      <div class="section-num">06 — Síntesis</div>
+      <h2 class="section-title">Dolor recurrente → respuesta de marca</h2>
+      <p class="section-intro">Cruzando las cinco fuentes, estos son los pain points que aparecen en más de una plataforma — la evidencia más sólida para construir mensajes de marca.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="prices">
+        <thead><tr><th>Pain point recurrente</th><th>Fuentes donde aparece</th><th>Respuesta de Blufil</th></tr></thead>
+        <tbody>
+          <tr><td>No contestan / reprograman sin avisar</td><td class="price">Maps (CO) ×5</td><td>SLA de respuesta visible en WhatsApp</td></tr>
+          <tr><td>Mantenimiento/cambio de filtro es complicado</td><td class="price">Amazon, plan de negocios</td><td>Mantenimiento programado incluido, sin DIY</td></tr>
+          <tr><td>Promesas de filtración exageradas</td><td class="price">Amazon, anuncios FB</td><td>Comunicar solo lo certificado por fabricante</td></tr>
+          <tr><td>Fugas / fisuras después de 1–2 años</td><td class="price">Amazon</td><td>Garantía extendida en conexiones, no solo membrana</td></tr>
+          <tr><td>Sistema mal dimensionado para el hogar</td><td class="price">Amazon</td><td>Diagnóstico obligatorio antes de cotizar</td></tr>
+          <tr><td>Cotización que nunca llega</td><td class="price">Maps (CO)</td><td>Cotización con tiempo de respuesta comprometido</td></tr>
+          <tr><td>Repuestos propietarios que atrapan al cliente</td><td class="price">Amazon</td><td>Cartuchos de medida estándar, comunicado explícitamente</td></tr>
+          <tr><td>El técnico con nombre propio genera lealtad</td><td class="price">Amazon (US) ×2, Maps (CO) ×3</td><td>Técnico identificado por nombre desde la cotización</td></tr>
+          <tr><td>Instalación cara empuja al DIY riesgoso</td><td class="price">Amazon</td><td>Precio de instalación visible y competitivo</td></tr>
+          <tr><td>Dejar de comprar botellones es el motivador #1</td><td class="price">Maps, Amazon, SERP</td><td>Mensaje central de campaña, no solo mención lateral</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="personas">
+    <div class="section-head prose">
+      <div class="section-num">07 — Buyer personas</div>
+      <h2 class="section-title">Construidos con evidencia, no con supuestos</h2>
+      <p class="section-intro">Cada rasgo está respaldado por lenguaje real encontrado en reseñas o comportamiento de búsqueda — no son arquetipos genéricos de agencia.</p>
+    </div>
+    <div class="persona-grid">
+      <div class="persona-card">
+        <div class="persona-name">Marcela, la que dejó el botellón</div>
+        <div class="persona-tagline">32–45 años · madre, apartamento o casa en conjunto</div>
+        <div class="persona-facts"><span>Doble filtración → UF</span><span>Decide por salud de los hijos</span><span>Busca en Instagram/TikTok</span></div>
+        <dl>
+          <dt>Motivador</dt><dd>"De comprar montones de botellones a la tranquilidad del agua pura en casa" — quiere dejar de cargar botellones y confiar en el agua para teteros.</dd>
+          <dt>Miedo</dt><dd>Que el vendedor le exagere lo que el filtro realmente hace (eco directo de las quejas de marketing engañoso en Amazon).</dd>
+          <dt>Qué la convierte</dt><dd>Un técnico con nombre propio que explica el proceso — el mismo patrón que generó las reseñas 5★ más largas en Google Maps ("el señor Julio", "don Luis").</dd>
+        </dl>
+      </div>
+      <div class="persona-card">
+        <div class="persona-name">Rodrigo, el racional de acueducto</div>
+        <div class="persona-tagline">40–60 años · propietario de vivienda, decide por costo total</div>
+        <div class="persona-facts"><span>Ósmosis inversa</span><span>Compara precio vs. acueducto</span><span>Busca en Google, no en redes</span></div>
+        <dl>
+          <dt>Motivador</dt><dd>"Sus precios son muy buenos en comparación al acueducto" — evalúa el sistema como inversión de largo plazo, no como capricho.</dd>
+          <dt>Miedo</dt><dd>Quedar atado a mantenimiento caro o a una marca que no responde cuando algo falla (el pain point #1 de Maps).</dd>
+          <dt>Qué lo convierte</dt><dd>Comparativa técnica clara (como la de la sección 3.4 del plan de negocios) y garantía explícita sobre fugas/conexiones.</dd>
+        </dl>
+      </div>
+      <div class="persona-card">
+        <div class="persona-name">Andrea, la de agua dura y mascotas</div>
+        <div class="persona-tagline">28–40 años · conjunto residencial, sin experiencia previa</div>
+        <div class="persona-facts"><span>Ultrafiltración</span><span>Preocupada por sarro y olor</span><span>Decide rápido si hay confianza</span></div>
+        <dl>
+          <dt>Motivador</dt><dd>Nota sedimentos y mal sabor a diario; en reseñas comparables, la mejora es "inmediata... se nota especialmente en el sabor del café."</dd>
+          <dt>Miedo</dt><dd>Que instalar algo nuevo cause una fuga o dañe la cocina — instalación limpia y sin dramas es el filtro de decisión.</dd>
+          <dt>Qué la convierte</dt><dd>Ver antes/después tangible (comparable al display de TDS que generó las reseñas más entusiastas en Amazon) y una cita de instalación cumplida a la hora exacta.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="recomendaciones">
+    <div class="section-head prose">
+      <div class="section-num">08 — Recomendaciones</div>
+      <h2 class="section-title">Qué hacer con esto primero</h2>
+    </div>
+    <div class="rec-list">
+      <div class="rec-item">
+        <div>
+          <h4>Asignar un técnico identificado por nombre desde la primera cotización</h4>
+          <p>Es el hallazgo con más respaldo cruzado de todo el estudio: aparece en reseñas de Amazon US (Becky, Nick, Robert, Laurence, Julius) y en Google Maps Colombia (el señor Julio, don Luis, Sergio Valencia) por igual. El cliente no fideliza con la marca, fideliza con la persona que lo atendió.</p>
+          <span class="impact">Evidencia más fuerte del estudio</span>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div>
+          <h4>Convertir el SLA de respuesta en promesa de marca visible</h4>
+          <p>Es el pain point más repetido entre las cinco fuentes. Un compromiso simple ("respondemos en menos de 30 minutos en horario laboral") en la web y en WhatsApp neutraliza la queja #1 del mercado antes de que ocurra.</p>
+          <span class="impact">Alto impacto · bajo costo</span>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div>
+          <h4>Vigilar a Ecotrade como benchmark, no como amenaza directa inmediata</h4>
+          <p>Domina precio de entrada y SEO nacional, pero no tiene presencia local fuerte en Barranquilla. Blufil puede ganar el mercado piloto sin competir de frente por tráfico nacional todavía.</p>
+          <span class="impact">Estratégico</span>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div>
+          <h4>Hacer del mantenimiento "sin DIY" un pilar de contenido, no una nota al pie</h4>
+          <p>El pain point de cambio de filtro complicado apareció espontáneamente en la reseña más detallada de todo el estudio. Ningún competidor colombiano lo está usando como mensaje central todavía.</p>
+          <span class="impact">Diferenciador claro</span>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div>
+          <h4>Ofrecer garantía explícita sobre conexiones/carcasa, no solo sobre la membrana</h4>
+          <p>Las fugas después de 1–2 años son el miedo latente que ningún anuncio activo menciona — es un vacío de confianza ocupable de inmediato.</p>
+          <span class="impact">Diferenciador claro</span>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div>
+          <h4>Usar las preguntas de calificación ya definidas como "diagnóstico visible" en el sitio</h4>
+          <p>El mal dimensionamiento del sistema fue una queja recurrente en Amazon. Mostrar el proceso de asesoría antes de cotizar es prueba de que Blufil no vende de más.</p>
+          <span class="impact">Medio impacto</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="expansion">
+    <div class="section-head prose">
+      <div class="section-num">09 — Expansión de línea</div>
+      <h2 class="section-title">Blufil entra a dos mercados: residencial + industrial/B2B</h2>
+      <p class="section-intro">Tres productos nuevos amplían el portafolio más allá del hogar: un dispensador sin botellón (variante premium residencial), filtración industrial a la medida y una planta desalinizadora móvil — esta última con encaje geográfico directo en Puerto Colombia, uno de los tres mercados piloto.</p>
+    </div>
+
+    <div class="scope-grid" style="grid-template-columns: 1fr;">
+      <div class="scope-card">
+        <span class="tag">9.1 · Residencial premium</span>
+        <h3>Dispensador de agua sin botellón — doble filtración</h3>
+        <p style="margin-top:14px;">Blufil vende su propio dispensador (base Sankey + retrofit de doble filtración: polipropileno + carbón activado) a <strong class="mono">$1.090.000 COP</strong>.</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:22px;">
+      <table class="prices">
+        <thead><tr><th>Competidor / referencia</th><th>Precio</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td>Blufil (dispensador + doble filtración)</td><td class="price">$1.090.000 COP</td><td>Precio propio</td></tr>
+          <tr><td>EEDCOL — dispensador sin botellón</td><td class="price">$1.993.000 COP</td><td>Casi el doble del precio de Blufil</td></tr>
+          <tr><td>Culligan Colombia</td><td class="price">Modelo renta</td><td>No vende, arrienda el equipo</td></tr>
+          <tr><td>Retail masivo (Éxito, Falabella)</td><td class="price">$359.900 – $639.900 COP</td><td>Solo oculta el botellón, sin filtración real</td></tr>
+          <tr><td>Mercado Libre CO (búsqueda "dispensador sin botellón")</td><td class="price">$14.000 – $52.000 COP</td><td>Son bombas para botellón, no el mismo producto — canal sin competencia directa real</td></tr>
+          <tr><td>Referencia Amazon US (Brio, Avalon, iSpring — 10 productos, 88 reseñas)</td><td class="price">$164 – $497 USD</td><td>Brio/Avalon: 3.6–3.9★ pese a 500+ reseñas — problema de confiabilidad conocido</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pain-list" style="margin-top:20px;">
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Confiabilidad · Amazon</span>
+          <h4>El compresor de enfriamiento falla al año</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Upon the 1 year mark the unit starts freezing the water tank turning it into a block of ice... DONT BUY THIS UNIT." — Brio, reseña 1★</q>
+            <q>"The cooling component went out after about a year... customer support was excellent, sent a brand new replacement no questions asked." — Brio, reseña 5★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> es un patrón de categoría, no de una marca — una garantía explícita sobre el compresor/enfriamiento (no solo sobre los filtros) sería un diferenciador verificable frente a EEDCOL y el retail masivo, que no lo comunican.</div>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-label">
+          <span class="src">Instalación · Amazon</span>
+          <h4>Conexiones plásticas no estándar</h4>
+        </div>
+        <div>
+          <div class="pain-quotes">
+            <q>"Comes with cheap plastic fittings that can't be connected to a normal waterline out of the wall... skip this one." — iSpring DS4S, reseña 1★</q>
+          </div>
+          <div class="pain-solution"><b>Oportunidad Blufil:</b> mismo patrón que el pain point de repuestos propietarios visto en filtros (sección 4) — confirmar accesorios de conexión estándar es una garantía de transparencia replicable en esta línea.</div>
+        </div>
+      </div>
+    </div>
+    <p class="section-intro" style="margin-top:8px;">Nuevamente aparece el patrón más fuerte del estudio: en las reseñas 5★ de Brio e iSpring para esta categoría, los clientes agradecen por nombre a los representantes de soporte (Matt, Nick, Julius) — cuarta categoría de producto distinta donde se repite exactamente el mismo comportamiento.</p>
+
+    <div class="scope-grid" style="grid-template-columns: 1fr; margin-top:44px;">
+      <div class="scope-card national">
+        <span class="tag">9.2 · Industrial / B2B</span>
+        <h3>Filtración industrial a la medida</h3>
+        <p style="margin-top:14px;">Referencia de guía: Purimanantial (Guatemala) — sistemas de caudales de 5 a 300+ GPM para restaurantes, farmacéutica (desmineralizadores de laboratorio), condominios de alto consumo e industria general. Sin precios públicos — todo se cotiza a la medida.</p>
+      </div>
+    </div>
+    <p class="section-intro" style="margin-top:16px;">En Colombia el mercado B2B está tan fragmentado como el residencial, pero sin un líder nacional equivalente a Ecotrade: 25+ empresas identificadas en Google Maps, ninguna con presencia dominante. Referencias de precio encontradas en Mercado Libre/SERP: planta UV de 600 galones ≈ <span class="mono">$3.820.000 COP</span>, membrana industrial LP4040 ≈ <span class="mono">$1.190.000 COP</span> — el resto se cotiza directamente.</p>
+    <div class="comp-grid" style="margin-top:8px;">
+      <div class="comp-card"><div class="top"><h4>Synertech Treatment Solutions</h4><span class="rating mono">4.6 ★ · 58</span></div><div class="city">Barranquilla — ya identificado también en el mercado residencial</div></div>
+      <div class="comp-card"><div class="top"><h4>AGUATEC S.A.S.</h4><span class="rating mono">4.9 ★ · 27</span></div><div class="city">Medellín — mejor calificado del segmento industrial</div></div>
+      <div class="comp-card"><div class="top"><h4>EUROFIL — Fábrica de Filtros</h4><span class="rating mono">4.7 ★ · 39</span></div><div class="city">Bogotá</div></div>
+      <div class="comp-card"><div class="top"><h4>Ingeaguas S.A.S</h4><span class="rating mono">4.5 ★ · 22</span></div><div class="city">Itagüí</div></div>
+      <div class="comp-card"><div class="top"><h4>SAI WATER — Ingeniería del agua</h4><span class="rating mono">5.0 ★ · 11</span></div><div class="city">Cali</div></div>
+      <div class="comp-card"><div class="top"><h4>DISIN S.A.</h4><span class="rating mono">4.5 ★ · 8</span></div><div class="city">Bogotá</div></div>
+    </div>
+    <div class="pain-card" style="margin-top:20px; grid-template-columns: 1fr;">
+      <div class="pain-label"><span class="src">Lead estratégico · Maps</span><h4 style="color:var(--positive);">Parque Industrial Malambo (PIMSA) — a un municipio de Barranquilla</h4></div>
+      <div class="pain-solution" style="margin-top:0; border-top:none; padding-top:0;">178 reseñas en Google Maps, ubicado en Atlántico — el mismo departamento del mercado piloto de Blufil. Es un cliente institucional potencial (tratamiento de agua para las empresas que operan dentro del parque) que no requiere expansión geográfica para atenderlo.</div>
+    </div>
+
+    <div class="scope-grid" style="grid-template-columns: 1fr; margin-top:44px;">
+      <div class="scope-card national">
+        <span class="tag">9.3 · Industrial / CAPEX</span>
+        <h3>Planta desalinizadora móvil (ósmosis inversa de agua de mar)</h3>
+        <p style="margin-top:14px;">Producto de referencia (Alibaba + ficha técnica del fabricante): modelo <strong>SPF-SW-0.5T</strong>, 500 L/h, 4kW, 110/220/380V, 1400×650×1680mm. Fabricante: Shandong Pingfanghuan Environmental Protection Technology — 2 años en Alibaba, 5.0★ pero solo 4 pedidos registrados (proveedor nuevo, poco probado comercialmente).</p>
+        <p style="margin-top:10px; font-size:14.5px; color:var(--ink-muted);">La ficha técnica sí muestra ingeniería seria por componente: bomba de agua cruda 316L (South Pump), filtro multimedia FRP de 50kg de lecho, bomba de alta presión en acero dúplex 2507 con variador de frecuencia, 3 membranas de ósmosis inversa <strong>Huitong SW-4040</strong>, control por PLC, y sistema de dosificación antiincrustante. El riesgo identificado es comercial (proveedor nuevo en Alibaba), no de diseño del equipo.</p>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="margin-top:20px;">
+      <table class="prices">
+        <thead><tr><th>Referencia (capacidad)</th><th>Precio</th><th>Fuente</th></tr></thead>
+        <tbody>
+          <tr><td>Planta 500 L/h ofrecida ya en Colombia</td><td class="price">$10.000 USD</td><td>Revendedor colombiano, SERP</td></tr>
+          <tr><td>Planta portátil 300 L/h (Alibaba, comparable)</td><td class="price">$6.682 USD</td><td>Zhengzhou Winto — 5★</td></tr>
+          <tr><td>Sistema móvil FRP 250 L/h para resort</td><td class="price">$8.696 – $10.034 USD</td><td>Alibaba — sin historial de pedidos</td></tr>
+          <tr><td>Planta contenerizada 20.000 LPD (mayor escala)</td><td class="price">$602 – $1.003 USD <span class="leader-badge" style="background:var(--warn-soft);color:var(--warn);">verificar MOQ</span></td><td>Fujian Huamo — 6 años gold supplier, 4.6★</td></tr>
+          <tr><td>Planta contenerizada 200 m³/día</td><td class="price">$193.974 USD</td><td>Jiangmen Longning — 9 años gold supplier</td></tr>
+          <tr><td>Costo operativo, proyectos costeros pequeños</td><td class="price">$2 – $5 / m³</td><td>SERP — vs. $0,30–0,40/m³ a gran escala</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-intro" style="margin-top:18px;">El encaje geográfico es directo: <strong>Puerto Colombia</strong> es costero y ya es uno de los tres mercados piloto de Blufil — hoteles, fincas costeras y comunidades con acueducto poco confiable en el Caribe colombiano son el comprador natural de este producto. Antes de comprometer la línea, vale la pena cotizar con 2–3 proveedores adicionales de mayor trayectoria (varios con 9–16 años como gold supplier aparecieron en la comparación) — el proveedor del link original tiene apenas 4 pedidos registrados.</p>
+  </section>
+
+  <section id="voz-real">
+    <div class="section-head prose">
+      <div class="section-num">10 — Fuente propia</div>
+      <h2 class="section-title">Voz del cliente real: WhatsApp de Blufil</h2>
+      <p class="section-intro">Diez conversaciones reales de WhatsApp Business (2023–2026) entre Blufil y clientes del mercado piloto de Barranquilla. Es la fuente más valiosa de todo el estudio — no es inferencia sobre reseñas ajenas, es la operación real de Blufil. Se anonimizó todo el contenido: nombres, teléfonos, direcciones y números de identificación no se incluyen en este reporte ni en ningún archivo del proyecto.</p>
+    </div>
+
+    <div class="pain-card" style="grid-template-columns: 1fr; border-color: var(--warn);">
+      <div class="pain-label"><span class="src" style="color:var(--warn);">Hallazgo que hay que enfrentar de una vez</span><h4>Blufil y "Filtros Americanos" son la misma operación</h4></div>
+      <div class="pain-solution" style="margin-top:0; border-top:none; padding-top:0;">Las conversaciones confirman que Blufil opera con el mismo WhatsApp Business y el mismo equipo que <strong>Filtros Americanos</strong> — la marca que en la sección 02 de este estudio aparece en Google Maps con <strong>3.4★</strong> y la reseña "estoy llamando y no contestan". El rebranding a Blufil no es solo estético: es la oportunidad de resolver, con nombre nuevo, la reputación que la marca actual ya tiene documentada públicamente.</div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:28px;">
+      <table class="prices">
+        <thead><tr><th>Producto / servicio</th><th>Precio real cobrado</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td>Doble filtración sencilla</td><td class="price">$350.000 COP</td><td>Instalación incluida</td></tr>
+          <tr><td>Sistema de ultrafiltración</td><td class="price">$450.000 – $460.000 COP</td><td>Incluye instalación + 1 año de garantía</td></tr>
+          <tr><td>Sistema de ósmosis inversa</td><td class="price">$1.650.000 COP</td><td></td></tr>
+          <tr><td>Purificador de ozono</td><td class="price">$270.000 COP</td><td>Requiere filtro de sedimentos adicional para ser efectivo</td></tr>
+          <tr><td>Mantenimiento ultrafiltración (básico)</td><td class="price">$170.000 – $190.000 COP</td><td>Precio negociado caso por caso en la conversación</td></tr>
+          <tr><td>Mantenimiento con cambio de membrana UV/adaptador</td><td class="price">$210.000 – $220.000 COP</td><td></td></tr>
+          <tr><td>Cambio de repuesto individual (pluma, filtro suelto)</td><td class="price">$45.000 – $155.000 COP</td><td>Según pieza</td></tr>
+          <tr><td>Reinstalación por mudanza</td><td class="price">$60.000 COP</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pain-list" style="margin-top:24px;">
+      <div class="pain-card">
+        <div class="pain-label"><span class="src">Confirmado en operación real</span><h4>El pain point #1 de la competencia ya le pasó a Blufil</h4></div>
+        <div>
+          <div class="pain-quotes">
+            <q>Cliente esperando en la dirección acordada a la hora pactada: "¿A qué horas llega el señor del servicio? Ya estoy en la casa esperándolo." Respuesta de Blufil: "Que pena, el técnico ha tenido unos contratiempos y no ha podido llegar a su dirección."</q>
+          </div>
+          <div class="pain-solution">Es exactamente el pain point identificado contra la competencia en la sección 6 — pero ocurrió en la propia operación de Blufil, no en la de un competidor. Confirma que el SLA de respuesta visible (recomendación #2) no es un "nice to have" preventivo, es una corrección urgente.</div>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-label"><span class="src">Confirmado en operación real</span><h4>Fuga post-instalación, la misma queja que en Amazon</h4></div>
+        <div>
+          <div class="pain-quotes">
+            <q>Cliente, días después de una instalación: "Por el botón del segundo filtro se fuga de agua." Blufil resolvió enviando solo la pieza dañada para reemplazo.</q>
+          </div>
+          <div class="pain-solution">Confirma directamente el pain point de fugas en conexiones visto en las reseñas de Amazon (sección 4) — esta vez en un cliente real de Blufil, no en un competidor extranjero. La resolución fue rápida y sin costo, lo cual valida que el servicio postventa ya funciona bien cuando se activa; el problema es evitar que ocurra, no la respuesta cuando ocurre.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scope-grid" style="margin-top:32px;">
+      <div class="scope-card">
+        <span class="tag" style="background:var(--positive-soft); color:var(--positive);">Ya funciona</span>
+        <h3>Prácticas a formalizar</h3>
+        <p style="margin-top:10px;">Recordatorios proactivos de mantenimiento por WhatsApp cada pocos meses ya están implementados. El personal ya se identifica por nombre propio en cada conversación — el patrón que este estudio identificó como el hallazgo más fuerte (sección 4) ya ocurre de forma orgánica; falta convertirlo en política explícita. El envío nacional vía transportadora con autoinstalación guiada ya se ofrece de forma informal a clientes fuera de Barranquilla — es la base operativa para escalar al mercado nacional sin desplazar técnicos a cada ciudad desde el primer día.</p>
+      </div>
+      <div class="scope-card" style="border-color: var(--warn);">
+        <span class="tag" style="background:var(--warn-soft); color:var(--warn);">Corregir</span>
+        <h3>Riesgos operativos reales</h3>
+        <p style="margin-top:10px;">El descuento se negocia caso por caso dentro de la conversación ("¿cuál sería el último precio?") — sin una política escrita, esto erosiona margen de forma inconsistente y puede generar percepción de precio arbitrario si dos clientes comparan. El primer mensaje de casi todos los leads que llegan por anuncios de Meta es solo "¿valor?" — confirma que el copy de los anuncios debería anticipar el precio o el rango en vez de forzar toda la conversación solo para revelarlo.</p>
+      </div>
+    </div>
+
+    <p class="section-intro" style="margin-top:28px;">Un cliente de la muestra mantiene relación con Blufil desde 2023: instalación inicial, mantenimiento al año siguiente, reinstalación tras una mudanza, y un nuevo servicio en 2026 — validación directa de que el modelo de ingresos recurrentes del plan de negocios (mantenimiento, repuestos, recompra) ya funciona en la práctica, no es solo una proyección.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap prose">
+    <p>Fuentes: Google Maps (compass/crawler-google-places), Mercado Libre Colombia (karamelo/mercadolibre-scraper), Amazon US (igview-owner/amazon-review-scraper, cryptosignals/amazon-scraper), Google Search (apidojo/google-search-scraper), Meta Ad Library (apify/facebook-ads-scraper), Alibaba (getdataforu/alibaba-1-or-many-product-scraper, devcake/alibaba-products-scraper) y 10 conversaciones reales de WhatsApp Business de Blufil (2023–2026, anonimizadas). Referencia adicional: purimanantial.com (filtración industrial, Guatemala). Recolección: agosto 2026. Las citas se reproducen tal como aparecen públicamente en cada plataforma; las conversaciones de WhatsApp se citan sin datos identificables.</p>
+  </div>
+</footer>

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blufil | Filtracion de agua en Barranquilla y Colombia</title>
+<meta name="description" content="Sistemas de filtracion y osmosis inversa instalados por un tecnico identificado por nombre, con garantia extendida y mantenimiento programado. Cotiza por WhatsApp.">
+<link rel="canonical" href="https://blufil.com/">
+<meta name="theme-color" content="#123c5b">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Blufil">
+<meta property="og:title" content="Blufil | Filtracion de agua en Barranquilla y Colombia">
+<meta property="og:description" content="Agua limpia en tu casa, sin volver a cargar un botellon. Tecnico identificado por nombre, garantia extendida y mantenimiento programado.">
+<meta property="og:image" content="https://blufil.com/assets/favicon-512.png">
+<meta property="og:url" content="https://blufil.com/">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<style>
+  :root{
+    --bg:#f8fafc;
+    --surface:#ffffff;
+    --surface-alt:#eef3f7;
+    --ink:#0c1420;
+    --text:#1c2733;
+    --muted:#5c6b7a;
+    --line:#dde6ed;
+    --line-strong:#c3d2dd;
+
+    --marine:#123c5b;
+    --marine-deep:#0a2740;
+    --cyan:#0e93bc;
+    --cyan-bright:#1ebbeb;
+    --marine-soft:#e4edf3;
+    --cyan-soft:#e1f6fb;
+
+    --dolor:#a8402a;
+    --dolor-soft:#fbeae3;
+    --solucion:#0e93bc;
+    --solucion-soft:#e1f6fb;
+
+    --good:#1e8a5f;
+    --good-soft:#e3f4ec;
+
+    --shadow: 0 20px 60px -30px rgba(20,50,70,.35);
+    --radius: 14px;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d1420; --surface:#141d2b; --surface-alt:#1a2433;
+      --ink:#f2f5f8; --text:#dde4ea; --muted:#8a97a6;
+      --line:#26313f; --line-strong:#384656;
+      --marine:#5b9bd5; --marine-deep:#9cc3e8; --cyan:#5fd3f2; --cyan-bright:#5fd3f2;
+      --marine-soft:#16283a; --cyan-soft:#17303a;
+      --dolor:#ff9478; --dolor-soft:#341f1a; --solucion:#5fd3f2; --solucion-soft:#17303a;
+      --good:#4fd39a; --good-soft:#123326;
+      --shadow: 0 24px 60px -28px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1420; --surface:#141d2b; --surface-alt:#1a2433;
+    --ink:#f2f5f8; --text:#dde4ea; --muted:#8a97a6;
+    --line:#26313f; --line-strong:#384656;
+    --marine:#5b9bd5; --marine-deep:#9cc3e8; --cyan:#5fd3f2; --cyan-bright:#5fd3f2;
+    --marine-soft:#16283a; --cyan-soft:#17303a;
+    --dolor:#ff9478; --dolor-soft:#341f1a; --solucion:#5fd3f2; --solucion-soft:#17303a;
+    --good:#4fd39a; --good-soft:#123326;
+    --shadow: 0 24px 60px -28px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  body{margin:0; background:var(--bg); color:var(--text); font-family:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif; color:var(--ink); text-wrap:balance; margin:0; letter-spacing:-.01em;}
+  .mono{font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;}
+  a{color:var(--marine-deep);}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+  @media (max-width:600px){ .wrap{padding:0 20px;} }
+  .wrap-narrow{max-width:800px; margin:0 auto; padding:0 28px;}
+  @media (max-width:600px){ .wrap-narrow{padding:0 20px;} }
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.is-visible{opacity:1; transform:none;}
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1; transform:none; transition:none;} }
+
+  /* ---------- placeholder note ---------- */
+  .ph-note{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); opacity:.75; text-transform:uppercase; letter-spacing:.06em; margin-top:8px; display:block;}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:9px; font-family:"Source Sans 3",sans-serif; font-weight:600;
+    font-size:.98rem; padding:14px 26px; border-radius:99px; text-decoration:none; border:1px solid transparent;
+    cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; white-space:nowrap;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--cyan-bright); color:#03222d; box-shadow:0 10px 30px -12px rgba(14,147,188,.55);}
+  .btn-primary:hover{box-shadow:0 16px 36px -10px rgba(14,147,188,.75); transform:translateY(-2px); background:#38c9f2;}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line-strong);}
+  .btn-ghost:hover{border-color:var(--marine); background:var(--marine-soft); color:var(--marine-deep); transform:translateY(-2px);}
+  .btn-dark{background:var(--marine-deep); color:#fff;}
+  .btn-dark:hover{background:var(--marine); transform:translateY(-2px); box-shadow:0 14px 30px -12px rgba(10,39,64,.5);}
+  .btn svg{width:18px;height:18px;flex:none;}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky; top:0; z-index:90; background:var(--surface); border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1080px; margin:0 auto; padding:0 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; height:60px;}
+  @media (max-width:600px){ .nav-inner{padding:0 20px;} }
+  .nav-brand{display:flex; align-items:center; gap:9px; font-family:"Fraunces",serif; font-weight:600; font-size:16px; color:var(--ink); flex:none;}
+  .nav-links{display:flex; gap:22px; flex:none;}
+  @media (max-width:760px){ .nav-links{display:none;} }
+  .nav-links a{position:relative; font-size:13.5px; color:var(--muted); text-decoration:none; font-weight:600; padding:4px 0; transition:color .18s ease;}
+  .nav-links a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:2px; background:linear-gradient(90deg,var(--marine),var(--cyan-bright)); transition:right .22s ease; border-radius:2px;}
+  .nav-links a:hover{color:var(--marine-deep);}
+  .nav-links a:hover::after{right:0;}
+  .nav-cta{flex:none;}
+
+  /* ---------- wave ---------- */
+  .wave{display:block; width:100%; height:56px; margin-top:-1px;}
+
+  /* ---------- flowing wave band ---------- */
+  .flow-band{position:relative; height:64px; overflow:hidden;}
+  .flow-band svg{position:absolute; top:0; left:0; height:100%; width:200%; animation:flow 16s linear infinite; will-change:transform;}
+  .flow-band svg.layer2{opacity:.55; animation-duration:24s; animation-direction:reverse;}
+  @keyframes flow{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .flow-band svg{animation:none;} }
+
+  /* ---------- hero ---------- */
+  .hero{position:relative; overflow:hidden; padding:64px 0 40px; isolation:isolate;}
+  .hero-glow{position:absolute; inset:-20% -10%; z-index:-1; pointer-events:none;}
+  .blob{position:absolute; border-radius:50%; filter:blur(44px); opacity:.4; animation:drift 22s ease-in-out infinite alternate; will-change:transform;}
+  .blob.b1{width:380px;height:380px; background:var(--marine); top:-140px; left:-100px;}
+  .blob.b2{width:340px;height:340px; background:var(--cyan-bright); top:40px; right:-160px; animation-delay:-9s;}
+  @media (prefers-reduced-motion: reduce){ .blob{animation:none;} }
+  @keyframes drift{ 0%{transform:translate(0,0) scale(1);} 100%{transform:translate(30px,40px) scale(1.12);} }
+
+  .hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:40px; align-items:center;}
+  @media (max-width:860px){ .hero-grid{grid-template-columns:1fr;} }
+
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--marine-deep); background:var(--marine-soft); border:1px solid var(--line-strong); padding:5px 12px; border-radius:99px; margin-bottom:22px;}
+  .hero h1{font-size:clamp(2.7rem, 6.4vw, 4.4rem); font-weight:600; max-width:14ch; line-height:1.04;}
+  .grad-text{background:linear-gradient(120deg, var(--marine) 15%, var(--cyan-bright) 85%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .hero .lede{font-size:1.15rem; color:var(--muted); max-width:50ch; margin-top:20px;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap; margin-top:28px;}
+  .trust-row{display:flex; flex-wrap:wrap; gap:18px 26px; margin-top:32px;}
+  .trust-item{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--muted);}
+  .trust-item svg{width:16px;height:16px;color:var(--cyan);flex:none;}
+
+  .hero-art{display:flex; align-items:center; justify-content:center;}
+  .glass-wrap{width:min(280px,80%);}
+
+  /* ---------- sections ---------- */
+  section{padding:60px 0;}
+  .alt{background:var(--surface-alt);}
+  .section-head{margin-bottom:34px; max-width:640px;}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
+  .section-num{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--cyan); letter-spacing:.14em; margin-bottom:14px; display:inline-flex; align-items:center; gap:10px;}
+  .section-num::before{content:""; width:28px; height:2px; background:linear-gradient(90deg,var(--marine),var(--cyan-bright)); display:inline-block; border-radius:2px;}
+  .section-head.center .section-num{justify-content:center;}
+  .section-head h2{font-size:clamp(1.9rem,4vw,2.6rem); font-weight:600; line-height:1.1;}
+  .section-head h2 em{font-style:italic; font-weight:500; color:var(--marine-deep);}
+  .section-head p{color:var(--muted); margin-top:14px; font-size:1.05rem;}
+
+  /* ---------- problema/solucion ---------- */
+  .ps-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:760px){ .ps-grid{grid-template-columns:1fr;} }
+  .ps-col-head{display:flex; align-items:center; gap:10px; margin-bottom:14px; font-family:"IBM Plex Mono",monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:600;}
+  .ps-col-head.dolor{color:var(--dolor);}
+  .ps-col-head.solucion{color:var(--solucion);}
+  .ps-item{display:flex; gap:12px; padding:16px 0; border-bottom:1px solid var(--line);}
+  .ps-item:last-child{border-bottom:none;}
+  .ps-item svg{width:20px;height:20px;flex:none; margin-top:2px;}
+  .ps-item.dolor svg{color:var(--dolor);}
+  .ps-item.solucion svg{color:var(--solucion);}
+  .ps-item p{margin:0; font-size:.95rem;}
+
+  /* ---------- pasos ---------- */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; counter-reset:step;}
+  @media (max-width:860px){ .steps{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .steps{grid-template-columns:1fr;} }
+  .step{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; position:relative; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;}
+  .step:hover{transform:translateY(-4px); border-color:var(--cyan-bright); box-shadow:var(--shadow);}
+  .step-icon{width:40px;height:40px; border-radius:10px; background:var(--cyan-soft); display:flex; align-items:center; justify-content:center; margin-bottom:14px; color:var(--marine-deep); transition:background .2s ease, color .2s ease;}
+  .step:hover .step-icon{background:var(--marine-deep); color:#fff;}
+  .step-icon svg{width:22px;height:22px;}
+  .step .num{position:absolute; top:18px; right:18px; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted);}
+  .step h3{font-size:1rem; font-weight:600; margin-bottom:6px;}
+  .step p{margin:0; font-size:.88rem; color:var(--muted);}
+
+  /* ---------- sistemas ---------- */
+  .systems{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:960px){ .systems{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .systems{grid-template-columns:1fr;} }
+  .sys-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:var(--shadow); transition:transform .22s ease, border-color .22s ease;}
+  .sys-card:hover{transform:translateY(-6px); border-color:var(--cyan-bright);}
+  .sys-card.featured{border-color:var(--cyan-bright); border-width:2px;}
+  .sys-card .sys-art{transition:background .22s ease, color .22s ease;}
+  .sys-card:hover .sys-art{background:var(--marine-deep); color:var(--cyan-bright);}
+  .sys-tag{position:absolute; top:14px; right:14px; background:var(--cyan-bright); color:#03222d; font-family:"IBM Plex Mono",monospace; font-size:10px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; padding:4px 10px; border-radius:99px;}
+  .sys-art{height:120px; display:flex; align-items:center; justify-content:center; background:var(--surface-alt); color:var(--marine);}
+  .sys-art svg{width:64px;height:64px;}
+  .sys-body{padding:20px; display:flex; flex-direction:column; gap:10px; flex:1;}
+  .sys-body h3{font-size:1.05rem; font-weight:600;}
+  .sys-body .desc{font-size:.85rem; color:var(--muted); margin:0;}
+  .sys-price{font-family:"IBM Plex Mono",monospace; font-size:1.15rem; color:var(--ink); margin-top:auto; padding-top:8px;}
+  .sys-includes{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:.82rem; color:var(--text);}
+  .sys-includes li{display:flex; gap:7px; align-items:flex-start;}
+  .sys-includes svg{width:14px;height:14px;color:var(--good); flex:none; margin-top:3px;}
+  .sys-card .btn{width:100%; justify-content:center; margin-top:4px;}
+
+  .value-stack{background:var(--marine-soft); border:1px solid var(--line-strong); border-radius:var(--radius); padding:22px 26px; margin-top:26px; display:flex; flex-wrap:wrap; gap:12px 28px; justify-content:center;}
+  .value-stack .vs-item{display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--text); font-weight:600;}
+  .value-stack svg{width:16px;height:16px;color:var(--marine-deep);}
+
+  /* ---------- garantia ---------- */
+  .guarantee{background:var(--marine-deep); color:#eef3f7; position:relative; overflow:hidden;}
+  .guarantee .wrap{position:relative; z-index:1; display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:center;}
+  @media (max-width:700px){ .guarantee .wrap{grid-template-columns:1fr; text-align:center;} .guarantee .g-icon{margin:0 auto;} }
+  .guarantee .g-icon{width:84px;height:84px; border-radius:50%; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; flex:none;}
+  .guarantee .g-icon svg{width:44px;height:44px; color:var(--cyan-bright);}
+  .guarantee h2{color:#fff; font-size:clamp(1.4rem,3vw,1.9rem); font-weight:600; max-width:26ch;}
+  .guarantee p{color:#c7d4de; margin-top:10px; max-width:56ch; font-size:.98rem;}
+  .guarantee-glow{position:absolute; width:500px; height:500px; border-radius:50%; background:var(--cyan-bright); opacity:.12; filter:blur(80px); top:-200px; right:-150px;}
+
+  /* ---------- testimonios ---------- */
+  .testi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:860px){ .testi-grid{grid-template-columns:1fr;} }
+  .testi-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; transition:transform .2s ease, border-color .2s ease;}
+  .testi-card:hover{transform:translateY(-4px); border-color:var(--line-strong); box-shadow:var(--shadow);}
+  .testi-stars{color:var(--cyan-bright); font-size:.9rem; letter-spacing:2px; margin-bottom:10px;}
+  .testi-card p.quote{font-style:italic; color:var(--text); font-size:.92rem; margin:0 0 16px;}
+  .testi-who{display:flex; align-items:center; gap:10px;}
+  .testi-avatar{width:36px;height:36px; border-radius:50%; background:var(--marine-soft); color:var(--marine-deep); display:flex; align-items:center; justify-content:center; font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; flex:none;}
+  .testi-name{font-size:.85rem; font-weight:600; color:var(--text);}
+  .testi-loc{font-size:.78rem; color:var(--muted);}
+
+  .case-study{background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius); padding:26px 28px; margin-top:20px; display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:flex-start;}
+  @media (max-width:640px){ .case-study{grid-template-columns:1fr;} }
+  .case-study .cs-badge{font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--marine-deep); background:var(--marine-soft); border-radius:99px; padding:6px 12px; white-space:nowrap; height:fit-content;}
+  .case-study p{margin:0; font-size:.94rem;}
+  .case-timeline{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--muted);}
+  .case-timeline span{background:var(--surface-alt); padding:4px 10px; border-radius:99px;}
+
+  /* ---------- industrial ---------- */
+  .industrial{background:linear-gradient(180deg, var(--surface-alt), var(--marine-soft));}
+  .industrial-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:760px){ .industrial-grid{grid-template-columns:1fr;} }
+  .ind-card{background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow); transition:transform .22s ease, border-color .22s ease;}
+  .ind-card:hover{transform:translateY(-5px); border-color:var(--cyan-bright);}
+  .ind-icon{width:52px;height:52px; border-radius:12px; background:var(--marine-deep); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:16px; transition:background .22s ease;}
+  .ind-card:hover .ind-icon{background:var(--cyan-bright); color:#03222d;}
+  .ind-icon svg{width:28px;height:28px;}
+  .ind-card h3{font-size:1.15rem; font-weight:600; margin-bottom:8px;}
+  .ind-card p.desc{margin:0 0 14px; color:var(--muted); font-size:.92rem;}
+  .ind-specs{list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:8px; font-size:.85rem;}
+  .ind-specs li{display:flex; gap:8px; align-items:flex-start;}
+  .ind-specs svg{width:14px;height:14px;color:var(--marine-deep); flex:none; margin-top:3px;}
+  .ind-note{font-size:.78rem; color:var(--muted); margin-top:12px;}
+
+  /* ---------- galeria ---------- */
+  .gallery-grid{display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:110px; gap:12px;}
+  @media (max-width:760px){ .gallery-grid{grid-template-columns:repeat(2,1fr);} }
+  .g-tile{grid-column:span 1; grid-row:span 1; border-radius:12px; overflow:hidden; position:relative; background:linear-gradient(150deg, var(--marine-soft), var(--cyan-soft)); border:1px solid var(--line);}
+  .g-tile.big{grid-column:span 2; grid-row:span 2;}
+  .g-tile img{width:100%; height:100%; object-fit:cover; display:block;}
+  .g-tile .g-empty{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--marine-deep); opacity:.55;}
+  .g-tile .g-empty svg{width:26px;height:26px;}
+  .g-tile .g-empty span{font-family:"IBM Plex Mono",monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; text-align:center; padding:0 10px;}
+
+  /* ---------- tecnicos ---------- */
+  .tecnicos-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:32px; align-items:start;}
+  @media (max-width:860px){ .tecnicos-grid{grid-template-columns:1fr;} }
+  .tec-illustration{width:min(300px,85%); margin:0 auto 10px; text-align:center;}
+  .tec-illustration img{width:100%; height:auto; border-radius:var(--radius); box-shadow:var(--shadow); display:block;}
+  .tec-credit{display:block; margin-top:8px; font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--muted); opacity:.7; text-transform:uppercase; letter-spacing:.04em;}
+  .tec-steps{display:flex; flex-direction:column; gap:14px; margin:24px 0;}
+  .tec-step{display:flex; gap:14px; align-items:flex-start;}
+  .tec-step .tn{flex:none; width:30px;height:30px; border-radius:50%; background:var(--marine-soft); color:var(--marine-deep); display:flex; align-items:center; justify-content:center; font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600;}
+  .tec-step p{margin:0; font-size:.92rem;}
+  .tec-step strong{color:var(--ink);}
+  .tec-values{display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:6px;}
+  .tec-values span{display:flex; align-items:center; gap:7px; font-size:.85rem; color:var(--muted);}
+  .tec-values svg{width:15px;height:15px;color:var(--good);flex:none;}
+
+  .tec-form{background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow);}
+  .tec-form h3{font-size:1.05rem; font-weight:600; margin-bottom:4px;}
+  .tec-form .sub{font-size:.85rem; color:var(--muted); margin:0 0 18px;}
+  .tec-field{display:flex; flex-direction:column; gap:5px; margin-bottom:14px;}
+  .tec-field label{font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  .tec-field input{border:1px solid var(--line-strong); border-radius:9px; padding:11px 13px; font-family:"Source Sans 3",sans-serif; font-size:.95rem; color:var(--text); background:var(--bg); transition:border-color .18s ease;}
+  .tec-field input:focus{outline:none; border-color:var(--cyan-bright);}
+  .tec-form .btn{width:100%; justify-content:center; margin-top:4px;}
+  .tec-note{font-size:.76rem; color:var(--muted); margin-top:12px; text-align:center;}
+
+  /* ---------- programas ---------- */
+  .programs{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:760px){ .programs{grid-template-columns:1fr;} }
+  .program{border:1px solid var(--line); border-radius:var(--radius); padding:22px; background:linear-gradient(160deg, var(--surface), var(--surface-alt)); transition:transform .2s ease, border-color .2s ease;}
+  .program:hover{transform:translateY(-4px); border-color:var(--cyan-bright);}
+  .program .tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--marine-deep); margin-bottom:8px; display:block;}
+  .program h3{font-size:1.05rem; margin-bottom:8px;}
+  .program p{margin:0; font-size:.88rem; color:var(--muted);}
+
+  /* ---------- faq ---------- */
+  .faq{max-width:760px; margin:0 auto;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; padding:18px 0; display:flex; justify-content:space-between; align-items:center; gap:16px; cursor:pointer; font-family:"Source Sans 3",sans-serif; font-size:1rem; font-weight:600; color:var(--text); transition:color .18s ease;}
+  .faq-q:hover{color:var(--marine-deep);}
+  .faq-q svg{width:18px;height:18px; color:var(--marine); flex:none; transition:transform .2s ease, color .18s ease;}
+  .faq-q:hover svg{color:var(--cyan-bright);}
+  .faq-item[open] .faq-q svg{transform:rotate(45deg);}
+  .faq-a{margin:0 0 18px; color:var(--muted); font-size:.94rem; max-width:64ch;}
+
+  /* ---------- cta final ---------- */
+  .cta-final{background:linear-gradient(155deg, var(--marine-deep), var(--marine)); color:#fff; text-align:center; position:relative; overflow:hidden;}
+  .cta-final h2{color:#fff; font-size:clamp(1.6rem,3.4vw,2.2rem);}
+  .cta-final p{color:#d3e0e8; max-width:50ch; margin:14px auto 28px;}
+
+  /* ---------- sticky whatsapp ---------- */
+  .sticky-cta{position:fixed; right:20px; bottom:20px; z-index:80; display:flex; align-items:center; gap:10px; background:#1fbf6b; color:#fff; padding:14px 20px; border-radius:99px; text-decoration:none; font-weight:600; font-size:.92rem; box-shadow:0 14px 34px -10px rgba(0,0,0,.35); animation:pulse-cta 4s ease-in-out infinite; transition:background .18s ease, transform .18s ease;}
+  .sticky-cta:hover{background:#18a85c; transform:scale(1.06);}
+  .sticky-cta svg{width:20px;height:20px;}
+  @keyframes pulse-cta{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+  @media (prefers-reduced-motion: reduce){ .sticky-cta{animation:none;} }
+  @media (max-width:600px){ .sticky-cta span{display:none;} .sticky-cta{padding:14px;} }
+
+  /* ---------- footer ---------- */
+  footer{background:var(--marine-deep); color:#c7d4de; padding:52px 0 28px;}
+  footer .f-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:28px; margin-bottom:36px;}
+  @media (max-width:760px){ footer .f-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ footer .f-grid{grid-template-columns:1fr;} }
+  footer h4{font-family:"IBM Plex Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#8fb0c2; margin-bottom:14px;}
+  footer .f-brand{display:flex; align-items:center; gap:9px; font-family:"Fraunces",serif; font-weight:600; font-size:1.1rem; color:#fff; margin-bottom:10px;}
+  footer ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  footer a{color:#c7d4de; text-decoration:none; font-size:.88rem; border-bottom:1px solid transparent; transition:color .18s ease, border-color .18s ease;}
+  footer a:hover{color:var(--cyan-bright); border-color:var(--cyan-bright);}
+  footer .f-bottom{border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.8rem; color:#8fb0c2; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+</style>
+
+<a class="sticky-cta" href="https://wa.me/573133459232" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.06-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.65 0-3.2-.46-4.52-1.26l-.32-.19-3 .79.8-2.92-.21-.3A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8zm4.4-5.9c-.24-.12-1.43-.7-1.65-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.42-1.33-1.66-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.19-.46-.39-.4-.54-.41-.14-.01-.3-.01-.46-.01s-.42.06-.64.3c-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.43-.58 1.63-1.15.2-.56.2-1.04.14-1.15-.06-.1-.22-.16-.46-.28z"/></svg>
+  <span>Escríbenos por WhatsApp</span>
+</a>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand"><img src="assets/logo-blufil-transparent.png" alt="Blufil" style="height:28px;width:auto;"></span>
+    <div class="nav-links">
+      <a href="#problema">El problema</a>
+      <a href="#sistemas">Sistemas</a>
+      <a href="#garantia">Garantía</a>
+      <a href="#galeria">Galería</a>
+      <a href="#industrial">Industrial</a>
+      <a href="#tecnicos">Técnicos</a>
+      <a href="#faq">Preguntas</a>
+    </div>
+    <a class="btn btn-primary nav-cta" href="#cta-final" style="padding:10px 20px;font-size:.85rem;">Cotizar ahora</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-glow"><span class="blob b1"></span><span class="blob b2"></span></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow reveal">Filtración de agua · Barranquilla y Colombia</span>
+      <h1 class="reveal">Agua limpia en tu casa, <span class="grad-text">sin volver a cargar un botellón</span></h1>
+      <p class="lede reveal">Instalamos con un técnico que se presenta por su nombre, dejamos el precio claro desde el primer mensaje y te avisamos solos cuándo toca el próximo mantenimiento. Sin letra pequeña.</p>
+      <div class="hero-ctas reveal">
+        <a class="btn btn-primary" href="#cta-final">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.06-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.65 0-3.2-.46-4.52-1.26l-.32-.19-3 .79.8-2.92-.21-.3A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/></svg>
+          Cotizar en 1 mensaje
+        </a>
+        <a class="btn btn-ghost" href="#sistemas">Ver sistemas y precios</a>
+      </div>
+      <div class="trust-row reveal">
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Técnico identificado por nombre</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Garantía extendida en conexiones</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Operando en Barranquilla desde 2023</span>
+      </div>
+    </div>
+    <div class="hero-art reveal">
+      <svg class="glass-wrap" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración de un vaso llenándose de agua limpia">
+        <defs>
+          <linearGradient id="waterFill" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#123c5b"/>
+            <stop offset="100%" stop-color="#1ebbeb"/>
+          </linearGradient>
+          <clipPath id="glassClip"><path d="M40 40 L180 40 L165 230 Q110 250 55 230 Z"/></clipPath>
+        </defs>
+        <path d="M40 40 L180 40 L165 230 Q110 250 55 230 Z" fill="none" stroke="var(--line-strong)" stroke-width="4"/>
+        <g clip-path="url(#glassClip)">
+          <rect x="30" y="230" width="160" height="0" fill="url(#waterFill)">
+            <animate attributeName="y" from="260" to="70" dur="1.8s" fill="freeze" begin="0.3s"/>
+            <animate attributeName="height" from="0" to="190" dur="1.8s" fill="freeze" begin="0.3s"/>
+          </rect>
+          <circle cx="90" cy="150" r="5" fill="#ffffff" opacity=".5"><animate attributeName="cy" values="230;60" dur="2.4s" repeatCount="indefinite" begin="2.2s"/><animate attributeName="opacity" values="0;.6;0" dur="2.4s" repeatCount="indefinite" begin="2.2s"/></circle>
+          <circle cx="130" cy="180" r="3.5" fill="#ffffff" opacity=".5"><animate attributeName="cy" values="230;70" dur="2s" repeatCount="indefinite" begin="2.8s"/><animate attributeName="opacity" values="0;.6;0" dur="2s" repeatCount="indefinite" begin="2.8s"/></circle>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,30 C200,60 400,0 600,25 C800,50 1000,10 1200,30 L1200,60 L0,60 Z" fill="var(--surface)"></path></svg>
+</header>
+
+<main>
+
+<section id="problema">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">EL PROBLEMA · LA SOLUCIÓN</span>
+      <h2>¿Te ha pasado <em>esto</em> con el agua de tu casa?</h2>
+      <p>Esto no son suposiciones — son quejas reales que encontramos en nuestro propio historial de conversaciones y en el de la competencia.</p>
+    </div>
+    <div class="ps-grid">
+      <div class="reveal">
+        <div class="ps-col-head dolor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 9v4M12 17h.01M10.3 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L14.7 3.86a2 2 0 00-3.4 0z"/></svg>Lo que pasa hoy</div>
+        <div class="ps-item dolor"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg><p>Escribes preguntando el precio y la respuesta es "con gusto te cotizamos".</p></div>
+        <div class="ps-item dolor"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg><p>El técnico dice una hora y llega dos horas después — o no llega.</p></div>
+        <div class="ps-item dolor"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg><p>Instalan el filtro y a los meses aparece una fuga en la conexión.</p></div>
+        <div class="ps-item dolor"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg><p>Se te olvida cuándo tocaba el mantenimiento hasta que el agua ya sabe raro.</p></div>
+      </div>
+      <div class="reveal">
+        <div class="ps-col-head solucion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M20 6L9 17l-5-5"/></svg>Cómo responde Blufil</div>
+        <div class="ps-item solucion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><p>El precio va en el primer mensaje, con lo que incluye. Sin letra pequeña.</p></div>
+        <div class="ps-item solucion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><p>Franjas de 1 hora. Si no cumplimos, tu próximo mantenimiento es gratis.</p></div>
+        <div class="ps-item solucion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><p>Diagnóstico obligatorio antes de cotizar + garantía extendida en conexiones.</p></div>
+        <div class="ps-item solucion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><p>Te avisamos automáticamente por WhatsApp cuándo toca el próximo servicio.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="flow-band alt">
+  <svg class="layer1" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M0,32 C50,10 100,54 150,32 C200,10 250,54 300,32 C350,10 400,54 450,32 C500,10 550,54 600,32 L600,64 L0,64 Z" fill="var(--cyan-soft)"/></svg>
+  <svg class="layer2" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C60,15 120,60 180,38 C240,16 300,58 360,36 C420,14 480,56 540,34 C570,24 590,30 600,32 L600,64 L0,64 Z" fill="var(--marine-soft)"/></svg>
+</div>
+
+<section class="alt" id="como-funciona">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">CÓMO FUNCIONA</span>
+      <h2>De un mensaje a <em>agua limpia</em>, en cuatro pasos</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><span class="num">01</span><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3>Escribes</h3><p>Por WhatsApp o la web. Te respondemos con precio, no con "te cotizamos".</p></div>
+      <div class="step reveal"><span class="num">02</span><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3>Agendamos</h3><p>Eliges día y hora. Un técnico queda asignado solo a tu cita.</p></div>
+      <div class="step reveal"><span class="num">03</span><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><h3>Instalamos</h3><p>Con reporte fotográfico y garantía extendida en conexiones y carcasa.</p></div>
+      <div class="step reveal"><span class="num">04</span><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><h3>Te recordamos</h3><p>Antes de que se venza el mantenimiento, ya lo sabes por WhatsApp.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="sistemas">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">NUESTROS SISTEMAS</span>
+      <h2>Un sistema para cada necesidad, <em>precio claro</em> desde ya</h2>
+      <p class="ph-note">Ilustraciones de referencia — se reemplazan por fotos reales de cada sistema instalado.</p>
+    </div>
+    <div class="systems">
+      <div class="sys-card reveal">
+        <div class="sys-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="22" y="6" width="20" height="52" rx="6"/><path d="M22 22h20M22 38h20"/></svg></div>
+        <div class="sys-body">
+          <h3>Doble Filtración</h3>
+          <p class="desc">La entrada al agua limpia sin obra ni cambios grandes en casa.</p>
+          <ul class="sys-includes">
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Instalación incluida</li>
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Repuestos de medida estándar</li>
+          </ul>
+          <div class="sys-price">$350.000 COP</div>
+          <a class="btn btn-ghost" href="#cta-final">Cotizar este sistema</a>
+        </div>
+      </div>
+      <div class="sys-card featured reveal">
+        <span class="sys-tag">Más pedido</span>
+        <div class="sys-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="18" y="8" width="28" height="48" rx="8"/><path d="M18 26h28M32 8v48" opacity=".5"/></svg></div>
+        <div class="sys-body">
+          <h3>Ultrafiltración</h3>
+          <p class="desc">El equilibrio entre cobertura de filtrado y precio para la mayoría de casas.</p>
+          <ul class="sys-includes">
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Instalación + 1 año de garantía</li>
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Mantenimiento programado</li>
+          </ul>
+          <div class="sys-price">$450.000 COP</div>
+          <a class="btn btn-primary" href="#cta-final">Cotizar este sistema</a>
+        </div>
+      </div>
+      <div class="sys-card reveal">
+        <div class="sys-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="14" y="14" width="36" height="24" rx="4"/><path d="M22 38v10M42 38v10M18 48h28"/></svg></div>
+        <div class="sys-body">
+          <h3>Ósmosis Inversa</h3>
+          <p class="desc">La filtración más completa para quien no quiere volver a pensar en el agua.</p>
+          <ul class="sys-includes">
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Instalación incluida</li>
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Garantía extendida en conexiones</li>
+          </ul>
+          <div class="sys-price">$1.650.000 COP</div>
+          <a class="btn btn-ghost" href="#cta-final">Cotizar este sistema</a>
+        </div>
+      </div>
+      <div class="sys-card reveal">
+        <div class="sys-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10h24l-4 44H24z"/><path d="M26 24h12"/></svg></div>
+        <div class="sys-body">
+          <h3>Dispensador sin botellón</h3>
+          <p class="desc">Agua fría y filtrada al instante — se acabó cargar botellones.</p>
+          <ul class="sys-includes">
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Doble filtración incluida</li>
+            <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Sin recambio de botellones</li>
+          </ul>
+          <div class="sys-price">$1.090.000 COP</div>
+          <a class="btn btn-ghost" href="#cta-final">Cotizar este sistema</a>
+        </div>
+      </div>
+    </div>
+    <div class="value-stack reveal">
+      <span class="vs-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Instalación incluida</span>
+      <span class="vs-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Garantía extendida en conexiones</span>
+      <span class="vs-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Técnico identificado por nombre</span>
+      <span class="vs-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Recordatorio automático del próximo servicio</span>
+    </div>
+  </div>
+</section>
+
+<section class="guarantee" id="garantia">
+  <div class="guarantee-glow"></div>
+  <div class="wrap reveal">
+    <div class="g-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+    <div>
+      <h2>Si no llegamos a la hora acordada, tu próximo mantenimiento es gratis.</h2>
+      <p>Trabajamos en franjas de una hora. Esa es nuestra garantía de cumplimiento — no una promesa vaga. Y en cada instalación, la garantía cubre conexiones y carcasa, no solo el filtro o la membrana.</p>
+    </div>
+  </div>
+</section>
+
+<section id="prueba-social">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">CLIENTES</span>
+      <h2>Lo que dicen quienes ya <em>dejaron el botellón</em></h2>
+      <p class="ph-note">Testimonios de ejemplo — se reemplazan por reseñas reales verificadas.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="quote">"Texto de ejemplo: aquí va una reseña real sobre la puntualidad del técnico y la instalación."</p>
+        <div class="testi-who"><span class="testi-avatar">MR</span><div><div class="testi-name">Cliente de ejemplo</div><div class="testi-loc">Barranquilla</div></div></div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="quote">"Texto de ejemplo: aquí va una reseña real sobre dejar de comprar botellón."</p>
+        <div class="testi-who"><span class="testi-avatar">JP</span><div><div class="testi-name">Cliente de ejemplo</div><div class="testi-loc">Soledad</div></div></div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="quote">"Texto de ejemplo: aquí va una reseña real sobre el mantenimiento programado."</p>
+        <div class="testi-who"><span class="testi-avatar">AC</span><div><div class="testi-name">Cliente de ejemplo</div><div class="testi-loc">Puerto Colombia</div></div></div>
+      </div>
+    </div>
+
+    <div class="case-study reveal">
+      <span class="cs-badge">Caso real, anonimizado</span>
+      <div>
+        <p>En nuestro propio historial encontramos un cliente que instaló su primer sistema en 2023 y sigue con nosotros hoy — la razón por la que existe el Club Blufil.</p>
+        <div class="case-timeline">
+          <span>2023 · Instalación</span><span>→</span><span>Mantenimiento</span><span>→</span><span>Reinstalación por mudanza</span><span>→</span><span>2026 · Nuevo servicio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="galeria">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">GALERÍA</span>
+      <h2>Trabajo real, no <em>renders</em></h2>
+      <p class="ph-note">Estamos organizando el archivo fotográfico de servicios ya realizados — estos espacios se llenan con instalaciones reales.</p>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="g-tile big"><div class="g-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M21 16l-4.5-4.5-3 3L10 11l-7 7"/></svg><span>Foto real próximamente</span></div></div>
+      <div class="g-tile"><div class="g-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M21 16l-4.5-4.5-3 3L10 11l-7 7"/></svg></div></div>
+      <div class="g-tile"><div class="g-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M21 16l-4.5-4.5-3 3L10 11l-7 7"/></svg></div></div>
+      <div class="g-tile"><div class="g-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M21 16l-4.5-4.5-3 3L10 11l-7 7"/></svg></div></div>
+      <div class="g-tile"><div class="g-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M21 16l-4.5-4.5-3 3L10 11l-7 7"/></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,25 C300,55 600,0 900,30 C1000,40 1100,20 1200,25 L1200,60 L0,60 Z" fill="var(--surface-alt)"></path></svg>
+
+<section class="alt" id="programas">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">PROGRAMAS BLUFIL</span>
+      <h2>Razones para <em>quedarte</em>, no solo para comprar una vez</h2>
+    </div>
+    <div class="programs">
+      <div class="program reveal"><span class="tag">Club Blufil</span><h3>Hasta 45% en mantenimiento</h3><p>Descuento escalonado por cada mantenimiento — empieza en el 3°, tope en el 6°.</p></div>
+      <div class="program reveal"><span class="tag">Referidos</span><h3>Gana con cada recomendación</h3><p>10% para quien refieres, $75.000 COP de crédito para ti cuando se instale.</p></div>
+      <div class="program reveal"><span class="tag">Retoma</span><h3>$50.000 por tu filtro viejo</h3><p>Entrega tu filtro actual, de cualquier marca, y recibe descuento inmediato.</p></div>
+    </div>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,20 C250,50 500,0 750,30 C950,50 1100,10 1200,25 L1200,60 L0,60 Z" fill="var(--marine-soft)"></path></svg>
+
+<section class="industrial" id="industrial">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">TAMBIÉN PARA INDUSTRIA</span>
+      <h2>¿Necesitas filtración a <em>otra escala</em>?</h2>
+      <p>Un mercado distinto al residencial — otro comprador, otro caudal, cotización según especificaciones técnicas.</p>
+    </div>
+    <div class="industrial-grid">
+      <div class="ind-card reveal">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+        <h3>Filtración industrial a la medida</h3>
+        <p class="desc">Diseñada para el caudal real de tu planta o proyecto, no un equipo genérico de catálogo.</p>
+        <ul class="ind-specs">
+          <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Caudales desde 5 hasta más de 300 GPM</li>
+          <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Diseño según análisis de agua de entrada</li>
+        </ul>
+        <a class="btn btn-dark" href="mailto:hola@blufil.com?subject=Cotizaci%C3%B3n%20filtraci%C3%B3n%20industrial">Solicitar cotización</a>
+        <p class="ind-note">Precio según caudal y especificaciones — no hay lista de precio fija.</p>
+      </div>
+      <div class="ind-card reveal">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 18c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M12 3v6"/></svg></div>
+        <h3>Planta desalinizadora móvil</h3>
+        <p class="desc">Ósmosis inversa para agua de mar, montada y lista para trasladar donde la necesites.</p>
+        <ul class="ind-specs">
+          <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Control por PLC, bomba dúplex</li>
+          <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Ideal para plantas, proyectos costeros y emergencia</li>
+        </ul>
+        <a class="btn btn-dark" href="mailto:hola@blufil.com?subject=Cotizaci%C3%B3n%20planta%20desalinizadora">Solicitar cotización</a>
+        <p class="ind-note">Precio según capacidad requerida y logística de instalación.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,15 C300,45 600,5 900,35 C1000,45 1100,15 1200,25 L1200,60 L0,60 Z" fill="var(--surface)"></path></svg>
+
+<section id="tecnicos">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">TRABAJA CON NOSOTROS</span>
+      <h2>¿Eres técnico o plomero? Lleva <em>Blufil</em> a tu ciudad</h2>
+      <p>Estamos armando una red de técnicos certificados para cubrir Colombia sin perder el trato local — empezando por las ciudades donde ya vemos demanda.</p>
+    </div>
+    <div class="tecnicos-grid">
+      <div class="reveal">
+        <div class="tec-illustration">
+          <img src="assets/tecnico-instalacion.jpg" alt="Técnico ajustando conexiones de plomería bajo un lavamanos" loading="lazy">
+          <span class="tec-credit">Foto: Timur Shakerzianov / Unsplash — se reemplaza por foto real de un técnico Blufil</span>
+        </div>
+        <div class="tec-steps">
+          <div class="tec-step"><span class="tn">1</span><p><strong>Postúlate</strong> — cuéntanos tu ciudad y experiencia.</p></div>
+          <div class="tec-step"><span class="tn">2</span><p><strong>Capacitación corta</strong> — te enseñamos el estándar Blufil de instalación y servicio.</p></div>
+          <div class="tec-step"><span class="tn">3</span><p><strong>Certificación</strong> — quedas como Técnico Blufil, con tu nombre respaldando cada servicio.</p></div>
+        </div>
+        <div class="tec-values">
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Pago por servicio completado</span>
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Tarifas iguales a las vigentes</span>
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>Control de calidad simple: foto + tu nombre</span>
+        </div>
+      </div>
+      <form class="tec-form reveal" id="tecForm">
+        <h3>Postúlate por WhatsApp</h3>
+        <p class="sub">Llenas esto y se abre WhatsApp con tu mensaje ya escrito.</p>
+        <div class="tec-field"><label for="tecNombre">Nombre</label><input id="tecNombre" type="text" required placeholder="Tu nombre completo"></div>
+        <div class="tec-field"><label for="tecCiudad">Ciudad</label><input id="tecCiudad" type="text" required placeholder="¿Dónde trabajas hoy?"></div>
+        <div class="tec-field"><label for="tecWhats">Tu WhatsApp</label><input id="tecWhats" type="tel" required placeholder="300 000 0000"></div>
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.06-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.65 0-3.2-.46-4.52-1.26l-.32-.19-3 .79.8-2.92-.21-.3A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/></svg>
+          Enviar postulación
+        </button>
+        <p class="tec-note">No se guarda ningún dato — solo abre tu WhatsApp con el mensaje listo.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="section-num">PREGUNTAS FRECUENTES</span>
+      <h2>Antes de que preguntes</h2>
+    </div>
+    <div class="faq reveal">
+      <details class="faq-item" open>
+        <summary class="faq-q">¿El precio que me dan es el precio final?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+        <p class="faq-a">Sí. Trabajamos con precio de lista fijo y público — lo que ves es lo que pagas, sin descuentos negociados caso por caso.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Qué pasa si el técnico no llega a la hora acordada?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+        <p class="faq-a">Tu próximo mantenimiento queda gratis. Es nuestra garantía de cumplimiento, no una disculpa.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Los repuestos son difíciles de conseguir fuera de Blufil?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+        <p class="faq-a">No. Son de medida estándar — se consiguen en cualquier ciudad, no dependes solo de nosotros.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Hacen instalaciones fuera de Barranquilla?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+        <p class="faq-a">Sí, a nivel nacional por envío con autoinstalación guiada por video, o con un técnico certificado Blufil donde ya tengamos cobertura.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cuánto dura la instalación?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+        <p class="faq-a">Depende del sistema — te lo confirmamos exacto al agendar, dentro de la misma franja de una hora que te dimos.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final" id="cta-final">
+  <div class="wrap reveal">
+    <h2>Escríbenos y en <em>un mensaje</em> sabes el precio</h2>
+    <p>Sin formularios largos, sin esperar días por una cotización. Cuéntanos qué necesitas y te respondemos con precio y disponibilidad.</p>
+    <a class="btn btn-primary" href="https://wa.me/573133459232" target="_blank" rel="noopener" style="background:#fff;color:var(--marine-deep);">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.06-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.65 0-3.2-.46-4.52-1.26l-.32-.19-3 .79.8-2.92-.21-.3A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/></svg>
+      Cotizar por WhatsApp
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-grid">
+      <div>
+        <div class="f-brand"><img src="assets/logo-blufil-reverso.png" alt="Blufil" style="height:30px;width:auto;"></div>
+        <p style="font-size:.88rem;max-width:32ch;">Filtración y tratamiento de agua en Barranquilla, con cobertura nacional. Deja de comprar botellón.</p>
+      </div>
+      <div><h4>Sistemas</h4><ul><li><a href="#sistemas">Doble Filtración</a></li><li><a href="#sistemas">Ultrafiltración</a></li><li><a href="#sistemas">Ósmosis Inversa</a></li><li><a href="#sistemas">Dispensador</a></li></ul></div>
+      <div><h4>Blufil</h4><ul><li><a href="#garantia">Garantía</a></li><li><a href="#galeria">Galería</a></li><li><a href="#programas">Programas</a></li><li><a href="#tecnicos">Trabaja con nosotros</a></li><li><a href="#faq">Preguntas frecuentes</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="mailto:hola@blufil.com">hola@blufil.com</a></li><li><a href="https://wa.me/573133459232">WhatsApp</a></li><li>Barranquilla, Colombia</li></ul></div>
+    </div>
+    <div class="f-bottom"><span>&copy; 2026 Blufil</span><span>Antes Innovacenter Filtros Americanos</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var tecForm = document.getElementById('tecForm');
+  if(tecForm){
+    tecForm.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var nombre = document.getElementById('tecNombre').value.trim();
+      var ciudad = document.getElementById('tecCiudad').value.trim();
+      var whats = document.getElementById('tecWhats').value.trim();
+      var msg = 'Hola, quiero postularme como Técnico Blufil.\nNombre: ' + nombre + '\nCiudad: ' + ciudad + '\nMi WhatsApp: ' + whats;
+      window.open('https://wa.me/573133459232?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    });
+  }
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if('IntersectionObserver' in window && !reduced){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    }, {threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('is-visible'); });
+  }
+})();
+</script>
+</body>
+</html>
