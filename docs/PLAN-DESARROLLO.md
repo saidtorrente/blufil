@@ -10,6 +10,22 @@ Borrador de organización. Se arma con todo lo acordado hasta ahora en `docs/PRO
 - ✅ Panel de técnicos (`/tecnico/login`, `/tecnico/dashboard`, `/tecnico/servicio/[id]`, `/tecnico/cambiar-clave`): mismo patrón de login por cédula + contraseña (tabla `tecnicos` ahora tiene `correo`/`cedula`). El técnico ve las solicitudes pendientes sin asignar, las acepta (usa `aceptar_servicio`, asignación atómica), y al completar sube notas + fotos + valor cobrado + descuento + próximo mantenimiento — las fotos van a un bucket privado de Storage (`servicios-fotos`) con RLS por servicio. Edge Functions: `iniciar-sesion-tecnico`, `provisionar-tecnico`. Verificado de punta a punta (aceptar → completar → foto subida y visible en el portal del cliente), datos de prueba eliminados.
 - ✅ Recuperar contraseña (self-service, clientes y técnicos): `/recuperar` pide la cédula, `recuperar-clave` (Edge Function) la resuelve contra `clientes` o `tecnicos` y dispara el correo de reset de Supabase (branded); `/auth/recuperar` procesa el enlace y manda a `/restablecer-clave` para elegir la nueva contraseña. Respuesta siempre genérica (no revela si la cédula existe). Enlace "¿Olvidaste tu contraseña?" agregado en ambos logins.
 - Falta: una vía real de alta de clientes/técnicos (hoy `provisionar-cliente`/`provisionar-tecnico` se invocan a mano; se conectarán a la migración de Odoo o a un panel admin más adelante).
+
+### Fase 4 (parcial) — Integración Siigo Nube (2026-09-02) ✅
+
+Facturación electrónica conectada de punta a punta:
+- Credenciales (`siigo_username`, `siigo_access_key`) guardadas cifradas en **Supabase Vault** (no en variables de entorno ni en el repo). Solo accesibles desde Edge Functions vía la función `obtener_secreto()` (restringida a `service_role`).
+- **Edge Function `facturar-visita`**: al recibir un `visita_id`, verifica que todos los servicios de esa visita estén `completada`, busca o crea el cliente como tercero en Siigo (persona natural, cédula), arma los ítems de factura con la descripción real del servicio (tipo de sistema + notas del técnico) y consolida en una sola factura electrónica.
+- **Disparador automático**: al marcar el último servicio pendiente de una visita como completado (`portal/src/app/tecnico/(app)/servicio/[id]/actions.ts`), el portal llama a `facturar-visita` automáticamente — sin intervención manual.
+- **Configuración de la cuenta Siigo de Blufil (descubierta y confirmada con el usuario):**
+  - Tipo de documento: **Factura electrónica de venta FJ** (id `31126`)
+  - Vendedor: único usuario de la cuenta (id `22`)
+  - IVA: **0%** — servicios sin IVA (id `13681`)
+  - Forma de pago por defecto: **Transferencia** (id `7001`)
+  - Productos genéricos creados en Siigo para no ensuciar su catálogo existente (256 productos ad-hoc): `PORTAL-INSTALACION` y `PORTAL-MANTENIMIENTO` — la descripción real de cada factura se escribe por ítem, no depende del nombre del producto.
+- **Verificado con una factura real de prueba** ($1.000 COP, FV-3-316) — cliente creado correctamente, ítem con descripción completa, IVA 0%, Transferencia. Quedó en estado "Draft" (sin timbrar) — el usuario decide si la anula desde Siigo.
+- **Limitación conocida:** `person_type`/`id_type` están fijos en "Person"/cédula (13) — solo cubre clientes residenciales. La ciudad del tercero se resuelve por un mapeo fijo (Barranquilla/Soledad/Puerto Colombia); si no coincide, usa Barranquilla por defecto. Habrá que revisarlo al llegar clientes industriales/B2B (persona jurídica/NIT).
+- Falta: envío de la factura por correo al cliente (Siigo lo soporta, no está conectado todavía), y manejo de reintentos si Siigo falla (hoy el disparador falla en silencio para no bloquear el cierre del servicio en el portal).
 - ⏳ Migración de Odoo: pospuesta a propósito hasta que el esquema/portal estén más maduros (ver sección de CRM abajo).
 - ⏳ Pendiente: integración Siigo Nube (Fase de facturación) y Hermes Agent (reportes de servicio).
 
