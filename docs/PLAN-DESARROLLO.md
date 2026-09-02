@@ -2,7 +2,13 @@
 
 Borrador de organización. Se arma con todo lo acordado hasta ahora en `docs/PROYECTO.md` para dejar clara la secuencia antes de empezar a construir. Pendiente de que el usuario agregue instrucciones adicionales antes de cerrarlo como definitivo.
 
-**Última actualización:** 2026-09-01
+**Última actualización:** 2026-09-02
+
+**Estado de avance (2026-09-02):**
+- ✅ Fase 2 (esquema de datos): proyecto Supabase "Blufil" creado (`zxlctemyciwshfsqvhgw`), 9 tablas + RLS + función `aceptar_servicio` para asignación atómica de técnicos, verificado con datos de prueba (aislamiento correcto entre clientes, sin fugas de datos).
+- ✅ Fase 3 (portal de cliente, MVP): app Next.js en [`portal/`](../portal/) con login por código de un solo uso (correo) y dashboard de historial de servicios + Club Blufil, **en vivo en https://portal.blufil.com** (Hostinger, subdominio Node.js nuevo). Falta: panel de técnicos (fuera de alcance de este primer pase, ver Paso 1 del plan de implementación) y login por teléfono (hoy solo correo — requiere proveedor SMS, no configurado aún).
+- ⏳ Migración de Odoo: pospuesta a propósito hasta que el esquema/portal estén más maduros (ver sección de CRM abajo).
+- ⏳ Pendiente: integración Siigo Nube (Fase de facturación) y Hermes Agent (reportes de servicio).
 
 ---
 
@@ -123,7 +129,7 @@ Blufil no necesita un CRM externo (HubSpot, Pipedrive, etc.) — las tablas `cli
 
 Una tarea programada (diaria, en Supabase) revisa la fecha de próximo mantenimiento de cada cliente, actualiza el estatus, y dispara el recordatorio por WhatsApp/correo — automatiza lo que hoy se hace manualmente (confirmado en las conversaciones reales de WhatsApp revisadas en el estudio de mercado). Los clientes nuevos se crean automáticamente al cerrarse una instalación, sin doble ingreso manual.
 
-**Pendiente:** confirmar dónde vive la base de clientes actual (¿Siigo como terceros, Excel, o solo historial disperso en WhatsApp?) para planear la migración inicial hacia Supabase.
+**Confirmado (2026-09-02):** la base de clientes actual vive en **Odoo**, con los servicios programados también ahí. La migración se hará por acceso directo a la API de Odoo (XML-RPC/JSON-RPC) cuando el usuario comparta las credenciales — decidido posponerla hasta que el resto del sistema (esquema + portal) esté más avanzado, para no migrar datos hacia una base que todavía está cambiando de forma. Odoo queda como fuente de solo lectura hasta ese momento; Supabase es ya la única base operativa nueva.
 
 ### Integración con Siigo Nube (facturación electrónica)
 

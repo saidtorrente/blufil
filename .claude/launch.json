@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "4173", "--directory", "site"],
       "port": 4173
+    },
+    {
+      "name": "portal-blufil-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "portal"],
+      "port": 3000
     }
   ]
 }

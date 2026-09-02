@@ -2,7 +2,7 @@
 
 Documento vivo. Se actualiza a medida que avanza el proyecto para que cualquier persona (o sesión de Claude) que retome el trabajo tenga el contexto completo sin repetir investigación ya hecha.
 
-**Última actualización:** 2026-08-31
+**Última actualización:** 2026-09-02
 
 ---
 
@@ -149,13 +149,14 @@ Bundle estático auto-contenido en [`site/`](../site/) (`site/index.html` + `sit
 
 **Verificado contra el hosting real (2026-09-01):** `blufil.com` en Hostinger solo tiene `index.html` (2059 bytes) en `public_html` — la página "en construcción" actual está viva pero su `assets/logo-blufil.png` nunca se subió (el logo está roto en producción ahora mismo, sin que se haya notado).
 
-**Pendiente antes de publicar (no se sube solo, requiere confirmación explícita):**
-- [ ] Número real de WhatsApp — el CTA usa un placeholder (`57XXXXXXXXXX`) en 3 lugares (botón flotante, hero, CTA final)
-- [ ] Confirmar si se reemplaza ya la página "en construcción" o se espera
-- [ ] Testimonios y fotos reales (hoy son placeholders marcados explícitamente como ejemplo)
-- [ ] Aprobar el despliegue — subir sobrescribe el contenido actual de `blufil.com` y no es reversible desde Hostinger
+**Estado (2026-09-02): en vivo en blufil.com**, con número real de WhatsApp (573133459232) en los 3 CTAs. Deploy automatizado por GitHub Actions (push a `main` con cambios en `site/` → FTP a Hostinger vía `.github/workflows/deploy.yml`) — ver nota técnica abajo sobre el `server-dir` correcto.
 
-**Estado (2026-09-02):** primera versión ya está publicada y en vivo en blufil.com (desplegada con `hosting_deployStaticWebsite`, tras varios intentos por un error 500 transitorio en el endpoint de credenciales de subida de Hostinger — terminó funcionando).
+**Nota técnica para el próximo deploy:** el `server-dir: ../` en `deploy.yml` es intencional, no un typo — la cuenta FTP creada en hPanel tiene su home un nivel por debajo de la raíz real del sitio. No "corregirlo" a `./` sin volver a verificar contra `hosting_listWebsiteFilesAndDirectoriesV1` primero.
+
+**Pendiente (contenido, no técnico):**
+- [ ] Testimonios reales (hoy son placeholders marcados explícitamente como ejemplo)
+- [ ] Fotos para la galería (ver carpeta abajo)
+- [ ] Foto real de un técnico Blufil para "Trabaja con Nosotros" (hoy es una foto de stock de Unsplash, ver nota abajo)
 
 ### Carpeta para fotos reales (galería)
 El usuario va a colocar fotos reales de servicios ya realizados en [`assets/galeria/`](../assets/galeria/) (creada, vacía). Cualquier jpg/png ahí se puede incorporar a la sección "Galería" del sitio (hoy son 5 casillas placeholder tipo mosaico, honestamente marcadas "Foto real próximamente"). Pendiente decirle al usuario qué fotos concretas conviene priorizar (instalación en proceso, sistema terminado, técnico en sitio, antes/después de un mantenimiento).
@@ -182,6 +183,15 @@ Registrado 2026-08-31, para cuando arranquemos el desarrollo del sitio real (hoy
 - Ese reporte debe quedar **registrado en la web**, no solo enviado por WhatsApp — el cliente debe poder consultar su historial completo de servicios en cualquier momento iniciando sesión con su usuario.
 - Implica que el sitio necesita: autenticación de clientes (cuentas/login), una base de datos de historial de servicio por cliente (fotos + fecha + técnico + tipo de servicio + estado del Club Blufil), y almacenamiento de imágenes.
 - Se conecta directamente con el CRM que ya está contemplado en el plan de negocios (sección 5.9 del plan: historial de conversaciones, próximo mantenimiento, etc.) — este portal es, en la práctica, la cara visible de ese CRM para el cliente.
+
+## 8.2 Backend real y portal de cliente (en construcción, 2026-09-02)
+
+Arrancó la ejecución de `docs/PLAN-DESARROLLO.md` Fase 2 y 3:
+
+- **Supabase:** proyecto "Blufil" (`zxlctemyciwshfsqvhgw`) con el esquema completo (clientes, sistemas_instalados, tecnicos, visitas, servicios, club_blufil, referidos, retomas, facturas), RLS activo y verificado (aislamiento correcto entre clientes probado con datos de prueba, ya eliminados).
+- **Portal de cliente:** app Next.js en [`portal/`](../portal/), login por código de un solo uso al correo, desplegándose en `portal.blufil.com` (Hostinger, subdominio nuevo tipo Node.js — mismo patrón que `agtcarga.com`).
+- **Base de clientes real:** confirmado que vive en **Odoo** (con servicios programados). Migración pospuesta a propósito hasta que el esquema/portal maduren más — Odoo queda de solo lectura mientras tanto (detalle en `PLAN-DESARROLLO.md`).
+- **Pendiente de esta fase:** integración Siigo Nube y Hermes Agent (reportes de servicio), ver `PLAN-DESARROLLO.md` para el detalle completo.
 
 ## 9. Pendientes / decisiones abiertas
 
