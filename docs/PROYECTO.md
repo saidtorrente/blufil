@@ -184,6 +184,10 @@ Registrado 2026-08-31, para cuando arranquemos el desarrollo del sitio real (hoy
 - Implica que el sitio necesita: autenticación de clientes (cuentas/login), una base de datos de historial de servicio por cliente (fotos + fecha + técnico + tipo de servicio + estado del Club Blufil), y almacenamiento de imágenes.
 - Se conecta directamente con el CRM que ya está contemplado en el plan de negocios (sección 5.9 del plan: historial de conversaciones, próximo mantenimiento, etc.) — este portal es, en la práctica, la cara visible de ese CRM para el cliente.
 
+## 8.3 Panel de técnicos (2026-09-02)
+
+Agendamiento operativo: los técnicos entran a `portal.blufil.com/tecnico/login` (cédula + contraseña, mismo patrón que el portal de cliente), ven las solicitudes pendientes sin asignar, las aceptan (asignación atómica — el primero que acepta se queda con ella), y al terminar suben notas, fotos y el valor cobrado. Las fotos quedan visibles en el historial del cliente en el portal. Detalle técnico completo en `PLAN-DESARROLLO.md`.
+
 ## 8.2 Backend real y portal de cliente (en construcción, 2026-09-02)
 
 Arrancó la ejecución de `docs/PLAN-DESARROLLO.md` Fase 2 y 3:

@@ -44,6 +44,7 @@ type Servicio = {
   reporte_ia: string | null;
   proxima_fecha_mantenimiento: string | null;
   created_at: string;
+  fotos: string[];
   tecnicos: Tecnico;
 };
 
@@ -96,11 +97,22 @@ export default async function DashboardPage() {
   const { data: sistemas } = await supabase
     .from("sistemas_instalados")
     .select(
-      "id, tipo, direccion, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, tecnicos(nombre))",
+      "id, tipo, direccion, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, fotos, tecnicos(nombre))",
     )
     .eq("cliente_id", cliente.id)
     .order("fecha_instalacion", { ascending: false })
     .returns<SistemaInstalado[]>();
+
+  const todasLasFotos = (sistemas ?? []).flatMap((s) => s.servicios ?? []).flatMap((sv) => sv.fotos ?? []);
+  const urlsFotos = new Map<string, string>();
+  if (todasLasFotos.length > 0) {
+    const { data: firmadas } = await supabase.storage
+      .from("servicios-fotos")
+      .createSignedUrls(todasLasFotos, 3600);
+    firmadas?.forEach((f) => {
+      if (f.signedUrl) urlsFotos.set(f.path ?? "", f.signedUrl);
+    });
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -173,6 +185,21 @@ export default async function DashboardPage() {
                       )}
                       {servicio.reporte_ia && (
                         <p className="text-sm text-neutral-700">{servicio.reporte_ia}</p>
+                      )}
+                      {servicio.fotos && servicio.fotos.length > 0 && (
+                        <div className="flex gap-2 overflow-x-auto py-1">
+                          {servicio.fotos.map((ruta) =>
+                            urlsFotos.get(ruta) ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                key={ruta}
+                                src={urlsFotos.get(ruta)}
+                                alt="Foto del servicio"
+                                className="h-20 w-20 flex-shrink-0 rounded-lg object-cover ring-1 ring-black/5"
+                              />
+                            ) : null,
+                          )}
+                        </div>
                       )}
                       {servicio.valor_cobrado != null && (
                         <p className="text-xs text-neutral-500">
