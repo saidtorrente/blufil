@@ -8,6 +8,7 @@ const PESTANAS = [
   { href: "/dashboard/equipos", etiqueta: "Mis equipos" },
   { href: "/dashboard/club", etiqueta: "Club Blufil" },
   { href: "/dashboard/referidos", etiqueta: "Referidos" },
+  { href: "/dashboard/retomas", etiqueta: "Retomas" },
   { href: "/dashboard/facturas", etiqueta: "Facturas" },
 ];
 

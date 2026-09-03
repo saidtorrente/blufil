@@ -10,6 +10,7 @@ export type Servicio = {
   proxima_fecha_mantenimiento: string | null;
   created_at: string;
   fotos: string[];
+  numero_orden: number;
   tecnicos: Tecnico;
 };
 

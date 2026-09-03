@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
 import { HistorialServicios } from "../historial-servicios";
@@ -8,19 +7,16 @@ import type { SistemaInstalado } from "../tipos";
 export default async function EquiposPage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: cliente } = await supabase
-    .from("clientes")
-    .select("id, nombre")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
+  const [{ data: cliente }, { data: sistemas }] = await Promise.all([
+    supabase.from("clientes").select("id, nombre").maybeSingle(),
+    supabase
+      .from("sistemas_instalados")
+      .select(
+        "id, tipo, direccion, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, fotos, numero_orden, tecnicos(nombre))",
+      )
+      .order("fecha_instalacion", { ascending: false })
+      .returns<SistemaInstalado[]>(),
+  ]);
 
   if (!cliente) {
     return (
@@ -35,15 +31,6 @@ export default async function EquiposPage() {
       </div>
     );
   }
-
-  const { data: sistemas } = await supabase
-    .from("sistemas_instalados")
-    .select(
-      "id, tipo, direccion, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, fotos, tecnicos(nombre))",
-    )
-    .eq("cliente_id", cliente.id)
-    .order("fecha_instalacion", { ascending: false })
-    .returns<SistemaInstalado[]>();
 
   const todasLasFotos = (sistemas ?? []).flatMap((s) => s.servicios ?? []).flatMap((sv) => sv.fotos ?? []);
   const urlsFotos: Record<string, string> = {};

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatoFecha } from "../tipos";
 
@@ -20,18 +19,9 @@ type ReferidoFila = {
 export default async function ReferidosPage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   const { data: cliente } = await supabase
     .from("clientes")
     .select("id, codigo_referido")
-    .eq("auth_user_id", user.id)
     .maybeSingle();
 
   if (!cliente) {
@@ -58,6 +48,27 @@ export default async function ReferidosPage() {
         <h1 className="text-xl font-semibold text-[#123C5B]">Referidos</h1>
         <p className="text-sm text-neutral-500">Gana beneficios recomendando Blufil.</p>
       </div>
+
+      <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/fotos/referidos.jpg"
+          alt="Dos personas compartiendo un momento en casa"
+          className="h-40 w-full object-cover"
+        />
+        <div className="p-6">
+          <h2 className="text-lg font-semibold text-[#123C5B]">
+            Tú ya sabes lo que es dejar de cargar botellón
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Seguro conoces a alguien que todavía sube botellones por las escaleras, o que no
+            termina de confiar en el agua que sale de la llave. Recomendar Blufil no es venderle
+            nada — es contarle algo que ya te resolvió a ti. Y de paso, los dos ganan: tu referido
+            arranca con 10% de descuento en su instalación, y a ti se te libera un crédito de
+            $75.000 COP hacia tu próximo mantenimiento en cuanto tu referido instale y pague.
+          </p>
+        </div>
+      </section>
 
       <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -92,6 +103,21 @@ export default async function ReferidosPage() {
         <p className="mt-2 text-xs text-neutral-400">
           Dale este código a tu amigo o familiar — al mencionarlo, quedas registrado como su referente.
         </p>
+
+        <div className="mt-6 grid gap-4 border-t border-neutral-100 pt-5 sm:grid-cols-3">
+          {[
+            { paso: "1", texto: "Comparte tu código" },
+            { paso: "2", texto: "Tu referido lo menciona e instala" },
+            { paso: "3", texto: "Se libera tu crédito" },
+          ].map(({ paso, texto }) => (
+            <div key={paso} className="flex items-center gap-3">
+              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#123C5B] text-xs font-semibold text-white">
+                {paso}
+              </span>
+              <p className="text-sm text-neutral-600">{texto}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {referidos && referidos.length > 0 && (

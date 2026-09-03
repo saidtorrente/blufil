@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatoFecha, formatoMoneda } from "../tipos";
 
@@ -17,14 +16,6 @@ type Factura = {
 
 export default async function FacturasPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
 
   const { data: facturas } = await supabase
     .from("facturas")

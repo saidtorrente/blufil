@@ -92,9 +92,10 @@ export function HistorialServicios({
             {ETIQUETA_ESTADO[activo.estado] ?? activo.estado}
           </span>
         </div>
-        {activo.tecnicos?.nombre && (
-          <p className="mt-2 text-xs text-neutral-500">Técnico: {activo.tecnicos.nombre}</p>
-        )}
+        <p className="mt-2 text-xs text-neutral-500">
+          Orden de servicio: BLF-{String(activo.numero_orden).padStart(6, "0")}
+          {activo.tecnicos?.nombre && <> · Técnico: {activo.tecnicos.nombre}</>}
+        </p>
         {activo.reporte_ia && <p className="mt-2 text-sm text-neutral-700">{activo.reporte_ia}</p>}
         {activo.fotos && activo.fotos.length > 0 && (
           <div className="mt-2 flex gap-2 overflow-x-auto py-1">

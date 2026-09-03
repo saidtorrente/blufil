@@ -1,31 +1,21 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ETIQUETA_SISTEMA } from "../tipos";
 import { NIVELES_CLUB_BLUFIL, TOPE_NIVEL_CLUB_BLUFIL } from "../club-blufil-niveles";
+import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
+import { DropletMilestone } from "./droplet-milestone";
 
 type SistemaConClub = {
   id: string;
   tipo: string;
   direccion: string;
   club_blufil: { conteo_mantenimientos: number; nivel_descuento: number } | null;
+  servicios: { tipo: string; estado: string }[];
 };
 
 export default async function ClubBlufilPage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: cliente } = await supabase
-    .from("clientes")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
+  const { data: cliente } = await supabase.from("clientes").select("id").maybeSingle();
 
   if (!cliente) {
     return (
@@ -37,18 +27,36 @@ export default async function ClubBlufilPage() {
 
   const { data: sistemas } = await supabase
     .from("sistemas_instalados")
-    .select("id, tipo, direccion, club_blufil(conteo_mantenimientos, nivel_descuento)")
-    .eq("cliente_id", cliente.id)
+    .select("id, tipo, direccion, club_blufil(conteo_mantenimientos, nivel_descuento), servicios(tipo, estado)")
     .returns<SistemaConClub[]>();
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-[#123C5B]">Club Blufil</h1>
-        <p className="text-sm text-neutral-500">
-          Cada mantenimiento que haces con nosotros sube tu nivel de descuento — hasta un tope de 45%.
-        </p>
       </div>
+
+      <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/fotos/tecnico-mantenimiento.jpg"
+          alt="Técnico Blufil revisando un sistema de filtración"
+          className="h-40 w-full object-cover"
+        />
+        <div className="p-6">
+          <h2 className="text-lg font-semibold text-[#123C5B]">
+            El agua que tomas hoy no es la misma que filtraste hace un año
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Un filtro no deja de funcionar de un día para otro — pierde efectividad poco a poco, y
+            con el tiempo puede terminar siendo el lugar donde se acumula justo lo que se supone
+            que debía detener. Por eso el mantenimiento periódico no es un trámite: es lo que
+            mantiene tu sistema haciendo el trabajo por el que lo instalaste, y lo que protege el
+            agua que toma tu familia todos los días. Cada mantenimiento con Blufil también te
+            acerca a un descuento más alto en el Club Blufil.
+          </p>
+        </div>
+      </section>
 
       {!sistemas || sistemas.length === 0 ? (
         <div className="rounded-xl bg-white p-6 text-center shadow-sm ring-1 ring-black/5">
@@ -60,38 +68,58 @@ export default async function ClubBlufilPage() {
           const nivelActual = sistema.club_blufil?.nivel_descuento ?? 0;
           const enTope = conteo >= TOPE_NIVEL_CLUB_BLUFIL;
           const proximoNivel = enTope ? null : NIVELES_CLUB_BLUFIL[conteo + 1];
+          const tieneMantenimientoEnCurso = (sistema.servicios ?? []).some(
+            (s) => s.tipo === "mantenimiento" && s.estado !== "completada",
+          );
 
           return (
             <section
               key={sistema.id}
               className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
             >
-              <h2 className="font-semibold text-neutral-900">
-                {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
-              </h2>
-              <p className="text-sm text-neutral-500">{sistema.direccion}</p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold text-neutral-900">
+                    {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
+                  </h2>
+                  <p className="text-sm text-neutral-500">{sistema.direccion}</p>
+                </div>
+                {!enTope &&
+                  (tieneMantenimientoEnCurso ? (
+                    <p className="text-xs font-medium text-[#1a8fac]">
+                      Ya tienes una solicitud de mantenimiento en curso.
+                    </p>
+                  ) : (
+                    <SolicitarMantenimientoButton sistemaInstaladoId={sistema.id} />
+                  ))}
+              </div>
 
-              <div className="mt-4 flex gap-1.5">
-                {NIVELES_CLUB_BLUFIL.slice(1).map((_, i) => {
+              <div className="mt-5 flex justify-between px-1">
+                {NIVELES_CLUB_BLUFIL.slice(1).map((nivel, i) => {
                   const numeroNivel = i + 1;
-                  const alcanzado = conteo >= numeroNivel;
                   return (
-                    <div
+                    <DropletMilestone
                       key={numeroNivel}
-                      className={`h-2 flex-1 rounded-full ${alcanzado ? "bg-[#1EBBEB]" : "bg-neutral-100"}`}
+                      nivel={nivel}
+                      alcanzado={conteo >= numeroNivel}
+                      esActual={conteo === numeroNivel - 1 && !enTope}
                     />
                   );
                 })}
               </div>
 
-              <p className="mt-3 text-sm text-neutral-700">
+              <p className="mt-4 text-sm text-neutral-700">
                 Nivel actual: <span className="font-semibold text-[#123C5B]">{nivelActual}%</span>
                 {enTope ? (
-                  " · Ya llegaste al tope máximo de descuento."
+                  " · Ya llegaste al tope máximo — seguimos cuidando tu sistema en cada visita."
                 ) : conteo === 0 ? (
                   <> · Tu primer mantenimiento te da acceso al Club Blufil.</>
                 ) : (
-                  <> · Con tu próximo mantenimiento subes a {proximoNivel}%.</>
+                  <>
+                    {" "}
+                    · Te falta menos de lo que crees: con tu próximo mantenimiento subes de{" "}
+                    <strong>{nivelActual}%</strong> a <strong>{proximoNivel}%</strong>.
+                  </>
                 )}
               </p>
             </section>

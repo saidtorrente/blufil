@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calcularAlertaMantenimiento } from "./tipos";
 import type { Servicio } from "./tipos";
@@ -13,19 +12,13 @@ type SistemaResumen = {
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: cliente } = await supabase
-    .from("clientes")
-    .select("id, nombre")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
+  const [{ data: cliente }, { data: sistemas }] = await Promise.all([
+    supabase.from("clientes").select("id, nombre").maybeSingle(),
+    supabase
+      .from("sistemas_instalados")
+      .select("id, servicios(id, tipo, estado, proxima_fecha_mantenimiento, created_at), club_blufil(nivel_descuento)")
+      .returns<SistemaResumen[]>(),
+  ]);
 
   if (!cliente) {
     return (
@@ -38,12 +31,6 @@ export default async function DashboardPage() {
       </div>
     );
   }
-
-  const { data: sistemas } = await supabase
-    .from("sistemas_instalados")
-    .select("id, servicios(id, tipo, estado, proxima_fecha_mantenimiento, created_at), club_blufil(nivel_descuento)")
-    .eq("cliente_id", cliente.id)
-    .returns<SistemaResumen[]>();
 
   const totalEquipos = sistemas?.length ?? 0;
   const equiposConAlerta = (sistemas ?? []).filter((s) => calcularAlertaMantenimiento(s.servicios ?? [])).length;

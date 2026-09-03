@@ -164,6 +164,12 @@ El usuario va a colocar fotos reales de servicios ya realizados en [`assets/gale
 ### Foto real usada en "Trabaja con Nosotros"
 `assets/tecnico-instalacion.jpg` — foto de stock gratuita de Unsplash (Licencia Unsplash: uso comercial permitido, no requiere atribución obligatoria; se dejó crédito visible de todos modos). Autor: Timur Shakerzianov. Fuente: https://unsplash.com/es/fotos/un-hombre-trabajando-en-una-tuberia-en-un-gabinete-wzIjLL4KB-4 — es un placeholder de mejor calidad que la ilustración anterior, pero sigue siendo de stock, no de Blufil; reemplazar cuando haya fotos reales de técnicos Blufil.
 
+### Fotos usadas en el dashboard del portal (Ronda 3, 2026-09-03)
+Todas gratuitas de Unsplash (Licencia Unsplash: uso comercial permitido, no requiere atribución obligatoria; se deja crédito de todos modos), guardadas en `portal/public/fotos/`:
+- `tecnico-mantenimiento.jpg` (pestaña Club Blufil) — misma foto que `assets/tecnico-instalacion.jpg` (ver crédito arriba).
+- `referidos.jpg` (pestaña Referidos) — Autor: Boxed Water Is Better. Fuente: https://unsplash.com/es/fotos/dos-mujeres-haciendo-ejercicio-y-bebiendo-agua-en-caja-Z6xw00fvAy4
+- `retomas.jpg` (pestaña Retomas) — Autor: Bluewater Sweden. Fuente: https://unsplash.com/es/fotos/persona-sosteniendo-un-palo-de-metal-gris-y-negro-LcB1tX2Gbkg
+
 ### Sección nueva: Trabaja con Nosotros (inscripción de técnicos)
 Se agregó al sitio la sección `#tecnicos` — formalización del programa 6.4. Proceso en 3 pasos (Postúlate → Capacitación corta → Certificación) + un mini-formulario (nombre, ciudad, WhatsApp) que arma un mensaje y abre WhatsApp directo — sin backend, no guarda datos, funcional desde ya. Cuando exista el backend (Supabase, fase 3 del plan de desarrollo) se puede reemplazar por un formulario real que guarde la postulación.
 
