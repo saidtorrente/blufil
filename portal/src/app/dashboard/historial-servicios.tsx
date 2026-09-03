@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { Servicio } from "./page";
+import type { Servicio } from "./tipos";
+import { formatoFecha, formatoMoneda } from "./tipos";
+import { NIVELES_CLUB_BLUFIL } from "./club-blufil-niveles";
 
 const ETIQUETA_SERVICIO: Record<string, string> = {
   instalacion: "Instalación",
@@ -14,22 +16,6 @@ const ETIQUETA_ESTADO: Record<string, string> = {
   en_progreso: "En progreso",
   completada: "Completado",
 };
-
-const formatoFecha = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
-const formatoMoneda = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-
-// Niveles de descuento del Club Blufil por # de mantenimiento (docs/PROYECTO.md §6.1).
-// Índice 0 sin usar; índice = # de mantenimiento completado (tope en 6+).
-const NIVEL_POR_MANTENIMIENTO = [0, 0, 5, 15, 25, 35, 45];
 
 export function HistorialServicios({
   servicios,
@@ -51,7 +37,7 @@ export function HistorialServicios({
     let nivel: number | null = null;
     if (servicio.tipo === "mantenimiento" && servicio.estado === "completada") {
       contadorMantenimientos += 1;
-      nivel = NIVEL_POR_MANTENIMIENTO[Math.min(contadorMantenimientos, 6)];
+      nivel = NIVELES_CLUB_BLUFIL[Math.min(contadorMantenimientos, NIVELES_CLUB_BLUFIL.length - 1)];
     }
     return { servicio, nivel };
   });

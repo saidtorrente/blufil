@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LogoutButton } from "./logout-button";
+import { NavTabs } from "./nav-tabs";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +18,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <LogoutButton />
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
+      <div className="mx-auto flex max-w-5xl flex-col md:flex-row md:gap-6 md:px-4 md:py-8">
+        <NavTabs />
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-0 md:py-0">{children}</main>
+      </div>
     </div>
   );
 }
