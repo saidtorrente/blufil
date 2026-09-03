@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SolicitarMantenimientoButton } from "./solicitar-mantenimiento-button";
+import { HistorialServicios } from "./historial-servicios";
+import { Referidos } from "./referidos";
 
 const ETIQUETA_SISTEMA: Record<string, string> = {
   doble_filtracion: "Doble filtración",
@@ -10,33 +12,17 @@ const ETIQUETA_SISTEMA: Record<string, string> = {
   ozono: "Purificador de ozono",
 };
 
-const ETIQUETA_SERVICIO: Record<string, string> = {
-  instalacion: "Instalación",
-  mantenimiento: "Mantenimiento",
-};
-
-const ETIQUETA_ESTADO: Record<string, string> = {
-  pendiente: "Pendiente",
-  asignada: "Técnico asignado",
-  en_progreso: "En progreso",
-  completada: "Completado",
-};
-
 const formatoFecha = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
   month: "long",
   year: "numeric",
 });
 
-const formatoMoneda = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
+const DIAS_ALERTA_MANTENIMIENTO = 15;
 
-type Tecnico = { nombre: string } | null;
+export type Tecnico = { nombre: string } | null;
 
-type Servicio = {
+export type Servicio = {
   id: string;
   tipo: string;
   estado: string;
@@ -64,6 +50,27 @@ type SistemaInstalado = {
   servicios: Servicio[];
 };
 
+function calcularAlertaMantenimiento(servicios: Servicio[]) {
+  const proximaFecha = servicios
+    .slice()
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .find((s) => s.proxima_fecha_mantenimiento)?.proxima_fecha_mantenimiento;
+
+  if (!proximaFecha) return null;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fecha = new Date(`${proximaFecha}T00:00:00`);
+  const dias = Math.round((fecha.getTime() - hoy.getTime()) / 86400000);
+
+  if (dias > DIAS_ALERTA_MANTENIMIENTO) return null;
+
+  return {
+    vencido: dias < 0,
+    texto: dias < 0 ? "Mantenimiento vencido" : `Próximo mantenimiento: ${formatoFecha.format(fecha)}`,
+  };
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -77,7 +84,7 @@ export default async function DashboardPage() {
 
   const { data: cliente } = await supabase
     .from("clientes")
-    .select("id, nombre")
+    .select("id, nombre, codigo_referido")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -104,14 +111,21 @@ export default async function DashboardPage() {
     .order("fecha_instalacion", { ascending: false })
     .returns<SistemaInstalado[]>();
 
+  const { data: referidos } = await supabase
+    .from("referidos")
+    .select("id, estado, created_at, referido:clientes!referidos_referido_cliente_id_fkey(nombre)")
+    .eq("referente_cliente_id", cliente.id)
+    .order("created_at", { ascending: false })
+    .returns<{ id: string; estado: string; created_at: string; referido: { nombre: string } | null }[]>();
+
   const todasLasFotos = (sistemas ?? []).flatMap((s) => s.servicios ?? []).flatMap((sv) => sv.fotos ?? []);
-  const urlsFotos = new Map<string, string>();
+  const urlsFotos: Record<string, string> = {};
   if (todasLasFotos.length > 0) {
     const { data: firmadas } = await supabase.storage
       .from("servicios-fotos")
       .createSignedUrls(todasLasFotos, 3600);
     firmadas?.forEach((f) => {
-      if (f.signedUrl) urlsFotos.set(f.path ?? "", f.signedUrl);
+      if (f.signedUrl && f.path) urlsFotos[f.path] = f.signedUrl;
     });
   }
 
@@ -133,13 +147,16 @@ export default async function DashboardPage() {
       ) : (
         sistemas.map((sistema) => {
           const club = sistema.club_blufil;
-          const servicios = [...(sistema.servicios ?? [])].sort(
+          const serviciosDesc = [...(sistema.servicios ?? [])].sort(
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
           );
+          const serviciosAsc = [...serviciosDesc].reverse();
 
-          const tieneMantenimientoEnCurso = servicios.some(
+          const tieneMantenimientoEnCurso = serviciosDesc.some(
             (s) => s.tipo === "mantenimiento" && s.estado !== "completada",
           );
+
+          const alerta = calcularAlertaMantenimiento(serviciosDesc);
 
           return (
             <section
@@ -155,9 +172,22 @@ export default async function DashboardPage() {
                     className="h-14 w-14 flex-shrink-0 rounded-full"
                   />
                   <div>
-                    <h2 className="font-semibold text-neutral-900">
-                      {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
-                    </h2>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="font-semibold text-neutral-900">
+                        {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
+                      </h2>
+                      {alerta && (
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            alerta.vencido
+                              ? "bg-red-100 text-red-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {alerta.texto}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-neutral-500">{sistema.direccion}</p>
                     {sistema.fecha_instalacion && (
                       <p className="text-xs text-neutral-400">
@@ -185,65 +215,13 @@ export default async function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-col divide-y divide-neutral-100">
-                {servicios.length === 0 ? (
-                  <p className="py-3 text-sm text-neutral-400">Sin servicios registrados.</p>
-                ) : (
-                  servicios.map((servicio) => (
-                    <div key={servicio.id} className="flex flex-col gap-1 py-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-neutral-800">
-                          {ETIQUETA_SERVICIO[servicio.tipo] ?? servicio.tipo} ·{" "}
-                          {formatoFecha.format(new Date(servicio.created_at))}
-                        </p>
-                        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
-                          {ETIQUETA_ESTADO[servicio.estado] ?? servicio.estado}
-                        </span>
-                      </div>
-                      {servicio.tecnicos?.nombre && (
-                        <p className="text-xs text-neutral-500">
-                          Técnico: {servicio.tecnicos.nombre}
-                        </p>
-                      )}
-                      {servicio.reporte_ia && (
-                        <p className="text-sm text-neutral-700">{servicio.reporte_ia}</p>
-                      )}
-                      {servicio.fotos && servicio.fotos.length > 0 && (
-                        <div className="flex gap-2 overflow-x-auto py-1">
-                          {servicio.fotos.map((ruta) =>
-                            urlsFotos.get(ruta) ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                key={ruta}
-                                src={urlsFotos.get(ruta)}
-                                alt="Foto del servicio"
-                                className="h-20 w-20 flex-shrink-0 rounded-lg object-cover ring-1 ring-black/5"
-                              />
-                            ) : null,
-                          )}
-                        </div>
-                      )}
-                      {servicio.valor_cobrado != null && (
-                        <p className="text-xs text-neutral-500">
-                          {formatoMoneda.format(servicio.valor_cobrado)}
-                          {servicio.descuento_aplicado > 0 &&
-                            ` · ${servicio.descuento_aplicado}% de descuento aplicado`}
-                        </p>
-                      )}
-                      {servicio.proxima_fecha_mantenimiento && (
-                        <p className="text-xs text-[#1a8fac]">
-                          Próximo mantenimiento recomendado:{" "}
-                          {formatoFecha.format(new Date(servicio.proxima_fecha_mantenimiento))}
-                        </p>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+              <HistorialServicios servicios={serviciosAsc} fotoUrls={urlsFotos} />
             </section>
           );
         })
       )}
+
+      <Referidos codigo={cliente.codigo_referido} referidos={referidos ?? []} />
     </div>
   );
 }

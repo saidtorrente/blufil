@@ -2,7 +2,7 @@
 
 Borrador de organización. Se arma con todo lo acordado hasta ahora en `docs/PROYECTO.md` para dejar clara la secuencia antes de empezar a construir. Pendiente de que el usuario agregue instrucciones adicionales antes de cerrarlo como definitivo.
 
-**Última actualización:** 2026-09-02
+**Última actualización:** 2026-09-03
 
 **Estado de avance (2026-09-02):**
 - ✅ Fase 2 (esquema de datos): proyecto Supabase "Blufil" creado (`zxlctemyciwshfsqvhgw`), 9 tablas + RLS + función `aceptar_servicio` para asignación atómica de técnicos, verificado con datos de prueba (aislamiento correcto entre clientes, sin fugas de datos).
@@ -29,7 +29,17 @@ Facturación electrónica conectada de punta a punta:
 - **Limitación conocida:** la ciudad del tercero se resuelve por un mapeo fijo (Barranquilla/Soledad/Puerto Colombia); si no coincide, usa Barranquilla por defecto.
 - Falta: envío de la factura por correo al cliente (Siigo lo soporta, no está conectado todavía), y manejo de reintentos si Siigo falla (hoy el disparador falla en silencio para no bloquear el cierre del servicio en el portal).
 - ⏳ Migración de Odoo: pospuesta a propósito hasta que el esquema/portal estén más maduros (ver sección de CRM abajo).
-- ⏳ Pendiente: integración Siigo Nube (Fase de facturación) y Hermes Agent (reportes de servicio).
+- ⏳ Pendiente: Hermes Agent (reportes de servicio + calificación de leads).
+
+### Dashboard de cliente — rediseño del historial + referidos (2026-09-03) ✅
+
+- **Solicitar mantenimiento desde el portal**: cada sistema instalado tiene un botón "Solicitar mantenimiento" (`portal/src/app/dashboard/solicitar-mantenimiento-button.tsx`); llama al RPC `solicitar_mantenimiento` (SECURITY DEFINER, valida que el sistema sea del cliente autenticado, bloquea duplicados si ya hay una solicitud en curso). La visita/servicio queda `pendiente` y aparece automáticamente en "Solicitudes disponibles" del panel de técnicos.
+- **Alerta de próximo mantenimiento**: badge en la tarjeta del sistema (ámbar si faltan ≤15 días, rojo si ya venció). Calculado en el servidor a partir del `proxima_fecha_mantenimiento` más reciente del sistema — no requiere JS en cliente.
+- **Historial rediseñado como stepper del Club Blufil** (`portal/src/app/dashboard/historial-servicios.tsx`, componente cliente): reemplaza la lista plana donde todo estaba siempre expandido. Cada servicio es un paso clickeable (ordenados cronológicamente); al hacer clic se despliega el detalle — **abajo en móvil, a la derecha en escritorio** (`flex-col md:flex-row`, sin JS de detección de viewport). El nivel de descuento mostrado en cada paso de mantenimiento usa la tabla de `docs/PROYECTO.md` §6.1.
+- **Automatización de `club_blufil` (hallazgo de esta ronda)**: no existía ningún trigger ni código que actualizara `conteo_mantenimientos`/`nivel_descuento` — quedaban fijos en lo que se sembrara a mano. Se agregó el trigger `tr_actualizar_club_blufil_insert`/`_update` sobre `servicios` (dispara cuando un servicio de tipo `mantenimiento` queda `completada`), con la función `actualizar_club_blufil()` que hace upsert e incrementa el conteo, recalculando el nivel con la tabla de niveles ya dada por el usuario (3°=15%, 6°=45%). Verificado en vivo completando un servicio de prueba y revirtiendo después. **No toca `racha_vigente_hasta`** — la ventana de vigencia (6-12 meses) sigue sin confirmar con el usuario.
+- **Referidos — código propio + estado de solo lectura**: columna `clientes.codigo_referido` (única, autogenerada). Nueva sección "Mis referidos" en el dashboard (`portal/src/app/dashboard/referidos.tsx`) muestra el código propio, un botón "Compartir por WhatsApp" (link `wa.me` con mensaje prellenado incluyendo el código, al número de WhatsApp Business ya usado en el sitio público) y la lista de referidos existentes por estado (usa la política RLS `referidos_select_own`, que ya existía — no se agregó RPC ni política nueva). El registro de la fila `referidos` sigue siendo manual por parte del staff; no se construyó autorregistro de un referido que aún no es cliente (requeriría columnas nuevas y no estaba pedido).
+- Íconos ilustrativos por tipo de sistema (`portal/public/sistemas/*.svg`) como placeholder mientras llegan fotos reales de los equipos.
+- **Fuera de alcance, anotado para no perderlo**: UI de Retomas (tabla y RLS de lectura ya existen, cero interfaz), historial de facturas Siigo visible al cliente, edición de datos de contacto del cliente, resumen agregado cuando hay varios sistemas.
 
 ---
 
