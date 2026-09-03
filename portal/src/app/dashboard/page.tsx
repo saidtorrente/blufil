@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SolicitarMantenimientoButton } from "./solicitar-mantenimiento-button";
 
 const ETIQUETA_SISTEMA: Record<string, string> = {
   doble_filtracion: "Doble filtración",
@@ -136,31 +137,52 @@ export default async function DashboardPage() {
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
           );
 
+          const tieneMantenimientoEnCurso = servicios.some(
+            (s) => s.tipo === "mantenimiento" && s.estado !== "completada",
+          );
+
           return (
             <section
               key={sistema.id}
               className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold text-neutral-900">
-                    {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
-                  </h2>
-                  <p className="text-sm text-neutral-500">{sistema.direccion}</p>
-                  {sistema.fecha_instalacion && (
-                    <p className="text-xs text-neutral-400">
-                      Instalado el {formatoFecha.format(new Date(sistema.fecha_instalacion))}
+                <div className="flex items-start gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/sistemas/${sistema.tipo}.svg`}
+                    alt={ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
+                    className="h-14 w-14 flex-shrink-0 rounded-full"
+                  />
+                  <div>
+                    <h2 className="font-semibold text-neutral-900">
+                      {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
+                    </h2>
+                    <p className="text-sm text-neutral-500">{sistema.direccion}</p>
+                    {sistema.fecha_instalacion && (
+                      <p className="text-xs text-neutral-400">
+                        Instalado el {formatoFecha.format(new Date(sistema.fecha_instalacion))}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  {club && (
+                    <div className="rounded-lg bg-[#eaf7fb] px-3 py-2 text-right text-xs text-[#123C5B]">
+                      <p className="font-semibold">Club Blufil · {club.nivel_descuento}%</p>
+                      <p className="text-neutral-500">
+                        Mantenimiento #{club.conteo_mantenimientos}
+                      </p>
+                    </div>
+                  )}
+                  {tieneMantenimientoEnCurso ? (
+                    <p className="text-xs font-medium text-[#1a8fac]">
+                      Ya tienes una solicitud de mantenimiento en curso.
                     </p>
+                  ) : (
+                    <SolicitarMantenimientoButton sistemaInstaladoId={sistema.id} />
                   )}
                 </div>
-                {club && (
-                  <div className="rounded-lg bg-[#eaf7fb] px-3 py-2 text-right text-xs text-[#123C5B]">
-                    <p className="font-semibold">Club Blufil · {club.nivel_descuento}%</p>
-                    <p className="text-neutral-500">
-                      Mantenimiento #{club.conteo_mantenimientos}
-                    </p>
-                  </div>
-                )}
               </div>
 
               <div className="mt-4 flex flex-col divide-y divide-neutral-100">
