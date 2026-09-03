@@ -25,7 +25,8 @@ Facturación electrónica conectada de punta a punta:
   - Forma de pago por defecto: **Transferencia** (id `7001`)
   - Productos genéricos creados en Siigo para no ensuciar su catálogo existente (256 productos ad-hoc): `PORTAL-INSTALACION` y `PORTAL-MANTENIMIENTO` — la descripción real de cada factura se escribe por ítem, no depende del nombre del producto.
 - **Verificado con una factura real de prueba** ($1.000 COP, FV-3-316) — cliente creado correctamente, ítem con descripción completa, IVA 0%, Transferencia. Quedó en estado "Draft" (sin timbrar) — el usuario decide si la anula desde Siigo.
-- **Limitación conocida:** la ciudad del tercero se resuelve por un mapeo fijo (Barranquilla/Soledad/Puerto Colombia); si no coincide, usa Barranquilla por defecto. El soporte de persona jurídica/NIT (arriba) no se ha probado todavía con una factura real — solo con persona natural.
+- **Persona jurídica/NIT verificado con una factura real de prueba** ($1.000 COP, cliente "Distribuidora de Pruebas SAS", NIT 900123456) — Siigo creó el tercero como `person_type: "Company"`, `id_type: NIT (31)`, calculó el dígito de verificación solo (`8`), y por defecto asignó `fiscal_responsibilities: R-99-PN` aunque no se envió explícito. Datos de prueba eliminados de Supabase; la factura quedó en Siigo (Draft).
+- **Limitación conocida:** la ciudad del tercero se resuelve por un mapeo fijo (Barranquilla/Soledad/Puerto Colombia); si no coincide, usa Barranquilla por defecto.
 - Falta: envío de la factura por correo al cliente (Siigo lo soporta, no está conectado todavía), y manejo de reintentos si Siigo falla (hoy el disparador falla en silencio para no bloquear el cierre del servicio en el portal).
 - ⏳ Migración de Odoo: pospuesta a propósito hasta que el esquema/portal estén más maduros (ver sección de CRM abajo).
 - ⏳ Pendiente: integración Siigo Nube (Fase de facturación) y Hermes Agent (reportes de servicio).
