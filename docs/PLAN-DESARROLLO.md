@@ -92,6 +92,16 @@ Plan completo (Fases 1-3: seguridad + racha, base de datos del admin, panel `/ad
 - **Ping diario** contra Supabase para que el plan gratuito no lo pause: cron de Hostinger `0 6 * * *` (uid `ZUvSK0C4qo`) que llama a la RPC pública `ping()`. Si fallara, el síntoma es proyecto `INACTIVE` (se reactiva con `restore_project`, ~8 min).
 - **Anotado para el panel admin**: las cuentas nuevas arrancan con la cédula como contraseña y nada obliga a cambiarla en el primer ingreso (quien conozca cédula y correo podría entrar tras la confirmación) → forzar cambio de contraseña al primer ingreso.
 
+### Fase 2 del plan 2026-10-08 — administradores con niveles de permiso (2026-10-08) ✅ (solo base de datos; sin pantallas todavía)
+
+- **Tabla `admins`** (`auth_user_id`, `nombre`, `nivel`) con tres niveles: **lector** (ve todo), **operador** (lector + crea/edita clientes, equipos, visitas, servicios, referidos, retomas y técnicos *sin certificar*) y **superadmin** (operador + certifica/desactiva técnicos, edita cédula y gestiona admins). Las funciones de permisos (`privado.nivel_admin()`, `privado.es_admin(minimo)`) viven en el esquema `privado`, que la API REST no expone; las políticas RLS las usan con `(select ...)` para que se evalúen una vez por consulta.
+- **Primer admin**: `saidtorrente+admin@gmail.com`, superadmin, correo confirmado. Se creó por SQL con una contraseña aleatoria que nadie conoce (copiando el formato de las cuentas existentes, con los campos de token vacíos como hace GoTrue). **La contraseña la fija el dueño** con "Olvidé mi contraseña" cuando exista `/admin/login` (Fase 3A): el correo de recuperación necesita el flujo PKCE del navegador para que `/auth/recuperar` pueda canjear el `code`.
+- **Hueco cerrado en `clientes`**: `clientes_update_own` permitía a un cliente cambiar por la API cualquier columna de su fila (`cedula_nit`, `estatus`, `codigo_referido`, `correo`…). El trigger `proteger_columnas_cliente` limita a un cliente a editar solo `telefono`, `direccion` y `ciudad`. El trigger de técnicos ahora deja pasar al superadmin.
+- Valor nuevo `cancelada` en `estado_servicio`; política de Storage para que los admins vean `servicios-fotos`; trigger que fija `sistemas_instalados.fecha_instalacion` al completarse una instalación; la función de ese trigger no es invocable por RPC.
+- **Pruebas** con sesiones simuladas (todo en transacciones que se revierten): el lector ve todo y no escribe; el operador crea clientes y técnicos sin certificar pero no puede certificar ni crear admins; el superadmin certifica y ve los admins; cliente y técnico no ven `admins` ni pueden hacerse admin; el cliente solo edita contacto; el técnico edita su perfil pero no `certificado`.
+- Las Edge Functions endurecidas en la Fase 1 ya consultan esta tabla (admin operador+).
+- **Pendiente para la Fase 3A**: `/admin/login` con "Olvidé mi contraseña" (usa `resetPasswordForEmail` desde el navegador).
+
 ---
 
 ## Fase 0 — Fundamentos (completado)
