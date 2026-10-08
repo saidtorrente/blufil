@@ -1,5 +1,6 @@
 "use client";
 
+import { EvidenciasGaleria } from "@/app/evidencias-galeria";
 import { useState } from "react";
 import type { Servicio } from "./tipos";
 import { formatoFecha, formatoMoneda } from "./tipos";
@@ -98,18 +99,8 @@ export function HistorialServicios({
         </p>
         {activo.reporte_ia && <p className="mt-2 text-sm text-neutral-700">{activo.reporte_ia}</p>}
         {activo.fotos && activo.fotos.length > 0 && (
-          <div className="mt-2 flex gap-2 overflow-x-auto py-1">
-            {activo.fotos.map((ruta) =>
-              fotoUrls[ruta] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={ruta}
-                  src={fotoUrls[ruta]}
-                  alt="Foto del servicio"
-                  className="h-20 w-20 flex-shrink-0 rounded-lg object-cover ring-1 ring-black/5"
-                />
-              ) : null,
-            )}
+          <div className="mt-2">
+            <EvidenciasGaleria rutas={activo.fotos} urls={fotoUrls} lado="h-20 w-20" />
           </div>
         )}
         {activo.valor_cobrado != null && (

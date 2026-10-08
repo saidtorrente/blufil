@@ -52,7 +52,7 @@ export default async function InventarioPage({
   const [{ data: productos, error }, { data: ultima }, { data: ajustes }, { count: sinClasificar }] = await Promise.all([
     consulta.returns<Producto[]>(),
     supabase.from("productos").select("sincronizado_at").order("sincronizado_at", { ascending: false }).limit(1).maybeSingle(),
-    supabase.from("ajustes_facturacion").select("enviar_dian, enviar_correo").maybeSingle(),
+    supabase.from("ajustes_facturacion").select("enviar_dian, enviar_correo, cobrar_iva").maybeSingle(),
     supabase.from("productos").select("id", { count: "exact", head: true }).eq("activo", true).eq("categoria", "sin_clasificar"),
   ]);
 
@@ -79,6 +79,7 @@ export default async function InventarioPage({
         <AjustesFacturacion
           enviarDian={ajustes?.enviar_dian ?? true}
           enviarCorreo={ajustes?.enviar_correo ?? true}
+          cobrarIva={ajustes?.cobrar_iva ?? false}
           puedeEditar={esSuperadmin(admin)}
         />
       </section>

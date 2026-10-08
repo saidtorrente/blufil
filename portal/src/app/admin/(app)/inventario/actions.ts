@@ -42,13 +42,13 @@ export async function sincronizarAhora(): Promise<string | null> {
   return null;
 }
 
-export async function guardarAjustes(enviarDian: boolean, enviarCorreo: boolean): Promise<string | null> {
+export async function guardarAjustes(enviarDian: boolean, enviarCorreo: boolean, cobrarIva: boolean): Promise<string | null> {
   const { supabase, error } = await sesionSuperadmin();
   if (error) return error;
 
   const { data, error: errorUpdate } = await supabase
     .from("ajustes_facturacion")
-    .update({ enviar_dian: enviarDian, enviar_correo: enviarCorreo, updated_at: new Date().toISOString() })
+    .update({ enviar_dian: enviarDian, enviar_correo: enviarCorreo, cobrar_iva: cobrarIva, updated_at: new Date().toISOString() })
     .eq("id", true)
     .select("id");
   if (errorUpdate || !data || data.length === 0) return "No pudimos guardar los ajustes. Intenta de nuevo.";

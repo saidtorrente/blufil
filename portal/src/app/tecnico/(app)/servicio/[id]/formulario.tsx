@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition, type FormEvent } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { comprimirFoto, extensionDe, MAX_VIDEO_BYTES, type TipoEvidencia } from "@/lib/evidencias";
 import { completarServicio } from "./actions";
 
 export type ProductoOpcion = {
@@ -36,12 +38,63 @@ export function FormularioCompletar({
   repuestos: ProductoOpcion[];
 }) {
   const accionConId = completarServicio.bind(null, servicioId);
-  const [error, formAction, pending] = useActionState(accionConId, null);
+  const [error, formAction, enviando] = useActionState(accionConId, null);
+  const [, startTransition] = useTransition();
   const [filas, setFilas] = useState<number[]>([]);
   const [siguiente, setSiguiente] = useState(0);
+  const [progreso, setProgreso] = useState<string | null>(null);
+  const [errorLocal, setErrorLocal] = useState<string | null>(null);
+  const pending = enviando || progreso !== null;
+
+  // Las evidencias suben directo al almacenamiento (las fotos, ya comprimidas) y
+  // al servidor solo llegan sus rutas: así no se topa con el límite de tamaño de
+  // los formularios y el video puede pesar varios MB.
+  async function enviar(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErrorLocal(null);
+    const datos = new FormData(e.currentTarget);
+
+    const archivos = (campo: string) =>
+      datos.getAll(campo).filter((f): f is File => f instanceof File && f.size > 0);
+    const pendientes: { tipo: TipoEvidencia; archivo: File }[] = [
+      ...archivos("ev_antes").map((archivo) => ({ tipo: "antes" as const, archivo })),
+      ...archivos("ev_despues").map((archivo) => ({ tipo: "despues" as const, archivo })),
+      ...archivos("ev_extra").map((archivo) => ({ tipo: "extra" as const, archivo })),
+      ...archivos("ev_video").map((archivo) => ({ tipo: "video" as const, archivo })),
+    ];
+    for (const campo of ["ev_antes", "ev_despues", "ev_extra", "ev_video"]) datos.delete(campo);
+
+    if (!pendientes.some((p) => p.tipo === "antes")) return setErrorLocal("Falta la foto del antes.");
+    if (!pendientes.some((p) => p.tipo === "despues")) return setErrorLocal("Falta la foto del después.");
+    const video = pendientes.find((p) => p.tipo === "video");
+    if (video && video.archivo.size > MAX_VIDEO_BYTES) {
+      return setErrorLocal("El video pesa más de 40 MB. Grábalo más corto (unos 30 segundos).");
+    }
+
+    const supabase = createClient();
+    try {
+      for (let i = 0; i < pendientes.length; i++) {
+        const { tipo, archivo } = pendientes[i];
+        setProgreso(`Subiendo evidencias ${i + 1} de ${pendientes.length}…`);
+        const { blob, extension } = tipo === "video" ? { blob: archivo as Blob, extension: extensionDe(archivo) } : await comprimirFoto(archivo);
+        const ruta = `${servicioId}/${tipo}-${crypto.randomUUID()}.${extension}`;
+        const { error: errorSubida } = await supabase.storage
+          .from("servicios-fotos")
+          .upload(ruta, blob, { contentType: blob.type || archivo.type });
+        if (errorSubida) throw errorSubida;
+        datos.append("evidencia", ruta);
+      }
+    } catch {
+      setProgreso(null);
+      return setErrorLocal("No pudimos subir una de las evidencias. Revisa la señal e intenta de nuevo.");
+    }
+
+    setProgreso(null);
+    startTransition(() => formAction(datos));
+  }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+    <form onSubmit={enviar} className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
       <h2 className="font-semibold text-neutral-800">Marcar como completado</h2>
 
       <label className="flex flex-col gap-1 text-sm text-neutral-700">
@@ -55,17 +108,25 @@ export function FormularioCompletar({
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm text-neutral-700">
-        Fotos del servicio
-        <input
-          type="file"
-          name="fotos"
-          accept="image/*"
-          capture="environment"
-          multiple
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
-        />
-      </label>
+      <fieldset className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4">
+        <legend className="px-1 text-sm font-medium text-neutral-800">Evidencias</legend>
+        <label className="flex flex-col gap-1 text-sm text-neutral-700">
+          Foto del antes <span className="text-xs text-neutral-400">Cómo estaba el equipo al llegar.</span>
+          <input type="file" name="ev_antes" accept="image/*" capture="environment" required className={`text-sm ${ENTRADA}`} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-neutral-700">
+          Foto del después <span className="text-xs text-neutral-400">Cómo quedó al terminar.</span>
+          <input type="file" name="ev_despues" accept="image/*" capture="environment" required className={`text-sm ${ENTRADA}`} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-neutral-700">
+          Fotos adicionales <span className="text-xs text-neutral-400">Opcional: piezas cambiadas, fugas, conexiones…</span>
+          <input type="file" name="ev_extra" accept="image/*" multiple className={`text-sm ${ENTRADA}`} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-neutral-700">
+          Video corto <span className="text-xs text-neutral-400">Opcional, unos 30 segundos (máx. 40 MB).</span>
+          <input type="file" name="ev_video" accept="video/*" capture="environment" className={`text-sm ${ENTRADA}`} />
+        </label>
+      </fieldset>
 
       {tipo === "instalacion" && (
         <label className="flex flex-col gap-1 text-sm text-neutral-700">
@@ -173,14 +234,14 @@ export function FormularioCompletar({
         />
       </label>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {(errorLocal || error) && <p className="text-sm text-red-600">{errorLocal ?? error}</p>}
 
       <button
         type="submit"
         disabled={pending}
         className="mt-2 rounded-lg bg-[#123C5B] py-2.5 font-medium text-white transition hover:bg-[#0d2c44] disabled:opacity-60"
       >
-        {pending ? "Guardando…" : "Marcar como completado"}
+        {progreso ?? (pending ? "Guardando…" : "Marcar como completado")}
       </button>
     </form>
   );

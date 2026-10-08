@@ -14,7 +14,8 @@ export async function completarServicio(
   const valorCobrado = String(formData.get("valor_cobrado") ?? "").trim();
   const descuento = String(formData.get("descuento_aplicado") ?? "").trim();
   const proximaFecha = String(formData.get("proxima_fecha_mantenimiento") ?? "").trim();
-  const fotos = formData.getAll("fotos").filter((f): f is File => f instanceof File && f.size > 0);
+  // Rutas de las evidencias, ya subidas por el navegador al almacenamiento.
+  const evidencias = formData.getAll("evidencia").map(String);
 
   if (!notas) {
     return "Escribe una nota sobre el servicio realizado.";
@@ -86,18 +87,14 @@ export async function completarServicio(
     if (errorProductos) return "No pudimos guardar los repuestos. Intenta de nuevo.";
   }
 
-  const rutasFotos: string[] = [];
-  for (const foto of fotos) {
-    const extension = foto.name.split(".").pop() || "jpg";
-    const ruta = `${servicioId}/${crypto.randomUUID()}.${extension}`;
-    const { error: errorSubida } = await supabase.storage
-      .from("servicios-fotos")
-      .upload(ruta, foto, { contentType: foto.type });
-
-    if (errorSubida) {
-      return "No pudimos subir una de las fotos. Intenta de nuevo.";
-    }
-    rutasFotos.push(ruta);
+  const rutasEvidencia = [...new Set(evidencias)];
+  const carpeta = `${servicioId}/`;
+  if (rutasEvidencia.some((r) => !r.startsWith(carpeta) || r.slice(carpeta.length).includes("/"))) {
+    return "Alguna evidencia no es válida. Vuelve a subirlas.";
+  }
+  const nombreEs = (prefijo: string) => rutasEvidencia.some((r) => r.slice(carpeta.length).startsWith(prefijo));
+  if (!nombreEs("antes-") || !nombreEs("despues-")) {
+    return "Sube la foto del antes y la del después.";
   }
 
   const { data: servicioActualizado, error } = await supabase
@@ -108,7 +105,7 @@ export async function completarServicio(
       valor_cobrado: valorCobrado ? Number(valorCobrado) : null,
       descuento_aplicado: descuento ? Number(descuento) : 0,
       proxima_fecha_mantenimiento: proximaFecha || null,
-      fotos: rutasFotos,
+      fotos: rutasEvidencia,
     })
     .eq("id", servicioId)
     .select("visita_id")

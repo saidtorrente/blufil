@@ -236,6 +236,17 @@ Deno.serve(async (req) => {
     siigoCustomerId = nuevoCliente.id;
   }
 
+  // Interruptores del panel (Inventario > Facturacion). Sin ellos Siigo deja la
+  // factura en borrador: ni DIAN ni correo (ambos valen false por defecto).
+  const { data: ajustes } = await admin
+    .from("ajustes_facturacion")
+    .select("enviar_dian, enviar_correo, cobrar_iva")
+    .maybeSingle();
+  const enviarDian = ajustes?.enviar_dian ?? false;
+  const enviarCorreo = (ajustes?.enviar_correo ?? false) && Boolean(cliente.correo);
+  // Al comienzo no se cobra IVA: todo sale con IVA 0%, sin importar el impuesto del producto en Siigo.
+  const cobrarIva = ajustes?.cobrar_iva ?? false;
+
   // Cada servicio genera: (1) la mano de obra, con el descuento del Club Blufil,
   // y (2) una linea por cada producto de Siigo que el tecnico registro (el equipo
   // instalado y los repuestos), a precio de Siigo y sin descuento. Esas lineas
@@ -272,7 +283,8 @@ Deno.serve(async (req) => {
     for (const sp of s.servicio_productos ?? []) {
       const producto = Array.isArray(sp.productos) ? sp.productos[0] : sp.productos;
       if (!producto) continue;
-      const impuestos: { id: number; porcentaje?: number }[] = Array.isArray(producto.impuestos) ? producto.impuestos : [];
+      const impuestosProducto: { id: number; porcentaje?: number }[] = Array.isArray(producto.impuestos) ? producto.impuestos : [];
+      const impuestos = cobrarIva ? impuestosProducto : [{ id: TAX_ID, porcentaje: 0 }];
       const bodega = Array.isArray(producto.bodegas) ? producto.bodegas[0] : null;
       const linea: Linea = {
         code: producto.codigo,
@@ -300,12 +312,6 @@ Deno.serve(async (req) => {
     });
   }
   total = Math.round(total * 100) / 100;
-
-  // Interruptores del panel (Inventario > Facturacion). Sin ellos Siigo deja la
-  // factura en borrador: ni DIAN ni correo (ambos valen false por defecto).
-  const { data: ajustes } = await admin.from("ajustes_facturacion").select("enviar_dian, enviar_correo").maybeSingle();
-  const enviarDian = ajustes?.enviar_dian ?? false;
-  const enviarCorreo = (ajustes?.enviar_correo ?? false) && Boolean(cliente.correo);
 
   const facturaRes = await fetch("https://api.siigo.com/v1/invoices", {
     method: "POST",

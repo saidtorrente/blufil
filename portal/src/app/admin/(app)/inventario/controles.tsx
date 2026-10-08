@@ -120,28 +120,33 @@ export function BotonSincronizar() {
 export function AjustesFacturacion({
   enviarDian,
   enviarCorreo,
+  cobrarIva,
   puedeEditar,
 }: {
   enviarDian: boolean;
   enviarCorreo: boolean;
+  cobrarIva: boolean;
   puedeEditar: boolean;
 }) {
   const [pendiente, startTransition] = useTransition();
   const [dian, setDian] = useState(enviarDian);
   const [correo, setCorreo] = useState(enviarCorreo);
+  const [iva, setIva] = useState(cobrarIva);
   const [error, setError] = useState<string | null>(null);
 
-  function cambiar(nuevoDian: boolean, nuevoCorreo: boolean) {
+  function cambiar(nuevoDian: boolean, nuevoCorreo: boolean, nuevoIva: boolean) {
     setError(null);
-    const anterior = { dian, correo };
+    const anterior = { dian, correo, iva };
     setDian(nuevoDian);
     setCorreo(nuevoCorreo);
+    setIva(nuevoIva);
     startTransition(async () => {
-      const mensaje = await guardarAjustes(nuevoDian, nuevoCorreo);
+      const mensaje = await guardarAjustes(nuevoDian, nuevoCorreo, nuevoIva);
       if (mensaje) {
         setError(mensaje);
         setDian(anterior.dian);
         setCorreo(anterior.correo);
+        setIva(anterior.iva);
       }
     });
   }
@@ -153,7 +158,7 @@ export function AjustesFacturacion({
           type="checkbox"
           checked={dian}
           disabled={!puedeEditar || pendiente}
-          onChange={(e) => cambiar(e.target.checked, correo)}
+          onChange={(e) => cambiar(e.target.checked, correo, iva)}
           className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#123C5B]"
         />
         <span>
@@ -168,12 +173,27 @@ export function AjustesFacturacion({
           type="checkbox"
           checked={correo}
           disabled={!puedeEditar || pendiente}
-          onChange={(e) => cambiar(dian, e.target.checked)}
+          onChange={(e) => cambiar(dian, e.target.checked, iva)}
           className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#123C5B]"
         />
         <span>
           Enviar la factura al correo del cliente
           <span className="block text-xs text-neutral-400">Siigo la envía al correo registrado del cliente.</span>
+        </span>
+      </label>
+      <label className="flex items-start gap-2 text-sm text-neutral-700">
+        <input
+          type="checkbox"
+          checked={iva}
+          disabled={!puedeEditar || pendiente}
+          onChange={(e) => cambiar(dian, correo, e.target.checked)}
+          className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#123C5B]"
+        />
+        <span>
+          Cobrar IVA en los productos
+          <span className="block text-xs text-neutral-400">
+            Apagado, todas las líneas salen con IVA 0%. Encendido, cada producto lleva el IVA que tiene en Siigo.
+          </span>
         </span>
       </label>
       {!puedeEditar && <p className="text-xs text-neutral-400">Solo un superadmin puede cambiar estos ajustes.</p>}

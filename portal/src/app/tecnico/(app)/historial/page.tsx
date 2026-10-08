@@ -93,7 +93,7 @@ export default async function HistorialTecnicoPage() {
               {s.valor_cobrado != null && <span>{formatoMoneda.format(s.valor_cobrado)}</span>}
               {s.fotos && s.fotos.length > 0 && (
                 <span>
-                  {s.fotos.length} foto{s.fotos.length === 1 ? "" : "s"}
+                  {s.fotos.length} evidencia{s.fotos.length === 1 ? "" : "s"}
                 </span>
               )}
             </div>

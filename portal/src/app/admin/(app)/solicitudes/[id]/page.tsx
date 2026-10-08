@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ETIQUETA_SERVICIO, ETIQUETA_SISTEMA } from "@/app/tecnico/etiquetas";
 import { obtenerAdmin, puedeEscribir } from "../../../admin";
 import { EstadoChip, formatoFechaCorta, formatoFechaHora, formatoMoneda, formatoOrden, uno } from "../../../ui";
+import { EvidenciasGaleria } from "@/app/evidencias-galeria";
 import { AccionesSolicitud } from "./acciones";
 
 type Detalle = {
@@ -84,11 +85,11 @@ export default async function DetalleSolicitudPage({
   const otrosServicios = (visita?.servicios ?? []).filter((s) => s.id !== servicio.id);
 
   const rutasFotos = servicio.fotos ?? [];
-  const urlsFotos: string[] = [];
+  const urlsFotos: Record<string, string> = {};
   if (rutasFotos.length > 0) {
     const { data: firmadas } = await supabase.storage.from("servicios-fotos").createSignedUrls(rutasFotos, 3600);
     firmadas?.forEach((f) => {
-      if (f.signedUrl) urlsFotos.push(f.signedUrl);
+      if (f.signedUrl && f.path) urlsFotos[f.path] = f.signedUrl;
     });
   }
 
@@ -198,14 +199,9 @@ export default async function DetalleSolicitudPage({
               {servicio.reporte_ia}
             </p>
           )}
-          {urlsFotos.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {urlsFotos.map((url) => (
-                <a key={url} href={url} target="_blank" rel="noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt="Foto del servicio" className="h-24 w-24 rounded-lg object-cover ring-1 ring-black/10" />
-                </a>
-              ))}
+          {rutasFotos.length > 0 && (
+            <div className="mt-4">
+              <EvidenciasGaleria rutas={rutasFotos} urls={urlsFotos} />
             </div>
           )}
         </section>
