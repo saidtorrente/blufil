@@ -40,6 +40,16 @@ export function FormularioSolicitud({
           requerido
           ayuda="La instalación es solo para equipos que aún no se han instalado."
         />
+        <Seleccion
+          etiqueta="¿Por dónde lo pidió?"
+          nombre="canal"
+          valor={v("canal", "telefono")}
+          opciones={[
+            { valor: "telefono", etiqueta: "Llamada telefónica" },
+            { valor: "whatsapp", etiqueta: "WhatsApp" },
+          ]}
+          ayuda="Sirve para saber de dónde llegan las solicitudes."
+        />
         <Campo
           etiqueta="Fecha deseada"
           nombre="fecha"

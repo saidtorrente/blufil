@@ -20,6 +20,9 @@ export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Pro
   const tipo = texto(formData, "tipo");
   if (tipo !== "instalacion" && tipo !== "mantenimiento") return { error: "Elige el tipo de servicio.", valores };
 
+  const canal = texto(formData, "canal") ?? "telefono";
+  if (canal !== "telefono" && canal !== "whatsapp") return { error: "Canal no válido.", valores };
+
   const tecnicoId = texto(formData, "tecnico_id");
   if (tecnicoId && !UUID.test(tecnicoId)) return { error: "Técnico no válido.", valores };
 
@@ -32,6 +35,7 @@ export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Pro
     p_tipo: tipo,
     p_fecha_deseada: fecha ? `${fecha}T08:00:00-05:00` : null,
     p_tecnico_id: tecnicoId,
+    p_canal: canal,
   });
 
   if (errorRpc) {

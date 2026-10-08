@@ -159,6 +159,14 @@ Decisiones del usuario: el mantenimiento le toca **6 meses después del último 
 - **Pruebas**: escenario simulado en SQL (creación, segunda corrida sin duplicar, pendiente→agendado→en servicio→cancelada→completada, instalación→cliente nuevo→llamada a los 7 días); envío real de un recordatorio (llegó a la bandeja, un correo y una marca por tarjeta; se corrigió un error mío al cerrar la conexión SMTP que devolvía 500 después de enviar); recorrido en el navegador con un admin temporal (arrastrar, contacto, «No contestó», interruptor). Todo lo temporal se borró.
 - **Pendiente**: 5B, agenda de técnicos (fecha y franja en el servicio, «Mi agenda», asignación directa o aceptación por el técnico, avisos al cliente y al técnico); cuando se carguen los clientes de Odoo, la primera corrida creará muchas tarjetas «vencidas» (es trabajo real de seguimiento; los correos solo salen si el interruptor está encendido y solo para las de los últimos 30 días).
 
+### Chat con IA → solicitudes y seguimiento (diseño acordado 2026-10-08; sin construir)
+
+Las tarjetas de Seguimiento avanzan por lo que pasa en la base de datos (un `servicios` de mantenimiento pendiente o asignado mueve la tarjeta a «Agendado»), sin importar el canal. Decisión: **la IA crea sola solo mantenimientos de clientes que ya existen; todo lo demás pasa a una persona.**
+- **Cliente existente pide mantenimiento**: un servicio propio (Edge Function protegida con un token en Vault, que la IA no ve) identifica al cliente por el número de WhatsApp del contacto de Chatwoot (`clientes.telefono_normalizado`, solo dígitos con 57), muestra sus equipos y crea el mantenimiento (`canal_origen = 'whatsapp'`) con las mismas reglas del botón del cliente (un mantenimiento activo por equipo). Dispara `notificar-solicitud` y la tarjeta pasa sola a «Agendado». La IA no tiene acceso de escritura a la base: solo ese punto de entrada, acotado a los equipos del cliente identificado.
+- **Número que coincide con varios clientes o equipo ambiguo**: la IA le pregunta cuál. **Número desconocido o instalación nueva**: pasa a una persona, y el lead cae en un tablero de **Prospectos** (Nuevo → Cotizado → Instalación agendada → Instalado), por construir.
+- Toda conversación con la IA queda en el historial de la tarjeta como un contacto por WhatsApp.
+- Ya hecho: el canal `whatsapp` existe (`canal_origen`) y la solicitud creada desde el panel permite elegir **Llamada o WhatsApp**; `clientes.telefono_normalizado` (columna generada con índice).
+
 ---
 
 ## Fase 0 — Fundamentos (completado)

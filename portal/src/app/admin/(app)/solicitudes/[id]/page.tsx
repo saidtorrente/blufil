@@ -105,7 +105,7 @@ export default async function DetalleSolicitudPage({
         </div>
         <p className="mt-1 text-sm text-neutral-500">
           Solicitada el {formatoFechaHora.format(new Date(servicio.created_at))} · canal{" "}
-          {visita?.canal_origen === "telefono" ? "teléfono" : "portal web"}
+          {visita?.canal_origen === "telefono" ? "teléfono" : visita?.canal_origen === "whatsapp" ? "WhatsApp" : "portal web"}
         </p>
       </div>
 
