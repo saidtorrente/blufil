@@ -205,6 +205,14 @@ export default async function ClienteAdminPage({
       </Seccion>
 
       <Seccion titulo="Historial de servicios">
+        {escribe && cliente.sistemas_instalados.length > 0 && (
+          <Link
+            href={`/admin/solicitudes/nueva?cliente=${cliente.id}`}
+            className="mb-3 inline-block rounded-lg bg-[#123C5B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+          >
+            Nueva solicitud
+          </Link>
+        )}
         {servicios.length === 0 ? (
           <p className="text-sm text-neutral-400">Sin servicios todavía.</p>
         ) : (

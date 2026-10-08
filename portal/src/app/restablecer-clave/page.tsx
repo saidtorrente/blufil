@@ -39,7 +39,11 @@ export default function RestablecerClavePage() {
 
     // Solo se ofrece el acceso al panel a quien es admin (la política RLS de
     // `admins` deja a cada uno ver únicamente su propia fila).
-    const { data: fila } = await supabase.from("admins").select("nivel").maybeSingle();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: fila } = await supabase.from("admins").select("nivel").eq("auth_user_id", user.id).maybeSingle();
     setEsAdmin(Boolean(fila));
   }
 

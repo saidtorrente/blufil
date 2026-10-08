@@ -10,12 +10,14 @@ const SECCIONES = [
   { href: "/admin/tecnicos", etiqueta: "Técnicos" },
 ];
 
-export function AdminNav() {
+const SECCION_EQUIPO = { href: "/admin/equipo", etiqueta: "Equipo" };
+
+export function AdminNav({ esSuperadmin }: { esSuperadmin: boolean }) {
   const pathname = usePathname();
 
   return (
     <nav className="flex gap-1 overflow-x-auto px-4 py-2 md:w-48 md:flex-shrink-0 md:flex-col md:gap-1 md:overflow-visible md:px-0 md:py-0">
-      {SECCIONES.map((seccion) => {
+      {(esSuperadmin ? [...SECCIONES, SECCION_EQUIPO] : SECCIONES).map((seccion) => {
         const activa = seccion.href === "/admin" ? pathname === "/admin" : pathname.startsWith(seccion.href);
         return (
           <Link

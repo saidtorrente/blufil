@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ETIQUETA_SERVICIO, ETIQUETA_SISTEMA } from "@/app/tecnico/etiquetas";
+import { obtenerAdmin, puedeEscribir } from "../../admin";
 import { EstadoChip, formatoFechaCorta, formatoMoneda, formatoOrden, uno } from "../../ui";
 
 const FILTROS_ESTADO: { clave: string; etiqueta: string; estados: string[] | null }[] = [
@@ -36,6 +37,7 @@ const LIMITE = 100;
 export default async function SolicitudesAdminPage({ searchParams }: { searchParams: Promise<Params> }) {
   const { estado = "activas", tecnico = "", ciudad = "", q = "" } = await searchParams;
   const supabase = await createClient();
+  const admin = await obtenerAdmin(supabase);
 
   const filtroEstado = FILTROS_ESTADO.find((f) => f.clave === estado) ?? FILTROS_ESTADO[0];
   const busqueda = q.trim();
@@ -71,9 +73,19 @@ export default async function SolicitudesAdminPage({ searchParams }: { searchPar
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-[#123C5B]">Solicitudes</h1>
-        <p className="text-sm text-neutral-500">Instalaciones y mantenimientos, del más reciente al más antiguo.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-[#123C5B]">Solicitudes</h1>
+          <p className="text-sm text-neutral-500">Instalaciones y mantenimientos, del más reciente al más antiguo.</p>
+        </div>
+        {puedeEscribir(admin) && (
+          <Link
+            href="/admin/solicitudes/nueva"
+            className="rounded-lg bg-[#123C5B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+          >
+            Nueva solicitud
+          </Link>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">

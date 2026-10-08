@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { ETIQUETA_NIVEL, obtenerAdmin } from "../admin";
+import { ETIQUETA_NIVEL, esSuperadmin, obtenerAdmin } from "../admin";
 import { AdminNav } from "./admin-nav";
 import { LogoutButtonAdmin } from "./logout-button";
 
@@ -57,7 +57,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl flex-col md:flex-row md:gap-6 md:px-4 md:py-8">
-        <AdminNav />
+        <AdminNav esSuperadmin={esSuperadmin(admin)} />
         <main className="min-w-0 flex-1 px-4 py-6 md:px-0 md:py-0">{children}</main>
       </div>
     </div>

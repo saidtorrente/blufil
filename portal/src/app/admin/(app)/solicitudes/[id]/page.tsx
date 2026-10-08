@@ -51,8 +51,15 @@ function Dato({ etiqueta, children }: { etiqueta: string; children: React.ReactN
   );
 }
 
-export default async function DetalleSolicitudPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DetalleSolicitudPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ aviso?: string }>;
+}) {
   const { id } = await params;
+  const { aviso } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: servicio }, admin, { data: tecnicos }] = await Promise.all([
@@ -105,6 +112,8 @@ export default async function DetalleSolicitudPage({ params }: { params: Promise
           {visita?.canal_origen === "telefono" ? "teléfono" : "portal web"}
         </p>
       </div>
+
+      {aviso && <p className="rounded-xl bg-[#eaf7fb] p-4 text-sm text-[#123C5B]">{aviso}</p>}
 
       <AccionesSolicitud
         servicioId={servicio.id}
