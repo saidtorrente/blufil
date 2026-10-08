@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ETIQUETA_SISTEMA, ETIQUETA_SERVICIO } from "../../etiquetas";
 import { AceptarButton } from "./aceptar-button";
 import { RealtimeRefresh } from "./realtime-refresh";
+import { diaCorto, rangoHorario } from "@/lib/agenda";
 
 const formatoFecha = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
@@ -24,6 +25,9 @@ type Servicio = {
   estado: string;
   tecnico_id: string | null;
   created_at: string;
+  inicio_programado: string | null;
+  duracion_minutos: number;
+  agenda_estado: string;
   sistemas_instalados: SistemaInfo | null;
 };
 
@@ -59,7 +63,7 @@ export default async function DashboardTecnicoPage() {
   const { data: servicios } = await supabase
     .from("servicios")
     .select(
-      "id, tipo, estado, tecnico_id, created_at, sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, ciudad))",
+      "id, tipo, estado, tecnico_id, created_at, inicio_programado, duracion_minutos, agenda_estado, sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, ciudad))",
     )
     .order("created_at", { ascending: true })
     .returns<Servicio[]>();
@@ -114,9 +118,19 @@ export default async function DashboardTecnicoPage() {
                   </p>
                 )}
               </div>
-              <span className="rounded-full bg-[#eaf7fb] px-3 py-1 text-xs font-medium text-[#123C5B]">
-                {s.estado === "en_progreso" ? "En progreso" : "Asignada"}
-              </span>
+              <div className="flex flex-col items-end gap-1 text-right">
+                <span className="rounded-full bg-[#eaf7fb] px-3 py-1 text-xs font-medium text-[#123C5B]">
+                  {s.estado === "en_progreso" ? "En progreso" : "Asignada"}
+                </span>
+                {s.inicio_programado ? (
+                  <span className={`text-xs font-medium ${s.agenda_estado === "confirmada" ? "text-green-700" : "text-amber-700"}`}>
+                    {diaCorto(s.inicio_programado)}, {rangoHorario(s.inicio_programado, s.duracion_minutos)}
+                    {s.agenda_estado === "propuesta" ? " (por confirmar)" : ""}
+                  </span>
+                ) : (
+                  <span className="text-xs font-medium text-amber-700">Sin hora: propónla en Mi agenda</span>
+                )}
+              </div>
             </Link>
           ))
         )}

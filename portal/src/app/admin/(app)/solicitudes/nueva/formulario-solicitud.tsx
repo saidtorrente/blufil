@@ -51,11 +51,18 @@ export function FormularioSolicitud({
           ayuda="Sirve para saber de dónde llegan las solicitudes."
         />
         <Campo
-          etiqueta="Fecha deseada"
+          etiqueta="Día"
           nombre="fecha"
           tipo="date"
           valor={v("fecha")}
-          ayuda="Opcional. La que acordó el cliente por teléfono."
+          ayuda="Opcional. El día que pidió o acordó el cliente."
+        />
+        <Campo
+          etiqueta="Hora de la visita"
+          nombre="hora"
+          tipo="time"
+          valor={v("hora")}
+          ayuda="Opcional. Con técnico, día y hora, la visita queda programada y se avisa al cliente y al técnico."
         />
         <Seleccion
           etiqueta="Técnico"

@@ -2,12 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { aInstante, DURACION_POR_TIPO } from "@/lib/agenda";
 import { invocarFuncion, sesionOperador, texto, valoresDe } from "../../../admin";
 import type { EstadoForm } from "../../../tipos";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Crea una solicitud a nombre de un cliente (pedida por teléfono). Si queda sin
+// Crea una solicitud a nombre de un cliente (pedida por teléfono o WhatsApp).
+// Con técnico, día y hora queda programada y se avisa al cliente y al técnico; sin
 // técnico, avisa a los técnicos igual que una solicitud hecha en el portal.
 export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Promise<EstadoForm> {
   const { supabase, error } = await sesionOperador();
@@ -26,10 +28,14 @@ export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Pro
   const tecnicoId = texto(formData, "tecnico_id");
   if (tecnicoId && !UUID.test(tecnicoId)) return { error: "Técnico no válido.", valores };
 
-  // La fecha deseada se guarda a las 8 a. m. de Colombia (UTC-5, sin horario de verano).
   const fecha = texto(formData, "fecha");
   if (fecha && !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return { error: "La fecha no es válida.", valores };
 
+  const hora = texto(formData, "hora");
+  if (hora && !/^\d{2}:\d{2}$/.test(hora)) return { error: "La hora no es válida.", valores };
+  if (hora && (!fecha || !tecnicoId)) return { error: "Para fijar la hora elige también el día y el técnico.", valores };
+
+  // Sin hora, la fecha es solo la deseada por el cliente (se guarda a las 8 a. m. de Colombia).
   const { data, error: errorRpc } = await supabase.rpc("admin_crear_solicitud", {
     p_sistema_instalado_id: sistemaId,
     p_tipo: tipo,
@@ -53,8 +59,31 @@ export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Pro
   if (!creada) return { error: "No pudimos crear la solicitud. Intenta de nuevo.", valores };
 
   let aviso = "Solicitud creada.";
-  if (tecnicoId) {
-    aviso = "Solicitud creada y asignada. El técnico la ve en su panel.";
+  if (tecnicoId && fecha && hora) {
+    const inicio = aInstante(fecha, hora);
+    const { error: errorProgramar } = inicio
+      ? await supabase.rpc("programar_servicio", {
+          p_servicio_id: creada.servicio_id,
+          p_inicio: inicio,
+          p_duracion: DURACION_POR_TIPO[tipo],
+          p_tecnico_id: tecnicoId,
+          p_forzar: false,
+        })
+      : { error: { message: "La fecha y la hora no son válidas." } };
+    if (errorProgramar) {
+      aviso = `Solicitud creada y asignada, pero no se pudo fijar la hora: ${errorProgramar.message} Prográmala desde aquí.`;
+    } else {
+      const resultado = await invocarFuncion(supabase, "notificar-agenda", {
+        servicio_id: creada.servicio_id,
+        evento: "confirmada",
+      });
+      aviso =
+        resultado.ok && !resultado.mensaje
+          ? "Solicitud creada y visita programada. Avisamos al cliente y al técnico por correo."
+          : "Solicitud creada y visita programada, pero no pudimos enviar todos los correos de aviso.";
+    }
+  } else if (tecnicoId) {
+    aviso = "Solicitud creada y asignada. Falta fijar el día y la hora: hazlo aquí o deja que el técnico la proponga.";
   } else {
     const resultado = await invocarFuncion(supabase, "notificar-solicitud", { visita_id: creada.visita_id });
     aviso = resultado.ok
@@ -63,6 +92,7 @@ export async function crearSolicitud(_prev: EstadoForm, formData: FormData): Pro
   }
 
   revalidatePath("/admin/solicitudes");
+  revalidatePath("/admin/agenda");
   revalidatePath("/admin");
   redirect(`/admin/solicitudes/${creada.servicio_id}?aviso=${encodeURIComponent(aviso)}`);
 }

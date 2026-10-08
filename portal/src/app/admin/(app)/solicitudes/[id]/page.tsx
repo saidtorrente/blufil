@@ -7,6 +7,8 @@ import { EstadoChip, formatoFechaCorta, formatoFechaHora, formatoMoneda, formato
 import { EvidenciasGaleria } from "@/app/evidencias-galeria";
 import { firmarEvidencias } from "@/lib/evidencias-servidor";
 import { AccionesSolicitud } from "./acciones";
+import { FormularioProgramar } from "../../agenda/formulario-programar";
+import { diaLargo, fechaBogota, horaBogota, rangoHorario } from "@/lib/agenda";
 
 type Detalle = {
   id: string;
@@ -22,6 +24,9 @@ type Detalle = {
   proxima_fecha_mantenimiento: string | null;
   fotos: string[] | null;
   visita_id: string;
+  inicio_programado: string | null;
+  duracion_minutos: number;
+  agenda_estado: string;
   tecnicos: { nombre: string; correo: string | null; ciudad: string | null } | null;
   sistemas_instalados: {
     tipo: string;
@@ -68,7 +73,7 @@ export default async function DetalleSolicitudPage({
     supabase
       .from("servicios")
       .select(
-        "id, numero_orden, tipo, estado, created_at, updated_at, tecnico_id, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, fotos, visita_id, tecnicos(nombre, correo, ciudad), sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, correo, cedula_nit, ciudad)), visitas(estado, canal_origen, fecha_hora_deseada, facturas(siigo_invoice_id, estado, total), servicios(id, numero_orden, tipo, estado))",
+        "id, numero_orden, tipo, estado, created_at, updated_at, tecnico_id, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, fotos, visita_id, inicio_programado, duracion_minutos, agenda_estado, tecnicos(nombre, correo, ciudad), sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, correo, cedula_nit, ciudad)), visitas(estado, canal_origen, fecha_hora_deseada, facturas(siigo_invoice_id, estado, total), servicios(id, numero_orden, tipo, estado))",
       )
       .eq("id", id)
       .maybeSingle<Detalle>(),
@@ -119,6 +124,32 @@ export default async function DetalleSolicitudPage({
         puedeEscribir={escribe}
         puedeFacturar={escribe && servicio.estado === "completada" && !factura}
       />
+
+      {["pendiente", "asignada"].includes(servicio.estado) && escribe ? (
+        <FormularioProgramar
+          servicioId={servicio.id}
+          tipo={servicio.tipo}
+          tecnicoActualId={servicio.tecnico_id}
+          tecnicos={tecnicos ?? []}
+          fechaInicial={servicio.inicio_programado ? fechaBogota(servicio.inicio_programado) : ""}
+          horaInicial={servicio.inicio_programado ? horaBogota(servicio.inicio_programado) : ""}
+          duracionInicial={servicio.inicio_programado ? servicio.duracion_minutos : null}
+          agendaEstado={servicio.agenda_estado}
+          resumenActual={
+            servicio.inicio_programado
+              ? `${diaLargo(servicio.inicio_programado)}, ${rangoHorario(servicio.inicio_programado, servicio.duracion_minutos)}`
+              : null
+          }
+          fechaDeseada={visita?.fecha_hora_deseada ? diaLargo(visita.fecha_hora_deseada) : null}
+        />
+      ) : servicio.inicio_programado ? (
+        <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <h2 className="font-semibold text-neutral-800">Agenda de la visita</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            {diaLargo(servicio.inicio_programado)}, {rangoHorario(servicio.inicio_programado, servicio.duracion_minutos)}
+          </p>
+        </section>
+      ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
         <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">

@@ -167,6 +167,17 @@ Las tarjetas de Seguimiento avanzan por lo que pasa en la base de datos (un `ser
 - Toda conversación con la IA queda en el historial de la tarjeta como un contacto por WhatsApp.
 - Ya hecho: el canal `whatsapp` existe (`canal_origen`) y la solicitud creada desde el panel permite elegir **Llamada o WhatsApp**; `clientes.telefono_normalizado` (columna generada con índice).
 
+### Fase 5B — Agenda de técnicos (2026-10-08) ✅ (falta desplegar el portal)
+
+Modelo **mixto**, elegido por el usuario: el admin asigna técnico, día y hora (queda **confirmada**), o la solicitud queda abierta y el técnico que la acepta **propone** la hora, que el admin **confirma**.
+
+- **Base de datos** (`servicios`): `inicio_programado`, `duracion_minutos` (por defecto 90 min en mantenimiento y 180 en instalación) y `agenda_estado` (`sin_programar` / `propuesta` / `confirmada`), con una restricción que mantiene coherentes hora y estado. Tres funciones: `programar_servicio` (admin operador+; exige técnico certificado, que la hora no haya pasado y **detecta cruces** con otras visitas del técnico, con opción de forzar), `proponer_horario` (solo el técnico asignado, sin cruces, no puede cambiar una visita ya confirmada) y `confirmar_horario` (admin). Un trigger impide cambiar la agenda por otra vía y **la limpia sola** si la solicitud vuelve a pendiente, se cancela o cambia de técnico.
+- **Admin**: pantalla **Agenda** (`/admin/agenda`): calendario semanal por técnico (azul confirmada, ámbar por confirmar, verde completada), horas propuestas por confirmar con botón «Confirmar y avisar» y lista de solicitudes sin programar. En el detalle de cada solicitud, sección «Agenda de la visita» para programar o reprogramar (con aviso de cruce y casilla para forzar). «Nueva solicitud» acepta también la hora: con técnico, día y hora queda programada en un solo paso.
+- **Técnico**: **Mi agenda** (`/tecnico/agenda`): por programar (propone día y hora), esperando confirmación (puede cambiarla) y próximas visitas por día; su panel muestra la hora de cada visita o «Sin hora: propónla».
+- **Correos** (Edge Function `notificar-agenda`, `verify_jwt` + verificación del usuario real: admin operador+, o el técnico del servicio solo para propuestas): al **confirmarse** una visita llegan avisos al cliente (día, hora, técnico, dirección, orden) y al técnico (día, hora, cliente, teléfono, dirección); cuando el técnico **propone** una hora llega un aviso al administrador.
+- **Pruebas**: en SQL (programar, cruce, forzar, fecha pasada, actualización directa bloqueada, reasignar y devolver a pendiente limpian la agenda, el técnico propone/no puede en servicios ajenos/no puede confirmar, el admin confirma, el técnico no cambia una confirmada) y en el navegador con cuentas temporales (propuesta del técnico, confirmación del admin, programación con cruce y luego en hora libre; llegaron los 5 correos). Se corrigió que tras un cruce el botón quedaba bloqueado al cambiar la hora. Todo lo temporal se borró.
+- **Pendiente**: recordatorio de la visita el día anterior (al cliente y al técnico); archivo de calendario (.ics) adjunto; mostrar al cliente la próxima visita en «Mis equipos»; mover una visita desde la agenda arrastrando.
+
 ---
 
 ## Fase 0 — Fundamentos (completado)

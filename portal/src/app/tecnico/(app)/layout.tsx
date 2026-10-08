@@ -12,6 +12,12 @@ export default function TecnicoAppLayout({ children }: { children: React.ReactNo
         </Link>
         <div className="flex flex-wrap items-center gap-4">
           <Link
+            href="/tecnico/agenda"
+            className="text-sm font-medium text-[#123C5B] underline underline-offset-2 hover:text-neutral-800"
+          >
+            Mi agenda
+          </Link>
+          <Link
             href="/tecnico/historial"
             className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
           >
