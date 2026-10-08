@@ -114,6 +114,15 @@ Plan completo (Fases 1-3: seguridad + racha, base de datos del admin, panel `/ad
 - La secuencia de `numero_orden` se dejó en el máximo real: las pruebas con rollback habían consumido números (las secuencias no se revierten).
 - **Pendiente**: tu contraseña de superadmin se crea desde `/admin/login` → "Olvidé mi contraseña" una vez desplegado; Fase 3B (altas de clientes, equipos y técnicos; certificar) y 3C (crear visitas/instalaciones y administrar admins).
 
+### Fase 3B del plan 2026-10-08 — panel `/admin`: clientes, equipos y técnicos (2026-10-08) ✅
+
+- **Clientes** (`/admin/clientes`): búsqueda por nombre, cédula/NIT, teléfono o correo; alta (`/admin/clientes/nuevo`) con opción de **crear su cuenta de acceso** y enviar el correo de confirmación (llama a `provisionar-cliente` con el token del propio admin; la contraseña inicial sigue siendo la cédula); ficha (`/admin/clientes/[id]`) con datos editables, **equipos** (agregar/editar con tipo, dirección, barrio y fecha de instalación, y su estado en el Club Blufil con la racha), historial de servicios enlazado a las solicitudes, **retomas** y **referidos** (registrar y cambiar el estado; `credito_liberado` se mantiene sincronizado). Con cuenta creada, el correo ya no se edita desde aquí porque es la llave del acceso.
+- **Técnicos** (`/admin/tecnicos`): lista con certificación, disponibilidad, acceso y carga de trabajo; alta y ficha. **Un operador crea técnicos sin certificar y edita nombre, correo, ciudad, zona y disponibilidad; certificar y cambiar la cédula es solo del superadmin** (la interfaz lo bloquea, el servidor lo ignora y el trigger de la base lo rechaza). También permite crear la cuenta de acceso del técnico.
+- **Unicidad en la base de datos** (migración `unicidad_documentos_y_correos`): índices únicos parciales sobre `clientes.cedula_nit`, `clientes.correo`, `tecnicos.cedula`, `tecnicos.correo` (el correo sin distinguir mayúsculas; los nulos no cuentan). Evita login por cédula ambiguo y que `handle_new_user` intente enlazar una cuenta a dos filas. La app además normaliza la cédula/NIT (acepta puntos, espacios y guiones, guarda solo dígitos) y traduce los errores de la base a mensajes claros.
+- Los formularios conservan lo escrito cuando hay un error (React 19 vacía los campos tras cada envío): la acción devuelve los valores y los campos los usan como `defaultValue`.
+- **Pruebas**: con una cuenta temporal (ya eliminada), como superadmin y luego como operador: duplicado de cédula rechazado, alta de cliente con cuenta creada y enlazada, equipo, retoma, referido y cambio de estado verificados en la base, alta de técnico certificado, y como operador cédula y certificación bloqueadas y edición de ciudad sin alterarlas. Datos de prueba borrados.
+- **Pendiente**: Fase 3C (crear visitas e instalaciones y asignar técnico, que además hará que las instalaciones avisen por correo; y `/admin/equipo` para administrar admins). Sigue anotado forzar el cambio de contraseña inicial (= cédula) en el primer ingreso.
+
 ---
 
 ## Fase 0 — Fundamentos (completado)
