@@ -102,6 +102,18 @@ Plan completo (Fases 1-3: seguridad + racha, base de datos del admin, panel `/ad
 - Las Edge Functions endurecidas en la Fase 1 ya consultan esta tabla (admin operador+).
 - **Pendiente para la Fase 3A**: `/admin/login` con "Olvidé mi contraseña" (usa `resetPasswordForEmail` desde el navegador).
 
+### Fase 3A del plan 2026-10-08 — panel `/admin`: acceso y seguimiento de solicitudes (2026-10-08) ✅
+
+- **Acceso**: `/admin/login` (correo + contraseña; "Olvidé mi contraseña / crear contraseña" con `resetPasswordForEmail` iniciado desde el navegador para que el enlace PKCE funcione con `/auth/recuperar`). Tras fijar la contraseña, `/restablecer-clave` ofrece "Ir al panel de administración" solo a quien es admin. El middleware manda a `/admin/login` a quien no tiene sesión; el layout muestra "Sin acceso a administración" a una cuenta con sesión que no es admin (los datos igual están protegidos por RLS).
+- **Tablero** (`/admin`): tarjetas Sin técnico / En curso / Completadas este mes / Sin facturar, más las solicitudes que llevan más tiempo esperando técnico y las completadas sin factura.
+- **Solicitudes** (`/admin/solicitudes`): lista con filtros por estado, técnico, ciudad y búsqueda por cliente o N.º de orden (`BLF-000123`); detalle con datos completos del cliente, equipo y barrio, técnico, reporte, fotos (URL firmadas gracias a la política de Storage para admins), factura y otros servicios de la visita.
+- **Acciones** (operador o superadmin; el lector solo consulta): asignar o reasignar técnico (solo certificados), devolver a "sin técnico" (vuelve a avisar por correo a los técnicos), cancelar, y emitir factura (confirmación explícita porque crea una factura electrónica real en Siigo). Las acciones verifican el nivel en el servidor porque RLS rechaza en silencio la escritura de un lector.
+- **`visitas.estado` ahora se mantiene solo**: antes no se actualizaba nunca (una visita con su servicio completado seguía "pendiente"). Un trigger sobre `servicios` la deriva de sus servicios (todos cancelados → cancelada; todos listos → completada; alguno en progreso → en_progreso; alguno asignado/completado → asignada; si no, pendiente) y se corrigieron los datos existentes. Esto vuelve correcta la guarda de `notificar-solicitud` ("solo avisa de visitas pendientes").
+- **`cancelada` en el portal del cliente y del técnico**: una solicitud cancelada ya no cuenta como "en curso" (no bloquea pedir otro mantenimiento), no aparece en el historial del equipo, no frena la facturación automática de sus hermanas y el técnico ve "Esta solicitud fue cancelada" en vez del formulario de cierre.
+- **Pruebas**: con una cuenta de operador temporal (ya eliminada) se probó el login, las redirecciones, todos los filtros, el detalle, asignar → devolver → cancelar (con los estados de servicio y visita verificados en la base), el modo solo lectura y la pantalla sin acceso; las Edge Functions reconocen al admin (409 de negocio, sin efectos). No se probó "Emitir factura" (crearía una factura real).
+- La secuencia de `numero_orden` se dejó en el máximo real: las pruebas con rollback habían consumido números (las secuencias no se revierten).
+- **Pendiente**: tu contraseña de superadmin se crea desde `/admin/login` → "Olvidé mi contraseña" una vez desplegado; Fase 3B (altas de clientes, equipos y técnicos; certificar) y 3C (crear visitas/instalaciones y administrar admins).
+
 ---
 
 ## Fase 0 — Fundamentos (completado)

@@ -67,7 +67,7 @@ async function facturarSiTodoCompletado(visitaId: string) {
     .from("servicios")
     .select("id")
     .eq("visita_id", visitaId)
-    .neq("estado", "completada");
+    .not("estado", "in", "(completada,cancelada)");
 
   if (pendientes && pendientes.length > 0) return;
 

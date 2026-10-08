@@ -12,6 +12,7 @@ export default function RestablecerClavePage() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exito, setExito] = useState(false);
+  const [esAdmin, setEsAdmin] = useState(false);
 
   async function guardar(e: FormEvent) {
     e.preventDefault();
@@ -35,6 +36,11 @@ export default function RestablecerClavePage() {
       return;
     }
     setExito(true);
+
+    // Solo se ofrece el acceso al panel a quien es admin (la política RLS de
+    // `admins` deja a cada uno ver únicamente su propia fila).
+    const { data: fila } = await supabase.from("admins").select("nivel").maybeSingle();
+    setEsAdmin(Boolean(fila));
   }
 
   return (
@@ -54,9 +60,21 @@ export default function RestablecerClavePage() {
         {exito ? (
           <div className="mt-4 flex flex-col gap-3">
             <p className="text-sm text-green-700">Tu contraseña se actualizó correctamente.</p>
+            {esAdmin && (
+              <Link
+                href="/admin"
+                className="rounded-lg bg-[#123C5B] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+              >
+                Ir al panel de administración
+              </Link>
+            )}
             <Link
               href="/dashboard"
-              className="rounded-lg bg-[#123C5B] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+              className={
+                esAdmin
+                  ? "rounded-lg border border-neutral-300 py-2.5 text-center text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+                  : "rounded-lg bg-[#123C5B] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+              }
             >
               Ir al portal de cliente
             </Link>

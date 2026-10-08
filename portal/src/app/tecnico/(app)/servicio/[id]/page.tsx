@@ -60,7 +60,7 @@ export default async function ServicioTecnicoPage({
     servicio.tipo === "mantenimiento" &&
     servicio.tecnico_id &&
     servicio.tecnico_id === tecnico?.id &&
-    servicio.estado !== "completada"
+    ["asignada", "en_progreso"].includes(servicio.estado)
   ) {
     const { data } = await supabase.rpc("descuento_sugerido", { p_servicio_id: servicio.id });
     descuentoSugerido = Number(data ?? 0);
@@ -102,7 +102,11 @@ export default async function ServicioTecnicoPage({
         )}
       </div>
 
-      {!asignadoAMi ? (
+      {servicio.estado === "cancelada" ? (
+        <div className="rounded-xl bg-white p-6 text-center text-sm text-neutral-500 shadow-sm ring-1 ring-black/5">
+          Esta solicitud fue cancelada.
+        </div>
+      ) : !asignadoAMi ? (
         servicio.estado === "pendiente" ? (
           <div className="flex items-center justify-between rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
             <p className="text-sm text-neutral-500">

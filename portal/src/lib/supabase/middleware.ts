@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const RUTAS_PUBLICAS = ["/login", "/tecnico/login", "/auth", "/recuperar"];
+const RUTAS_PUBLICAS = ["/login", "/tecnico/login", "/admin/login", "/auth", "/recuperar"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -34,10 +34,17 @@ export async function updateSession(request: NextRequest) {
   );
 
   const esRutaTecnico = request.nextUrl.pathname.startsWith("/tecnico");
+  const esRutaAdmin = request.nextUrl.pathname.startsWith("/admin");
 
   if (!user && !esRutaPublica) {
     const url = request.nextUrl.clone();
-    url.pathname = esRutaTecnico ? "/tecnico/login" : "/login";
+    url.pathname = esRutaAdmin ? "/admin/login" : esRutaTecnico ? "/tecnico/login" : "/login";
+    return NextResponse.redirect(url);
+  }
+
+  if (user && request.nextUrl.pathname === "/admin/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 

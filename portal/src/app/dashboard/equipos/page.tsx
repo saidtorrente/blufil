@@ -62,13 +62,15 @@ export default async function EquiposPage() {
         sistemas.map((sistema) => {
           const club = sistema.club_blufil;
           const estadoDelClub = estadoClub(club);
-          const serviciosDesc = [...(sistema.servicios ?? [])].sort(
+          const serviciosDesc = [...(sistema.servicios ?? [])]
+            .filter((s) => s.estado !== "cancelada")
+            .sort(
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
           );
           const serviciosAsc = [...serviciosDesc].reverse();
 
           const tieneMantenimientoEnCurso = serviciosDesc.some(
-            (s) => s.tipo === "mantenimiento" && s.estado !== "completada",
+            (s) => s.tipo === "mantenimiento" && ["pendiente", "asignada", "en_progreso"].includes(s.estado),
           );
 
           const alerta = calcularAlertaMantenimiento(serviciosDesc);

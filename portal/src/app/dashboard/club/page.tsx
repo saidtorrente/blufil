@@ -70,7 +70,7 @@ export default async function ClubBlufilPage() {
           const enTope = conteo >= TOPE_NIVEL_CLUB_BLUFIL;
           const proximoNivel = enTope ? null : NIVELES_CLUB_BLUFIL[conteo + 1];
           const tieneMantenimientoEnCurso = (sistema.servicios ?? []).some(
-            (s) => s.tipo === "mantenimiento" && s.estado !== "completada",
+            (s) => s.tipo === "mantenimiento" && ["pendiente", "asignada", "en_progreso"].includes(s.estado),
           );
 
           return (
