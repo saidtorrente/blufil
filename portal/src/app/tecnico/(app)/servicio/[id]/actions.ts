@@ -57,9 +57,6 @@ export async function completarServicio(
   redirect("/tecnico/dashboard");
 }
 
-const ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4bGN0ZW15Y2l3c2hmc3F2aGd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzI1NDksImV4cCI6MjEwMzk0ODU0OX0.R3CriE9urVxRDzETFbh2_Ecqj_tY7rDu71oUmaAtIEY";
-
 // Si esta visita ya no tiene servicios pendientes/asignados/en progreso,
 // se consolida en una sola factura Siigo. Falla en silencio hacia el
 // técnico — la factura se puede reintentar manualmente si algo sale mal,
@@ -74,9 +71,16 @@ async function facturarSiTodoCompletado(visitaId: string) {
 
   if (pendientes && pendientes.length > 0) return;
 
+  // Se envía el token del propio técnico: la función verifica que tenga un
+  // servicio en esa visita.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.access_token) return;
+
   await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/facturar-visita`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON_KEY}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
     body: JSON.stringify({ visita_id: visitaId }),
   }).catch(() => {});
 }

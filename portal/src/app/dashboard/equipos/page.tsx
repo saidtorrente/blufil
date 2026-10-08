@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
 import { HistorialServicios } from "../historial-servicios";
 import { BarrioForm } from "../barrio-form";
+import { estadoClub } from "../club-blufil-niveles";
 import { ETIQUETA_SISTEMA, formatoFecha, calcularAlertaMantenimiento } from "../tipos";
 import type { SistemaInstalado } from "../tipos";
 
@@ -60,6 +61,7 @@ export default async function EquiposPage() {
       ) : (
         sistemas.map((sistema) => {
           const club = sistema.club_blufil;
+          const estadoDelClub = estadoClub(club);
           const serviciosDesc = [...(sistema.servicios ?? [])].sort(
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
           );
@@ -109,9 +111,11 @@ export default async function EquiposPage() {
                 <div className="flex flex-col items-end gap-2">
                   {club && (
                     <div className="rounded-lg bg-[#eaf7fb] px-3 py-2 text-right text-xs text-[#123C5B]">
-                      <p className="font-semibold">Club Blufil · {club.nivel_descuento}%</p>
+                      <p className="font-semibold">Club Blufil · {estadoDelClub.nivel}%</p>
                       <p className="text-neutral-500">
-                        Mantenimiento #{club.conteo_mantenimientos}
+                        {estadoDelClub.vencida
+                          ? "Racha vencida"
+                          : `Mantenimiento #${club.conteo_mantenimientos}`}
                       </p>
                     </div>
                   )}

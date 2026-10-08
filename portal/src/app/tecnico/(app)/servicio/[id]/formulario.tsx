@@ -3,7 +3,13 @@
 import { useActionState } from "react";
 import { completarServicio } from "./actions";
 
-export function FormularioCompletar({ servicioId }: { servicioId: string }) {
+export function FormularioCompletar({
+  servicioId,
+  descuentoSugerido = 0,
+}: {
+  servicioId: string;
+  descuentoSugerido?: number;
+}) {
   const accionConId = completarServicio.bind(null, servicioId);
   const [error, formAction, pending] = useActionState(accionConId, null);
 
@@ -52,9 +58,12 @@ export function FormularioCompletar({ servicioId }: { servicioId: string }) {
             name="descuento_aplicado"
             min={0}
             max={100}
-            defaultValue={0}
+            defaultValue={descuentoSugerido}
             className="rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 outline-none focus:border-[#1EBBEB] focus:ring-1 focus:ring-[#1EBBEB]"
           />
+          {descuentoSugerido > 0 && (
+            <span className="text-xs text-[#1a8fac]">Club Blufil del cliente: {descuentoSugerido}%</span>
+          )}
         </label>
       </div>
 

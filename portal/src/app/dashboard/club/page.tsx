@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { ETIQUETA_SISTEMA } from "../tipos";
-import { NIVELES_CLUB_BLUFIL, TOPE_NIVEL_CLUB_BLUFIL } from "../club-blufil-niveles";
+import { NIVELES_CLUB_BLUFIL, TOPE_NIVEL_CLUB_BLUFIL, estadoClub } from "../club-blufil-niveles";
+import type { ClubGuardado } from "../club-blufil-niveles";
+import { formatoFecha } from "../tipos";
 import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
 import { DropletMilestone } from "./droplet-milestone";
 
@@ -8,7 +10,7 @@ type SistemaConClub = {
   id: string;
   tipo: string;
   direccion: string;
-  club_blufil: { conteo_mantenimientos: number; nivel_descuento: number } | null;
+  club_blufil: ClubGuardado;
   servicios: { tipo: string; estado: string }[];
 };
 
@@ -27,7 +29,7 @@ export default async function ClubBlufilPage() {
 
   const { data: sistemas } = await supabase
     .from("sistemas_instalados")
-    .select("id, tipo, direccion, club_blufil(conteo_mantenimientos, nivel_descuento), servicios(tipo, estado)")
+    .select("id, tipo, direccion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(tipo, estado)")
     .returns<SistemaConClub[]>();
 
   return (
@@ -64,8 +66,7 @@ export default async function ClubBlufilPage() {
         </div>
       ) : (
         sistemas.map((sistema) => {
-          const conteo = sistema.club_blufil?.conteo_mantenimientos ?? 0;
-          const nivelActual = sistema.club_blufil?.nivel_descuento ?? 0;
+          const { conteo, nivel: nivelActual, vencida, vigenteHasta } = estadoClub(sistema.club_blufil);
           const enTope = conteo >= TOPE_NIVEL_CLUB_BLUFIL;
           const proximoNivel = enTope ? null : NIVELES_CLUB_BLUFIL[conteo + 1];
           const tieneMantenimientoEnCurso = (sistema.servicios ?? []).some(
@@ -112,6 +113,8 @@ export default async function ClubBlufilPage() {
                 Nivel actual: <span className="font-semibold text-[#123C5B]">{nivelActual}%</span>
                 {enTope ? (
                   " · Ya llegaste al tope máximo — seguimos cuidando tu sistema en cada visita."
+                ) : vencida ? (
+                  <> · Tu racha venció: pasaron más de 6 meses desde tu último mantenimiento, así que el próximo vuelve a empezar el conteo. Mientras más pronto lo hagas, más pronto vuelves a subir.</>
                 ) : conteo === 0 ? (
                   <> · Tu primer mantenimiento te da acceso al Club Blufil.</>
                 ) : (
@@ -122,6 +125,12 @@ export default async function ClubBlufilPage() {
                   </>
                 )}
               </p>
+              {!vencida && vigenteHasta && (
+                <p className="mt-1 text-xs text-neutral-400">
+                  Tu racha está vigente hasta el {formatoFecha.format(new Date(`${vigenteHasta}T00:00:00`))} — haz tu
+                  próximo mantenimiento antes de esa fecha para no perder tu nivel.
+                </p>
+              )}
             </section>
           );
         })
@@ -131,7 +140,7 @@ export default async function ClubBlufilPage() {
         <h2 className="font-semibold text-neutral-900">Cómo funciona</h2>
         <p className="mt-1 text-sm text-neutral-500">
           El descuento aplica sobre el valor del servicio de mantenimiento, y sube con cada mantenimiento
-          que hagas dentro de la ventana recomendada.
+          que hagas dentro de los 6 meses siguientes al anterior; si pasa más tiempo, el conteo vuelve a empezar.
         </p>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">

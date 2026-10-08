@@ -53,6 +53,19 @@ export default async function ServicioTecnicoPage({
   const sistema = Array.isArray(servicio.sistemas_instalados)
     ? servicio.sistemas_instalados[0]
     : servicio.sistemas_instalados;
+  // Descuento del Club Blufil que corresponde a este mantenimiento (0 si es
+  // el primero o si la racha de 6 meses ya venció).
+  let descuentoSugerido = 0;
+  if (
+    servicio.tipo === "mantenimiento" &&
+    servicio.tecnico_id &&
+    servicio.tecnico_id === tecnico?.id &&
+    servicio.estado !== "completada"
+  ) {
+    const { data } = await supabase.rpc("descuento_sugerido", { p_servicio_id: servicio.id });
+    descuentoSugerido = Number(data ?? 0);
+  }
+
   const cliente = sistema?.clientes
     ? Array.isArray(sistema.clientes)
       ? sistema.clientes[0]
@@ -107,7 +120,7 @@ export default async function ServicioTecnicoPage({
           Este servicio ya quedó marcado como completado.
         </div>
       ) : (
-        <FormularioCompletar servicioId={servicio.id} />
+        <FormularioCompletar servicioId={servicio.id} descuentoSugerido={descuentoSugerido} />
       )}
     </div>
   );
