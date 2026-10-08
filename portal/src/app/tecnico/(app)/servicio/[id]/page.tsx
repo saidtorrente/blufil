@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { FormularioCompletar } from "./formulario";
+import { FormularioCompletar, type ProductoOpcion } from "./formulario";
 import { AceptarButton } from "../../dashboard/aceptar-button";
 
 const ETIQUETA_SISTEMA: Record<string, string> = {
@@ -78,6 +78,22 @@ export default async function ServicioTecnicoPage({
   // (mismo criterio que la lista de "Solicitudes disponibles").
   const asignadoAMi = tecnico?.id === servicio.tecnico_id;
 
+  // Productos de Siigo que el técnico puede registrar al cerrar: el equipo
+  // (solo en instalaciones, del tipo de este sistema) y los repuestos.
+  let equipos: ProductoOpcion[] = [];
+  let repuestos: ProductoOpcion[] = [];
+  if (asignadoAMi && ["asignada", "en_progreso"].includes(servicio.estado)) {
+    const { data: productos } = await supabase
+      .from("productos")
+      .select("id, codigo, nombre, precio, cantidad_disponible, categoria, tipo_sistema")
+      .eq("activo", true)
+      .in("categoria", ["equipo", "repuesto"])
+      .order("nombre")
+      .returns<(ProductoOpcion & { categoria: string; tipo_sistema: string | null })[]>();
+    equipos = (productos ?? []).filter((p) => p.categoria === "equipo" && p.tipo_sistema === sistema?.tipo);
+    repuestos = (productos ?? []).filter((p) => p.categoria === "repuesto");
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
@@ -124,7 +140,13 @@ export default async function ServicioTecnicoPage({
           Este servicio ya quedó marcado como completado.
         </div>
       ) : (
-        <FormularioCompletar servicioId={servicio.id} descuentoSugerido={descuentoSugerido} />
+        <FormularioCompletar
+          servicioId={servicio.id}
+          tipo={servicio.tipo}
+          descuentoSugerido={descuentoSugerido}
+          equipos={equipos}
+          repuestos={repuestos}
+        />
       )}
     </div>
   );

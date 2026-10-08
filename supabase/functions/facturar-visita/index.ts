@@ -179,7 +179,9 @@ Deno.serve(async (req) => {
 
   const { data: servicios } = await admin
     .from("servicios")
-    .select("id, tipo, valor_cobrado, descuento_aplicado, reporte_ia, sistemas_instalados(tipo)")
+    .select(
+      "id, tipo, valor_cobrado, descuento_aplicado, reporte_ia, sistemas_instalados(tipo), servicio_productos(cantidad, precio_unitario, productos(codigo, nombre, controla_inventario, bodegas, impuestos))",
+    )
     .eq("visita_id", body.visita_id)
     .eq("estado", "completada");
 
@@ -234,34 +236,90 @@ Deno.serve(async (req) => {
     siigoCustomerId = nuevoCliente.id;
   }
 
-  const items = servicios.map((s) => {
+  // Cada servicio genera: (1) la mano de obra, con el descuento del Club Blufil,
+  // y (2) una linea por cada producto de Siigo que el tecnico registro (el equipo
+  // instalado y los repuestos), a precio de Siigo y sin descuento. Esas lineas
+  // llevan el codigo real del producto y su bodega, asi Siigo descuenta el inventario.
+  // deno-lint-ignore no-explicit-any
+  type Linea = Record<string, any>;
+  const items: Linea[] = [];
+  // Total con impuestos: el pago debe cuadrar con la factura.
+  let total = 0;
+  const sumar = (precio: number, cantidad: number, descuento: number, porcentajeImpuesto: number) => {
+    const base = Math.round(precio * cantidad * (1 - descuento / 100) * 100) / 100;
+    total += base + Math.round(base * porcentajeImpuesto) / 100;
+  };
+
+  for (const s of servicios) {
     const sistema = Array.isArray(s.sistemas_instalados) ? s.sistemas_instalados[0] : s.sistemas_instalados;
     const etiquetaSistema = ETIQUETA_SISTEMA[sistema?.tipo ?? ""] ?? sistema?.tipo ?? "";
     const precioBase = Number(s.valor_cobrado);
     const descuento = Number(s.descuento_aplicado ?? 0);
     const etiquetaTipo = s.tipo === "instalacion" ? "Instalacion" : "Mantenimiento";
-    return {
-      code: s.tipo === "instalacion" ? PRODUCT_CODE_INSTALACION : PRODUCT_CODE_MANTENIMIENTO,
-      description: `${etiquetaTipo} - ${etiquetaSistema}${s.reporte_ia ? " - " + s.reporte_ia : ""}`.slice(0, 500),
-      quantity: 1,
-      price: precioBase,
-      discount: descuento,
-      taxes: [{ id: TAX_ID }],
-    };
-  });
 
-  const total = items.reduce((acc, item) => acc + item.price * (1 - item.discount / 100), 0);
+    if (precioBase > 0) {
+      items.push({
+        code: s.tipo === "instalacion" ? PRODUCT_CODE_INSTALACION : PRODUCT_CODE_MANTENIMIENTO,
+        description: `${etiquetaTipo} - ${etiquetaSistema}${s.reporte_ia ? " - " + s.reporte_ia : ""}`.slice(0, 500),
+        quantity: 1,
+        price: precioBase,
+        discount: descuento,
+        taxes: [{ id: TAX_ID }],
+      });
+      sumar(precioBase, 1, descuento, 0); // IVA 0%
+    }
+
+    for (const sp of s.servicio_productos ?? []) {
+      const producto = Array.isArray(sp.productos) ? sp.productos[0] : sp.productos;
+      if (!producto) continue;
+      const impuestos: { id: number; porcentaje?: number }[] = Array.isArray(producto.impuestos) ? producto.impuestos : [];
+      const bodega = Array.isArray(producto.bodegas) ? producto.bodegas[0] : null;
+      const linea: Linea = {
+        code: producto.codigo,
+        description: String(producto.nombre).slice(0, 500),
+        quantity: Number(sp.cantidad),
+        price: Number(sp.precio_unitario),
+        discount: 0,
+      };
+      if (impuestos.length > 0) linea.taxes = impuestos.map((t) => ({ id: t.id }));
+      // La bodega "Sin asignar" (id -1) es la unica de la cuenta: Siigo la usa por defecto.
+      if (producto.controla_inventario && bodega && bodega.id !== -1) linea.warehouse = bodega.id;
+      items.push(linea);
+      sumar(
+        Number(sp.precio_unitario),
+        Number(sp.cantidad),
+        0,
+        impuestos.reduce((acc, t) => acc + Number(t.porcentaje ?? 0), 0),
+      );
+    }
+  }
+
+  if (items.length === 0) {
+    return new Response(JSON.stringify({ error: "no hay nada que facturar: sin valor de servicio ni productos" }), {
+      status: 422,
+    });
+  }
+  total = Math.round(total * 100) / 100;
+
+  // Interruptores del panel (Inventario > Facturacion). Sin ellos Siigo deja la
+  // factura en borrador: ni DIAN ni correo (ambos valen false por defecto).
+  const { data: ajustes } = await admin.from("ajustes_facturacion").select("enviar_dian, enviar_correo").maybeSingle();
+  const enviarDian = ajustes?.enviar_dian ?? false;
+  const enviarCorreo = (ajustes?.enviar_correo ?? false) && Boolean(cliente.correo);
 
   const facturaRes = await fetch("https://api.siigo.com/v1/invoices", {
     method: "POST",
     headers,
     body: JSON.stringify({
       document: { id: DOCUMENT_TYPE_ID },
-      date: new Date().toISOString().slice(0, 10),
+      // La fecha de una factura electrónica no puede ser anterior a hoy (hora de Colombia).
+      date: new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date()),
       customer: { identification: cliente.cedula_nit },
       seller: SELLER_ID,
       items,
       payments: [{ id: PAYMENT_TYPE_ID, value: total }],
+      stamp: { send: enviarDian },
+      mail: { send: enviarCorreo },
     }),
   });
 
@@ -273,10 +331,33 @@ Deno.serve(async (req) => {
   }
   const factura = await facturaRes.json();
 
+  // Resultado del envio a la DIAN y al correo (Siigo los devuelve en la respuesta).
+  const estadoDian: string | undefined = factura.stamp?.status;
+  const aceptadaDian = estadoDian === "Accepted";
+  const avisos: string[] = [];
+  if (!enviarDian) {
+    avisos.push("quedo en borrador en Siigo porque el envio a la DIAN esta apagado en Inventario > Facturacion");
+  } else if (!aceptadaDian) {
+    const errores = Array.isArray(factura.stamp?.errors)
+      ? factura.stamp.errors.map((e: { message?: string }) => e?.message ?? JSON.stringify(e)).join("; ")
+      : "";
+    avisos.push(
+      `la DIAN no la ha aceptado (estado: ${estadoDian ?? "sin respuesta"}${errores ? ", " + errores : ""}). Revisala en Siigo`,
+    );
+  }
+  if (enviarCorreo && factura.mail?.status && factura.mail.status !== "Sent" && factura.mail.status !== "Delivered") {
+    avisos.push(
+      `el correo al cliente no salio (estado: ${factura.mail.status}${factura.mail.observations ? ", " + factura.mail.observations : ""})`,
+    );
+  } else if (!cliente.correo) {
+    avisos.push("el cliente no tiene correo registrado, asi que Siigo no pudo enviarle la factura");
+  }
+
   const { error: errorGuardar } = await admin.from("facturas").insert({
     visita_id: body.visita_id,
     siigo_invoice_id: String(factura.id),
-    estado: "emitida",
+    // `pendiente` mientras la DIAN no la acepte; el cliente la ve como "Pendiente".
+    estado: aceptadaDian ? "emitida" : "pendiente",
     total,
   });
 
@@ -291,8 +372,15 @@ Deno.serve(async (req) => {
     );
   }
 
-  return new Response(JSON.stringify({ status: "ok", siigo_invoice_id: factura.id, total }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({
+      status: "ok",
+      siigo_invoice_id: factura.id,
+      total,
+      dian: estadoDian ?? null,
+      correo: factura.mail?.status ?? null,
+      ...(avisos.length > 0 ? { warning: avisos.join("; ") } : {}),
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } },
+  );
 });

@@ -20,6 +20,72 @@ export async function completarServicio(
     return "Escribe una nota sobre el servicio realizado.";
   }
 
+  const ids = formData.getAll("producto_id").map(String);
+  const cantidades = formData.getAll("producto_cantidad").map((c) => Number(c));
+  const equipoId = String(formData.get("equipo_id") ?? "").trim();
+
+  // Productos del servicio (equipo + repuestos), juntando los repetidos.
+  const pedidos = new Map<string, number>();
+  ids.forEach((id, i) => {
+    const cantidad = cantidades[i];
+    if (!id) return;
+    if (!Number.isFinite(cantidad) || cantidad <= 0 || Math.round(cantidad * 100) !== cantidad * 100) {
+      pedidos.set("__invalida__", 1);
+      return;
+    }
+    pedidos.set(id, (pedidos.get(id) ?? 0) + cantidad);
+  });
+  if (pedidos.has("__invalida__")) return "Revisa las cantidades de los repuestos.";
+  if (equipoId) pedidos.set(equipoId, (pedidos.get(equipoId) ?? 0) + 1);
+
+  const { data: servicioActual } = await supabase
+    .from("servicios")
+    .select("tipo, sistemas_instalados(tipo)")
+    .eq("id", servicioId)
+    .maybeSingle();
+  if (!servicioActual) return "No encontramos el servicio.";
+
+  const productosElegidos =
+    pedidos.size > 0
+      ? ((
+          await supabase
+            .from("productos")
+            .select("id, categoria, tipo_sistema, precio, activo")
+            .in("id", [...pedidos.keys()])
+        ).data ?? [])
+      : [];
+  if (productosElegidos.length !== pedidos.size) return "Uno de los productos elegidos ya no está disponible. Recarga la página.";
+
+  if (servicioActual.tipo === "instalacion") {
+    const sistema = Array.isArray(servicioActual.sistemas_instalados)
+      ? servicioActual.sistemas_instalados[0]
+      : servicioActual.sistemas_instalados;
+    const equipo = productosElegidos.find((p) => p.id === equipoId);
+    if (!equipo || equipo.categoria !== "equipo" || equipo.tipo_sistema !== sistema?.tipo) {
+      return "Elige el equipo que instalaste.";
+    }
+  }
+  for (const p of productosElegidos) {
+    if (!p.activo || p.precio == null) return "Uno de los productos no tiene precio en Siigo. Avisa a la administración.";
+    if (p.id !== equipoId && p.categoria !== "repuesto") return "Uno de los repuestos elegidos no es válido.";
+  }
+
+  // Se guardan antes de cerrar el servicio: la factura los lee al emitirse.
+  // Si el cierre se reintenta, se reemplazan los de la vez anterior.
+  const { error: errorBorrar } = await supabase.from("servicio_productos").delete().eq("servicio_id", servicioId);
+  if (errorBorrar) return "No pudimos guardar los repuestos. Intenta de nuevo.";
+  if (productosElegidos.length > 0) {
+    const { error: errorProductos } = await supabase.from("servicio_productos").insert(
+      productosElegidos.map((p) => ({
+        servicio_id: servicioId,
+        producto_id: p.id,
+        cantidad: pedidos.get(p.id)!,
+        precio_unitario: Number(p.precio),
+      })),
+    );
+    if (errorProductos) return "No pudimos guardar los repuestos. Intenta de nuevo.";
+  }
+
   const rutasFotos: string[] = [];
   for (const foto of fotos) {
     const extension = foto.name.split(".").pop() || "jpg";
