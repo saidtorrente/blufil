@@ -24,6 +24,7 @@ export type SistemaInstalado = {
   id: string;
   tipo: string;
   direccion: string;
+  barrio: string | null;
   fecha_instalacion: string | null;
   club_blufil: ClubBlufil;
   servicios: Servicio[];

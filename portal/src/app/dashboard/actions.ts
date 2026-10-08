@@ -27,6 +27,23 @@ export async function solicitarMantenimiento(sistemaInstaladoId: string): Promis
   return null;
 }
 
+export async function guardarBarrio(sistemaInstaladoId: string, barrio: string): Promise<string | null> {
+  const limpio = barrio.trim();
+  if (!limpio) return "Escribe el nombre del barrio.";
+  if (limpio.length > 80) return "El nombre del barrio es demasiado largo.";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("actualizar_barrio_sistema", {
+    p_sistema_instalado_id: sistemaInstaladoId,
+    p_barrio: limpio,
+  });
+
+  if (error) return "No pudimos guardar el barrio. Intenta de nuevo.";
+
+  revalidatePath("/dashboard/equipos");
+  return null;
+}
+
 // Avisa por correo de la nueva solicitud. Falla en silencio hacia el
 // cliente — no debe bloquear el registro de la solicitud en el portal.
 async function notificarSolicitud(visitaId: string) {

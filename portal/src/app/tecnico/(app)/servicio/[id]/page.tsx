@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FormularioCompletar } from "./formulario";
+import { AceptarButton } from "../../dashboard/aceptar-button";
 
 const ETIQUETA_SISTEMA: Record<string, string> = {
   doble_filtracion: "Doble filtración",
@@ -31,10 +32,16 @@ export default async function ServicioTecnicoPage({
     redirect("/tecnico/login");
   }
 
+  const { data: tecnico } = await supabase
+    .from("tecnicos")
+    .select("id")
+    .eq("auth_user_id", user.id)
+    .maybeSingle();
+
   const { data: servicio } = await supabase
     .from("servicios")
     .select(
-      "id, tipo, estado, sistemas_instalados(tipo, direccion, clientes(nombre, telefono))",
+      "id, tipo, estado, tecnico_id, sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, ciudad))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -52,6 +59,12 @@ export default async function ServicioTecnicoPage({
       : sistema.clientes
     : null;
 
+  // Mientras el servicio no esté asignado a este técnico, no se muestran
+  // nombre/teléfono/dirección exacta del cliente — solo lo necesario para
+  // decidir si aceptar. Los datos completos aparecen recién al aceptar
+  // (mismo criterio que la lista de "Solicitudes disponibles").
+  const asignadoAMi = tecnico?.id === servicio.tecnico_id;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
@@ -59,16 +72,37 @@ export default async function ServicioTecnicoPage({
           {ETIQUETA_SERVICIO[servicio.tipo] ?? servicio.tipo}
           {sistema ? ` · ${ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}` : ""}
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">{sistema?.direccion}</p>
-        {cliente && (
+        {asignadoAMi ? (
+          <>
+            <p className="mt-1 text-sm text-neutral-500">{sistema?.direccion}</p>
+            {cliente && (
+              <p className="mt-1 text-sm text-neutral-500">
+                {cliente.nombre}
+                {cliente.telefono ? ` · ${cliente.telefono}` : ""}
+              </p>
+            )}
+          </>
+        ) : (
           <p className="mt-1 text-sm text-neutral-500">
-            {cliente.nombre}
-            {cliente.telefono ? ` · ${cliente.telefono}` : ""}
+            {[sistema?.barrio, cliente?.ciudad].filter(Boolean).join(", ") || "Ubicación por confirmar"}
           </p>
         )}
       </div>
 
-      {servicio.estado === "completada" ? (
+      {!asignadoAMi ? (
+        servicio.estado === "pendiente" ? (
+          <div className="flex items-center justify-between rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+            <p className="text-sm text-neutral-500">
+              Todavía no has aceptado este servicio.
+            </p>
+            <AceptarButton servicioId={servicio.id} />
+          </div>
+        ) : (
+          <div className="rounded-xl bg-white p-6 text-center text-sm text-neutral-500 shadow-sm ring-1 ring-black/5">
+            Este servicio ya fue tomado por otro técnico.
+          </div>
+        )
+      ) : servicio.estado === "completada" ? (
         <div className="rounded-xl bg-white p-6 text-center text-sm text-neutral-500 shadow-sm ring-1 ring-black/5">
           Este servicio ya quedó marcado como completado.
         </div>

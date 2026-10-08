@@ -10,7 +10,19 @@ export default function TecnicoAppLayout({ children }: { children: React.ReactNo
           <Image src="/logo-blufil.png" alt="Blufil" width={110} height={32} className="h-auto w-28" />
           <span className="text-xs font-medium text-neutral-400">· Técnicos</span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/tecnico/historial"
+            className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
+          >
+            Mi historial
+          </Link>
+          <Link
+            href="/tecnico/perfil"
+            className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
+          >
+            Mi perfil
+          </Link>
           <Link
             href="/tecnico/cambiar-clave"
             className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"

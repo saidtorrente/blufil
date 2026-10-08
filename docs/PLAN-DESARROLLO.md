@@ -2,7 +2,7 @@
 
 Borrador de organización. Se arma con todo lo acordado hasta ahora en `docs/PROYECTO.md` para dejar clara la secuencia antes de empezar a construir. Pendiente de que el usuario agregue instrucciones adicionales antes de cerrarlo como definitivo.
 
-**Última actualización:** 2026-09-03
+**Última actualización:** 2026-10-08
 
 **Estado de avance (2026-09-02):**
 - ✅ Fase 2 (esquema de datos): proyecto Supabase "Blufil" creado (`zxlctemyciwshfsqvhgw`), 9 tablas + RLS + función `aceptar_servicio` para asignación atómica de técnicos, verificado con datos de prueba (aislamiento correcto entre clientes, sin fugas de datos).
@@ -67,7 +67,21 @@ Tercera ronda, tras feedback de uso real sobre la Ronda 2:
 - **Referidos rediseñado**: se agregó el "por qué" (gancho sobre dejar de cargar botellón) antes de las cifras, más un mini "cómo funciona" de 3 pasos.
 - **Retomas — pestaña nueva** (`/dashboard/retomas`, agregada entre Referidos y Facturas): informativa, de solo lectura (RLS `retomas_select_own`, mismo patrón que Facturas). Explica el programa ($50.000 COP de descuento al entregar cualquier filtro/purificador viejo al instalar un sistema nuevo) con contexto de por qué importa cambiar el equipo con el tiempo (hallazgo de mercado ya documentado en `docs/PROYECTO.md` §6.3). Lista de retomas anteriores del cliente si existen.
 - **Imágenes**: 3 fotos de Unsplash (licencia gratuita, créditos en `docs/PROYECTO.md`) en `portal/public/fotos/` — Club Blufil reutiliza la foto de técnico ya licenciada; Referidos y Retomas usan fotos nuevas, elegidas y descargadas vía el Browser pane durante esta sesión.
-- **Fuera de alcance, anotado**: broadcast de la notificación de solicitud a técnicos (sigue pendiente de la Ronda 2), informe formal de servicio (Hermes), edición de datos de contacto del cliente.
+- **Fuera de alcance, anotado (resuelto en la Ronda 4 más abajo)**: broadcast de la notificación de solicitud a técnicos (sigue pendiente de la Ronda 2), informe formal de servicio (Hermes), edición de datos de contacto del cliente.
+
+### Portal de técnicos — perfil, concurrencia, tiempo real, historial, privacidad (2026-09-04) ✅
+
+Cuarta ronda, a raíz de preguntar qué faltaba en el portal de técnicos:
+- **Mi perfil** (`/tecnico/perfil`): el técnico edita nombre, correo, ciudad, zona y un interruptor `disponible`; `certificado` se muestra solo de lectura. El server action usa una lista blanca de columnas.
+- **Bloqueo de concurrencia** en `aceptar_servicio`: un técnico no puede aceptar un servicio de otra visita mientras tenga uno `asignada`/`en_progreso` (sí puede aceptar varios de la misma visita). El mensaje real de Postgres llega al técnico.
+- **Filtro por ciudad** en "Solicitudes disponibles" (un técnico sin ciudad en su perfil ve todo).
+- **Tiempo real**: `servicios` se agregó a la publicación `supabase_realtime`; el dashboard se refresca solo (`realtime-refresh.tsx`, con debounce).
+- **Mi historial** (`/tecnico/historial`): servicios completados por el técnico.
+- **Aviso de nuevas solicitudes**: `notificar-solicitud` ahora envía a admin **y** a técnicos `disponible` + `certificado` + con correo (filtrados por ciudad). Plantilla con marca (logo, colores, icono del tipo de equipo). La contraseña SMTP vive como **Edge Function Secret** (`notificaciones_smtp_password`, leída con `Deno.env`), no en el Vault de la base — son dos almacenes distintos y el código ya no usa `obtener_secreto` para esto. El HTML va en una sola línea a propósito: con saltos de línea, denomailer lo codifica en quoted-printable y se filtran `=20` visibles en el correo.
+- **Privacidad (decisión del usuario)**: los datos del cliente son confidenciales y solo se entregan a quien acepta. El correo a técnicos y la lista del dashboard solo muestran **barrio + ciudad**; nombre, teléfono y dirección exacta aparecen cuando el técnico acepta el servicio. El admin sigue recibiendo el detalle completo. La columna `sistemas_instalados.barrio` la llena el cliente desde "Mis equipos" (RPC `actualizar_barrio_sistema`).
+- **Seguridad**: `tecnicos_update_own` permitía actualizar cualquier columna de la fila propia (incluido `certificado`) llamando a la API directamente. Se cerró con un trigger que bloquea cambios a `certificado`, `cedula`, `auth_user_id` e `id` desde una sesión de usuario (desde SQL/`service_role` sí se pueden cambiar).
+- **Operación**: tras cada deploy en Hostinger, el proceso Node a veces queda con IDs de server actions viejos (el login responde 404); se resuelve con `hosting_restartNode_jsApplicationV1`. El proyecto de Supabase del plan gratuito se **pausa** por inactividad (2026-10-08 estaba `INACTIVE` y el portal no podía iniciar sesión) — se reactiva con `restore_project`.
+- **Pendiente, anotado**: aviso también para instalaciones (hoy solo mantenimientos desde el portal), WhatsApp Business API oficial, zona más fina que la ciudad, franjas horarias de disponibilidad, panel admin (alta de clientes/técnicos, certificar), pestaña Tienda (Fase 6), informe formal al cliente (Hermes), vigencia de la racha del Club Blufil (`racha_vigente_hasta`).
 
 ---
 

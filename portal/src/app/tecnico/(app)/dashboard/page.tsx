@@ -1,20 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ETIQUETA_SISTEMA, ETIQUETA_SERVICIO } from "../../etiquetas";
 import { AceptarButton } from "./aceptar-button";
-
-const ETIQUETA_SISTEMA: Record<string, string> = {
-  doble_filtracion: "Doble filtración",
-  ultrafiltracion: "Ultrafiltración",
-  osmosis_inversa: "Ósmosis inversa",
-  dispensador: "Dispensador sin botellón",
-  ozono: "Purificador de ozono",
-};
-
-const ETIQUETA_SERVICIO: Record<string, string> = {
-  instalacion: "Instalación",
-  mantenimiento: "Mantenimiento",
-};
+import { RealtimeRefresh } from "./realtime-refresh";
 
 const formatoFecha = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
@@ -22,7 +11,12 @@ const formatoFecha = new Intl.DateTimeFormat("es-CO", {
   year: "numeric",
 });
 
-type SistemaInfo = { tipo: string; direccion: string; clientes: { nombre: string; telefono: string | null } | null };
+type SistemaInfo = {
+  tipo: string;
+  direccion: string;
+  barrio: string | null;
+  clientes: { nombre: string; telefono: string | null; ciudad: string | null } | null;
+};
 
 type Servicio = {
   id: string;
@@ -46,7 +40,7 @@ export default async function DashboardTecnicoPage() {
 
   const { data: tecnico } = await supabase
     .from("tecnicos")
-    .select("id, nombre")
+    .select("id, nombre, ciudad")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -65,7 +59,7 @@ export default async function DashboardTecnicoPage() {
   const { data: servicios } = await supabase
     .from("servicios")
     .select(
-      "id, tipo, estado, tecnico_id, created_at, sistemas_instalados(tipo, direccion, clientes(nombre, telefono))",
+      "id, tipo, estado, tecnico_id, created_at, sistemas_instalados(tipo, direccion, barrio, clientes(nombre, telefono, ciudad))",
     )
     .order("created_at", { ascending: true })
     .returns<Servicio[]>();
@@ -73,10 +67,20 @@ export default async function DashboardTecnicoPage() {
   const asignados = (servicios ?? []).filter(
     (s) => s.tecnico_id === tecnico.id && (s.estado === "asignada" || s.estado === "en_progreso"),
   );
-  const disponibles = (servicios ?? []).filter((s) => s.tecnico_id === null && s.estado === "pendiente");
+
+  const todosDisponibles = (servicios ?? []).filter((s) => s.tecnico_id === null && s.estado === "pendiente");
+
+  // Si el técnico ya completó su ciudad en el perfil, solo se le muestran
+  // solicitudes de esa ciudad. Sin ciudad definida, ve todo (no le
+  // ocultamos trabajo por no haber llenado el perfil todavía).
+  const disponibles = tecnico.ciudad
+    ? todosDisponibles.filter((s) => s.sistemas_instalados?.clientes?.ciudad === tecnico.ciudad)
+    : todosDisponibles;
 
   return (
     <div className="flex flex-col gap-8">
+      <RealtimeRefresh />
+
       <div>
         <h1 className="text-xl font-semibold text-[#123C5B]">Hola, {tecnico.nombre}</h1>
         <p className="text-sm text-neutral-500">Tus visitas y las solicitudes disponibles.</p>
@@ -135,7 +139,14 @@ export default async function DashboardTecnicoPage() {
                   {ETIQUETA_SERVICIO[s.tipo] ?? s.tipo} ·{" "}
                   {s.sistemas_instalados ? ETIQUETA_SISTEMA[s.sistemas_instalados.tipo] : ""}
                 </p>
-                <p className="text-sm text-neutral-500">{s.sistemas_instalados?.direccion}</p>
+                {/* Sin aceptar todavía no se muestra la dirección exacta ni
+                    el cliente — solo barrio/ciudad, para no exponer datos
+                    del cliente a técnicos que puede que no tomen el trabajo. */}
+                <p className="text-sm text-neutral-500">
+                  {[s.sistemas_instalados?.barrio, s.sistemas_instalados?.clientes?.ciudad]
+                    .filter(Boolean)
+                    .join(", ") || "Ubicación por confirmar"}
+                </p>
                 <p className="text-xs text-neutral-400">
                   Solicitado el {formatoFecha.format(new Date(s.created_at))}
                 </p>

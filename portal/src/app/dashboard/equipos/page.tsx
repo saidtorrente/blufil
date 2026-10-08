@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
 import { HistorialServicios } from "../historial-servicios";
+import { BarrioForm } from "../barrio-form";
 import { ETIQUETA_SISTEMA, formatoFecha, calcularAlertaMantenimiento } from "../tipos";
 import type { SistemaInstalado } from "../tipos";
 
@@ -12,7 +13,7 @@ export default async function EquiposPage() {
     supabase
       .from("sistemas_instalados")
       .select(
-        "id, tipo, direccion, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, fotos, numero_orden, tecnicos(nombre))",
+        "id, tipo, direccion, barrio, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta), servicios(id, tipo, estado, valor_cobrado, descuento_aplicado, reporte_ia, proxima_fecha_mantenimiento, created_at, fotos, numero_orden, tecnicos(nombre))",
       )
       .order("fecha_instalacion", { ascending: false })
       .returns<SistemaInstalado[]>(),
@@ -88,6 +89,7 @@ export default async function EquiposPage() {
                       {ETIQUETA_SISTEMA[sistema.tipo] ?? sistema.tipo}
                     </h2>
                     <p className="text-sm text-neutral-500">{sistema.direccion}</p>
+                    <BarrioForm sistemaInstaladoId={sistema.id} barrioActual={sistema.barrio} />
                     {sistema.fecha_instalacion && (
                       <p className="text-xs text-neutral-400">
                         Instalado el {formatoFecha.format(new Date(sistema.fecha_instalacion))}
