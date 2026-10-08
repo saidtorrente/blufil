@@ -5,6 +5,7 @@ import { ETIQUETA_SERVICIO, ETIQUETA_SISTEMA } from "@/app/tecnico/etiquetas";
 import { obtenerAdmin, puedeEscribir } from "../../../admin";
 import { EstadoChip, formatoFechaCorta, formatoFechaHora, formatoMoneda, formatoOrden, uno } from "../../../ui";
 import { EvidenciasGaleria } from "@/app/evidencias-galeria";
+import { firmarEvidencias } from "@/lib/evidencias-servidor";
 import { AccionesSolicitud } from "./acciones";
 
 type Detalle = {
@@ -85,13 +86,7 @@ export default async function DetalleSolicitudPage({
   const otrosServicios = (visita?.servicios ?? []).filter((s) => s.id !== servicio.id);
 
   const rutasFotos = servicio.fotos ?? [];
-  const urlsFotos: Record<string, string> = {};
-  if (rutasFotos.length > 0) {
-    const { data: firmadas } = await supabase.storage.from("servicios-fotos").createSignedUrls(rutasFotos, 3600);
-    firmadas?.forEach((f) => {
-      if (f.signedUrl && f.path) urlsFotos[f.path] = f.signedUrl;
-    });
-  }
+  const urlsFotos = rutasFotos.length > 0 ? await firmarEvidencias(supabase, rutasFotos) : {};
 
   const escribe = puedeEscribir(admin);
 

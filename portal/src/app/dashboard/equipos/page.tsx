@@ -1,3 +1,4 @@
+import { firmarEvidencias } from "@/lib/evidencias-servidor";
 import { createClient } from "@/lib/supabase/server";
 import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button";
 import { HistorialServicios } from "../historial-servicios";
@@ -35,15 +36,7 @@ export default async function EquiposPage() {
   }
 
   const todasLasFotos = (sistemas ?? []).flatMap((s) => s.servicios ?? []).flatMap((sv) => sv.fotos ?? []);
-  const urlsFotos: Record<string, string> = {};
-  if (todasLasFotos.length > 0) {
-    const { data: firmadas } = await supabase.storage
-      .from("servicios-fotos")
-      .createSignedUrls(todasLasFotos, 3600);
-    firmadas?.forEach((f) => {
-      if (f.signedUrl && f.path) urlsFotos[f.path] = f.signedUrl;
-    });
-  }
+  const urlsFotos = todasLasFotos.length > 0 ? await firmarEvidencias(supabase, todasLasFotos) : {};
 
   return (
     <div className="flex flex-col gap-6">

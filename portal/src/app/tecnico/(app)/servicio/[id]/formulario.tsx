@@ -1,9 +1,8 @@
 "use client";
 
 import { useActionState, useState, useTransition, type FormEvent } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { comprimirFoto, extensionDe, MAX_VIDEO_BYTES, type TipoEvidencia } from "@/lib/evidencias";
-import { completarServicio } from "./actions";
+import { completarServicio, pedirSubidaEvidencia } from "./actions";
 
 export type ProductoOpcion = {
   id: string;
@@ -71,22 +70,28 @@ export function FormularioCompletar({
       return setErrorLocal("El video pesa más de 40 MB. Grábalo más corto (unos 30 segundos).");
     }
 
-    const supabase = createClient();
     try {
       for (let i = 0; i < pendientes.length; i++) {
         const { tipo, archivo } = pendientes[i];
         setProgreso(`Subiendo evidencias ${i + 1} de ${pendientes.length}…`);
         const { blob, extension } = tipo === "video" ? { blob: archivo as Blob, extension: extensionDe(archivo) } : await comprimirFoto(archivo);
-        const ruta = `${servicioId}/${tipo}-${crypto.randomUUID()}.${extension}`;
-        const { error: errorSubida } = await supabase.storage
-          .from("servicios-fotos")
-          .upload(ruta, blob, { contentType: blob.type || archivo.type });
-        if (errorSubida) throw errorSubida;
-        datos.append("evidencia", ruta);
+        const permiso = await pedirSubidaEvidencia(servicioId, tipo, extension, blob.size);
+        if ("error" in permiso) throw new Error(permiso.error);
+        const subida = await fetch(permiso.url, {
+          method: "PUT",
+          body: blob,
+          headers: { "Content-Type": blob.type || archivo.type || "application/octet-stream" },
+        });
+        if (!subida.ok) throw new Error("La subida falló.");
+        datos.append("evidencia", permiso.ruta);
       }
-    } catch {
+    } catch (e) {
       setProgreso(null);
-      return setErrorLocal("No pudimos subir una de las evidencias. Revisa la señal e intenta de nuevo.");
+      return setErrorLocal(
+        e instanceof Error && e.message !== "La subida falló." && !/fetch|network/i.test(e.message)
+          ? e.message
+          : "No pudimos subir una de las evidencias. Revisa la señal e intenta de nuevo.",
+      );
     }
 
     setProgreso(null);

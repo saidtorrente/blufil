@@ -3,6 +3,33 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+// Pide a la Edge Function un enlace temporal para subir una evidencia directo a
+// Cloudflare R2 (la función verifica que el servicio sea de este técnico).
+export async function pedirSubidaEvidencia(
+  servicioId: string,
+  tipo: string,
+  extension: string,
+  tamano: number,
+): Promise<{ ruta: string; url: string } | { error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.access_token) return { error: "Tu sesión expiró. Vuelve a entrar." };
+
+  const respuesta = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/evidencias-r2`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({ accion: "subir", servicio_id: servicioId, tipo, extension, tamano }),
+    cache: "no-store",
+  }).catch(() => null);
+  if (!respuesta) return { error: "No pudimos comunicarnos con el servidor. Intenta de nuevo." };
+
+  const cuerpo = (await respuesta.json().catch(() => ({}))) as { ruta?: string; url?: string; error?: string };
+  if (!respuesta.ok || !cuerpo.ruta || !cuerpo.url) return { error: cuerpo.error ?? "No pudimos preparar la subida." };
+  return { ruta: cuerpo.ruta, url: cuerpo.url };
+}
+
 export async function completarServicio(
   servicioId: string,
   _prevState: string | null,
@@ -88,7 +115,7 @@ export async function completarServicio(
   }
 
   const rutasEvidencia = [...new Set(evidencias)];
-  const carpeta = `${servicioId}/`;
+  const carpeta = `r2:${servicioId}/`;
   if (rutasEvidencia.some((r) => !r.startsWith(carpeta) || r.slice(carpeta.length).includes("/"))) {
     return "Alguna evidencia no es válida. Vuelve a subirlas.";
   }

@@ -1,6 +1,7 @@
-// Evidencias de un servicio (fotos y video corto). Se guardan en el bucket
-// `servicios-fotos` bajo `<id del servicio>/<tipo>-<uuid>.<ext>`; el tipo va en
-// el nombre del archivo, así no hace falta otra columna.
+// Evidencias de un servicio (fotos y video corto). Las nuevas viven en Cloudflare
+// R2 y se guardan en `servicios.fotos` como `r2:<id del servicio>/<tipo>-<uuid>.<ext>`;
+// las anteriores siguen en el bucket `servicios-fotos` de Supabase (sin prefijo).
+// El tipo va en el nombre del archivo, así no hace falta otra columna.
 
 export type TipoEvidencia = "antes" | "despues" | "extra" | "video";
 
