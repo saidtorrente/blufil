@@ -10,9 +10,14 @@ export async function solicitarMantenimiento(sistemaInstaladoId: string): Promis
   });
 
   if (error) {
-    return error.message.includes("en curso")
-      ? "Ya tienes una solicitud de mantenimiento en curso para este equipo."
-      : "No pudimos registrar la solicitud. Intenta de nuevo o escríbenos por WhatsApp.";
+    if (error.message.includes("en curso")) {
+      return "Ya tienes una solicitud de mantenimiento en curso para este equipo.";
+    }
+    // Un admin puede ver las pantallas del cliente, pero el equipo no es suyo.
+    if (error.message.includes("no pertenece")) {
+      return "Esta cuenta no es la dueña del equipo. Para pedir un servicio a nombre del cliente usa Administración → Solicitudes → Nueva solicitud.";
+    }
+    return "No pudimos registrar la solicitud. Intenta de nuevo o escríbenos por WhatsApp.";
   }
 
   if (visitaId) {
