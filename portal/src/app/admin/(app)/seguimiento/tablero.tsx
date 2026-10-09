@@ -167,7 +167,7 @@ function CartaTarjeta({
         )}
         {tarjeta.recordatorio_enviado_at && (
           <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
-            Correo enviado el {formatoFecha.format(new Date(tarjeta.recordatorio_enviado_at))}
+            Último correo: {formatoFecha.format(new Date(tarjeta.recordatorio_enviado_at))}
           </span>
         )}
       </div>
@@ -462,9 +462,10 @@ export function AjusteRecordatorios({ activo, puedeEditar }: { activo: boolean; 
           className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#123C5B]"
         />
         <span>
-          Enviar recordatorio por correo 7 días antes del mantenimiento
+          Enviar recordatorios por correo: 15, 10 y 5 días antes y el día del vencimiento
           <span className="block text-xs text-neutral-400">
-            Sale solo, una vez por equipo, a las 8:00 a. m. Con el interruptor apagado las tarjetas se crean igual, pero no se envía nada.
+            Máximo 4 correos por equipo, a las 8:00 a. m., con el descuento del Club Blufil. Si el cliente agenda, no se le insiste. Con el
+            interruptor apagado las tarjetas se crean igual, pero no se envía nada.
             {!puedeEditar && " Solo un superadmin puede cambiarlo."}
           </span>
         </span>
