@@ -183,7 +183,7 @@ Modelo **mixto**, elegido por el usuario: el admin asigna técnico, día y hora 
 - **Una sola regla** para «próximo mantenimiento»: 6 meses después del último servicio completado (o de la instalación si nunca tuvo mantenimiento). Vive en la vista `proximo_mantenimiento` (`security_invoker`: cada rol ve solo sus equipos) y es la misma regla de la tarea diaria que abre las tarjetas de seguimiento.
 - **Perfil del cliente en el panel**: cada equipo muestra «Próximo mantenimiento: fecha · en N días / vencido hace N días» (gris, ámbar si faltan 30 días o menos, rojo si venció), y cada línea del **historial de servicios indica el equipo** (tipo y barrio).
 - **Portal del cliente («Mis equipos» y resumen)**: reemplaza la fecha que escribía el técnico por la regla de arriba; muestra «Mantenimiento en curso» mientras haya una solicitud abierta; la recomendación del técnico sigue visible en el detalle del servicio con su propia etiqueta. El contador «con mantenimiento próximo» usa la misma regla.
-- **Recordatorios**: la tarea diaria y el correo de 7 días antes existen, pero el interruptor está apagado y ningún equipo está a 30 días o menos (los dos vencen en marzo de 2027), por eso aún no hay tarjetas ni correos.
+- **Recordatorios**: la tarea diaria y el correo de 7 días antes existen. **Interruptor encendido el 2026-10-09** (a pedido del usuario). Las tarjetas se abren **al instante** al registrar un equipo o cambiar su fecha de instalación (trigger `generar_seguimiento_equipo`; antes solo las abría la tarea diaria de las 7:30 y un equipo registrado después tardaba hasta el día siguiente). El correo sale con la tarea de las 8:00 a. m. (hora Colombia).
 
 ---
 
