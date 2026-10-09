@@ -30,7 +30,7 @@ export default async function NuevaSolicitudPage({
         ← Solicitudes
       </Link>
       <h1 className="mt-2 text-xl font-semibold text-[#123C5B]">Nueva solicitud</h1>
-      <p className="text-sm text-neutral-500">Para clientes que piden una instalación o un mantenimiento por teléfono.</p>
+      <p className="text-sm text-neutral-500">Para clientes que piden una instalación o un mantenimiento por teléfono o WhatsApp.</p>
     </div>
   );
 
@@ -64,6 +64,15 @@ export default async function NuevaSolicitudPage({
     return (
       <div className="flex flex-col gap-5">
         {encabezado}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#eaf7fb] p-4 text-sm text-[#123C5B]">
+          <span>¿Es un cliente que todavía no está registrado?</span>
+          <Link
+            href="/admin/clientes/nuevo"
+            className="rounded-lg bg-[#123C5B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0d2c44]"
+          >
+            Crear cliente nuevo
+          </Link>
+        </div>
         <form method="get" className="flex gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5">
           <input
             name="q"
