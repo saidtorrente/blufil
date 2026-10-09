@@ -4,13 +4,13 @@ import { SolicitarMantenimientoButton } from "../solicitar-mantenimiento-button"
 import { HistorialServicios } from "../historial-servicios";
 import { BarrioForm } from "../barrio-form";
 import { estadoClub } from "../club-blufil-niveles";
-import { ETIQUETA_SISTEMA, formatoFecha, calcularAlertaMantenimiento } from "../tipos";
+import { ETIQUETA_SISTEMA, formatoFecha, plazoMantenimiento } from "../tipos";
 import type { SistemaInstalado } from "../tipos";
 
 export default async function EquiposPage() {
   const supabase = await createClient();
 
-  const [{ data: cliente }, { data: sistemas }] = await Promise.all([
+  const [{ data: cliente }, { data: sistemas }, { data: proximos }] = await Promise.all([
     supabase.from("clientes").select("id, nombre").maybeSingle(),
     supabase
       .from("sistemas_instalados")
@@ -19,7 +19,11 @@ export default async function EquiposPage() {
       )
       .order("fecha_instalacion", { ascending: false })
       .returns<SistemaInstalado[]>(),
+    supabase.from("proximo_mantenimiento").select("sistema_instalado_id, proximo_mantenimiento"),
   ]);
+
+  // Fecha del próximo mantenimiento de cada equipo (6 meses desde su último servicio).
+  const proximoPorEquipo = new Map((proximos ?? []).map((p) => [p.sistema_instalado_id as string, p.proximo_mantenimiento as string]));
 
   if (!cliente) {
     return (
@@ -66,7 +70,7 @@ export default async function EquiposPage() {
             (s) => s.tipo === "mantenimiento" && ["pendiente", "asignada", "en_progreso"].includes(s.estado),
           );
 
-          const alerta = calcularAlertaMantenimiento(serviciosDesc);
+          const plazo = plazoMantenimiento(proximoPorEquipo.get(sistema.id));
 
           return (
             <section
@@ -92,14 +96,26 @@ export default async function EquiposPage() {
                         Instalado el {formatoFecha.format(new Date(sistema.fecha_instalacion))}
                       </p>
                     )}
-                    {alerta && (
-                      <span
-                        className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          alerta.vencido ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {alerta.texto}
+                    {tieneMantenimientoEnCurso ? (
+                      <span className="mt-1 inline-block rounded-full bg-[#eaf7fb] px-2 py-0.5 text-xs font-medium text-[#123C5B]">
+                        Mantenimiento en curso
                       </span>
+                    ) : (
+                      plazo && (
+                        <p className="mt-1">
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                              plazo.vencido
+                                ? "bg-red-100 text-red-700"
+                                : plazo.cercano
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-neutral-100 text-neutral-600"
+                            }`}
+                          >
+                            Próximo mantenimiento: {plazo.texto}
+                          </span>
+                        </p>
+                      )
                     )}
                   </div>
                 </div>

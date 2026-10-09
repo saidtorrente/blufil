@@ -50,25 +50,30 @@ export const formatoMoneda = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
-const DIAS_ALERTA_MANTENIMIENTO = 15;
+export const DIAS_AVISO_MANTENIMIENTO = 30;
 
-export function calcularAlertaMantenimiento(servicios: Servicio[]) {
-  const proximaFecha = servicios
-    .slice()
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .find((s) => s.proxima_fecha_mantenimiento)?.proxima_fecha_mantenimiento;
+export type PlazoMantenimiento = {
+  dias: number;
+  vencido: boolean;
+  cercano: boolean;
+  fecha: string;
+  texto: string;
+};
 
-  if (!proximaFecha) return null;
-
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const fecha = new Date(`${proximaFecha}T00:00:00`);
+// Plazo del próximo mantenimiento de un equipo. La fecha viene de la vista
+// `proximo_mantenimiento` (6 meses después del último servicio).
+export function plazoMantenimiento(fechaIso: string | null | undefined): PlazoMantenimiento | null {
+  if (!fechaIso) return null;
+  const hoy = new Date(new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date()) + "T00:00:00");
+  const fecha = new Date(`${fechaIso}T00:00:00`);
   const dias = Math.round((fecha.getTime() - hoy.getTime()) / 86400000);
-
-  if (dias > DIAS_ALERTA_MANTENIMIENTO) return null;
-
-  return {
-    vencido: dias < 0,
-    texto: dias < 0 ? "Mantenimiento vencido" : `Próximo mantenimiento: ${formatoFecha.format(fecha)}`,
-  };
+  const vencido = dias < 0;
+  const texto = vencido
+    ? `Venció el ${formatoFecha.format(fecha)}`
+    : dias === 0
+      ? "Le toca hoy"
+      : dias <= DIAS_AVISO_MANTENIMIENTO
+        ? `Le toca el ${formatoFecha.format(fecha)} (en ${dias} día${dias === 1 ? "" : "s"})`
+        : `Le toca el ${formatoFecha.format(fecha)}`;
+  return { dias, vencido, cercano: !vencido && dias <= DIAS_AVISO_MANTENIMIENTO, fecha: fechaIso, texto };
 }

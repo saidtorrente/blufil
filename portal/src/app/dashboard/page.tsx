@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { calcularAlertaMantenimiento } from "./tipos";
+import { plazoMantenimiento } from "./tipos";
 import type { Servicio } from "./tipos";
 
 type SistemaResumen = {
@@ -12,12 +12,13 @@ type SistemaResumen = {
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [{ data: cliente }, { data: sistemas }] = await Promise.all([
+  const [{ data: cliente }, { data: sistemas }, { data: proximos }] = await Promise.all([
     supabase.from("clientes").select("id, nombre").maybeSingle(),
     supabase
       .from("sistemas_instalados")
       .select("id, servicios(id, tipo, estado, proxima_fecha_mantenimiento, created_at), club_blufil(nivel_descuento)")
       .returns<SistemaResumen[]>(),
+    supabase.from("proximo_mantenimiento").select("sistema_instalado_id, proximo_mantenimiento"),
   ]);
 
   if (!cliente) {
@@ -33,7 +34,10 @@ export default async function DashboardPage() {
   }
 
   const totalEquipos = sistemas?.length ?? 0;
-  const equiposConAlerta = (sistemas ?? []).filter((s) => calcularAlertaMantenimiento(s.servicios ?? [])).length;
+  const equiposConAlerta = (proximos ?? []).filter((p) => {
+    const plazo = plazoMantenimiento(p.proximo_mantenimiento);
+    return plazo && (plazo.vencido || plazo.cercano);
+  }).length;
   const nivelMasAlto = Math.max(0, ...(sistemas ?? []).map((s) => s.club_blufil?.nivel_descuento ?? 0));
 
   return (

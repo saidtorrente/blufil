@@ -111,7 +111,7 @@ export function HistorialServicios({
         )}
         {activo.proxima_fecha_mantenimiento && (
           <p className="mt-2 text-xs text-[#1a8fac]">
-            Próximo mantenimiento recomendado:{" "}
+            Recomendación del técnico para el próximo mantenimiento:{" "}
             {formatoFecha.format(new Date(activo.proxima_fecha_mantenimiento))}
           </p>
         )}

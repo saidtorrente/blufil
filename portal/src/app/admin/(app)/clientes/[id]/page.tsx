@@ -34,7 +34,7 @@ type Cliente = {
   visitas: {
     id: string;
     created_at: string;
-    servicios: { id: string; numero_orden: number; tipo: string; estado: string }[];
+    servicios: { id: string; numero_orden: number; tipo: string; estado: string; sistema_instalado_id: string }[];
   }[];
   retomas: { id: string; equipo_marca: string | null; bono_aplicado: number | null; created_at: string }[];
 };
@@ -63,11 +63,11 @@ export default async function ClienteAdminPage({
   const { aviso } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: cliente }, admin, { data: referidosHechos }, { data: referidoPor }, { data: otrosClientes }] = await Promise.all([
+  const [{ data: cliente }, admin, { data: referidosHechos }, { data: referidoPor }, { data: otrosClientes }, { data: proximos }] = await Promise.all([
     supabase
       .from("clientes")
       .select(
-        "id, nombre, telefono, correo, cedula_nit, direccion, ciudad, tipo_persona, fuente_adquisicion, estatus, auth_user_id, codigo_referido, created_at, sistemas_instalados(id, tipo, direccion, barrio, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta)), visitas(id, created_at, servicios(id, numero_orden, tipo, estado)), retomas(id, equipo_marca, bono_aplicado, created_at)",
+        "id, nombre, telefono, correo, cedula_nit, direccion, ciudad, tipo_persona, fuente_adquisicion, estatus, auth_user_id, codigo_referido, created_at, sistemas_instalados(id, tipo, direccion, barrio, fecha_instalacion, club_blufil(conteo_mantenimientos, nivel_descuento, racha_vigente_hasta)), visitas(id, created_at, servicios(id, numero_orden, tipo, estado, sistema_instalado_id)), retomas(id, equipo_marca, bono_aplicado, created_at)",
       )
       .eq("id", id)
       .maybeSingle<Cliente>(),
@@ -84,11 +84,19 @@ export default async function ClienteAdminPage({
       .eq("referido_cliente_id", id)
       .returns<ReferidoComoReferido[]>(),
     supabase.from("clientes").select("id, nombre").neq("id", id).order("nombre").limit(500),
+    supabase.from("proximo_mantenimiento").select("sistema_instalado_id, proximo_mantenimiento").eq("cliente_id", id),
   ]);
 
   if (!cliente) notFound();
 
   const escribe = puedeEscribir(admin);
+  const proximoPorEquipo = new Map((proximos ?? []).map((p) => [p.sistema_instalado_id as string, p.proximo_mantenimiento as string]));
+  const equipoPorId = new Map(cliente.sistemas_instalados.map((e) => [e.id, e]));
+  const etiquetaEquipo = (sistemaId: string) => {
+    const e = equipoPorId.get(sistemaId);
+    if (!e) return "";
+    return `${ETIQUETA_SISTEMA[e.tipo] ?? e.tipo}${e.barrio ? ` · ${e.barrio}` : ""}`;
+  };
   const servicios = cliente.visitas
     .flatMap((v) => v.servicios.map((s) => ({ ...s, fecha: v.created_at })))
     .sort((a, b) => b.numero_orden - a.numero_orden);
@@ -168,6 +176,27 @@ export default async function ClienteAdminPage({
                           ? `Instalado el ${formatoFechaCorta.format(new Date(`${equipo.fecha_instalacion}T00:00:00`))}`
                           : "Instalación pendiente"}
                       </p>
+                      {(() => {
+                        const fecha = proximoPorEquipo.get(equipo.id);
+                        if (!fecha) return null;
+                        const hoy = new Date(new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date()) + "T00:00:00");
+                        const dias = Math.round((new Date(`${fecha}T00:00:00`).getTime() - hoy.getTime()) / 86400000);
+                        const clase =
+                          dias < 0 ? "bg-red-100 text-red-700" : dias <= 30 ? "bg-amber-100 text-amber-800" : "bg-neutral-100 text-neutral-600";
+                        const texto =
+                          dias < 0
+                            ? `vencido hace ${-dias} día${dias === -1 ? "" : "s"}`
+                            : dias === 0
+                              ? "hoy"
+                              : `en ${dias} día${dias === 1 ? "" : "s"}`;
+                        return (
+                          <p className="mt-1">
+                            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${clase}`}>
+                              Próximo mantenimiento: {formatoFechaCorta.format(new Date(`${fecha}T00:00:00`))} · {texto}
+                            </span>
+                          </p>
+                        );
+                      })()}
                     </div>
                     <div className="rounded-lg bg-[#eaf7fb] px-3 py-2 text-right text-xs text-[#123C5B]">
                       <p className="font-semibold">Club Blufil · {club.nivel}%</p>
@@ -222,6 +251,9 @@ export default async function ClienteAdminPage({
                 <Link href={`/admin/solicitudes/${s.id}`} className="flex items-center justify-between py-2.5 text-sm hover:bg-neutral-50">
                   <span>
                     <span className="font-medium text-[#123C5B]">{formatoOrden(s.numero_orden)}</span> · {ETIQUETA_SERVICIO[s.tipo] ?? s.tipo}
+                    {etiquetaEquipo(s.sistema_instalado_id) && (
+                      <span className="text-neutral-700"> · {etiquetaEquipo(s.sistema_instalado_id)}</span>
+                    )}
                     <span className="ml-2 text-xs text-neutral-400">{formatoFechaCorta.format(new Date(s.fecha))}</span>
                   </span>
                   <EstadoChip estado={s.estado} />

@@ -178,6 +178,13 @@ Modelo **mixto**, elegido por el usuario: el admin asigna técnico, día y hora 
 - **Pruebas**: en SQL (programar, cruce, forzar, fecha pasada, actualización directa bloqueada, reasignar y devolver a pendiente limpian la agenda, el técnico propone/no puede en servicios ajenos/no puede confirmar, el admin confirma, el técnico no cambia una confirmada) y en el navegador con cuentas temporales (propuesta del técnico, confirmación del admin, programación con cruce y luego en hora libre; llegaron los 5 correos). Se corrigió que tras un cruce el botón quedaba bloqueado al cambiar la hora. Todo lo temporal se borró.
 - **Pendiente**: recordatorio de la visita el día anterior (al cliente y al técnico); archivo de calendario (.ics) adjunto; mostrar al cliente la próxima visita en «Mis equipos»; mover una visita desde la agenda arrastrando.
 
+### Próximo mantenimiento visible y equipo en el historial (2026-10-09) ✅ (falta desplegar)
+
+- **Una sola regla** para «próximo mantenimiento»: 6 meses después del último servicio completado (o de la instalación si nunca tuvo mantenimiento). Vive en la vista `proximo_mantenimiento` (`security_invoker`: cada rol ve solo sus equipos) y es la misma regla de la tarea diaria que abre las tarjetas de seguimiento.
+- **Perfil del cliente en el panel**: cada equipo muestra «Próximo mantenimiento: fecha · en N días / vencido hace N días» (gris, ámbar si faltan 30 días o menos, rojo si venció), y cada línea del **historial de servicios indica el equipo** (tipo y barrio).
+- **Portal del cliente («Mis equipos» y resumen)**: reemplaza la fecha que escribía el técnico por la regla de arriba; muestra «Mantenimiento en curso» mientras haya una solicitud abierta; la recomendación del técnico sigue visible en el detalle del servicio con su propia etiqueta. El contador «con mantenimiento próximo» usa la misma regla.
+- **Recordatorios**: la tarea diaria y el correo de 7 días antes existen, pero el interruptor está apagado y ningún equipo está a 30 días o menos (los dos vencen en marzo de 2027), por eso aún no hay tarjetas ni correos.
+
 ---
 
 ## Fase 0 — Fundamentos (completado)
