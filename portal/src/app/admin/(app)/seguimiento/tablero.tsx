@@ -5,7 +5,9 @@ import { useEffect, useState, useTransition } from "react";
 import { ETIQUETA_SISTEMA } from "@/app/tecnico/etiquetas";
 import {
   cambiarRecordatorios,
+  enviarInformeServicio,
   guardarNotasSeguimiento,
+  marcarFacturaPagada,
   moverSeguimiento,
   posponerSeguimiento,
   registrarContacto,
@@ -20,9 +22,16 @@ export type Tarjeta = {
   notas: string | null;
   ultimo_contacto_at: string | null;
   recordatorio_enviado_at: string | null;
+  servicio_id: string | null;
   cerrado_at: string | null;
   clientes: { id: string; nombre: string; telefono: string | null; ciudad: string | null } | null;
   sistemas_instalados: { tipo: string; barrio: string | null } | null;
+  servicios: {
+    id: string;
+    numero_orden: number | null;
+    inicio_programado: string | null;
+    informe_enviado_at: string | null;
+  } | null;
   contactos_seguimiento: { canal: string; nota: string | null; created_at: string }[];
 };
 
@@ -30,12 +39,17 @@ type Columna = { etapa: string; titulo: string; ayuda: string; manual: boolean }
 
 const COLUMNAS_MANTENIMIENTO: Columna[] = [
   { etapa: "por_vencer", titulo: "Por vencer", ayuda: "Le toca en 30 días o menos", manual: true },
-  { etapa: "contactado", titulo: "Contactado", ayuda: "Ya hablamos con el cliente", manual: true },
-  { etapa: "sin_respuesta", titulo: "Sin respuesta", ayuda: "No contestó: insistir", manual: true },
-  { etapa: "agendado", titulo: "Agendado", ayuda: "Tiene solicitud: se mueve sola", manual: false },
-  { etapa: "en_servicio", titulo: "En servicio", ayuda: "El técnico está en camino", manual: false },
-  { etapa: "hecho", titulo: "Hecho", ayuda: "Últimos 30 días", manual: false },
+  { etapa: "contactado", titulo: "Contactado", ayuda: "Solo si el cliente respondió", manual: true },
+  { etapa: "programado", titulo: "Programado", ayuda: "Ya tiene la cita: se mueve sola", manual: false },
+  { etapa: "realizado", titulo: "Realizado", ayuda: "Servicio completado: se mueve sola", manual: false },
+  { etapa: "facturado", titulo: "Facturado", ayuda: "Esperando el pago", manual: false },
+  { etapa: "pagado", titulo: "Pagado", ayuda: "Ciclo cerrado (últimos 30 días)", manual: false },
+  { etapa: "vencido_sin_respuesta", titulo: "Vencido sin respuesta", ayuda: "Hay que llamarle por teléfono", manual: true },
 ];
+
+// En estas columnas el plazo del mantenimiento todavía importa.
+const ETAPAS_CON_PLAZO = ["por_vencer", "contactado", "vencido_sin_respuesta"];
+const DIAS_CERCANO = 30;
 
 const COLUMNAS_NUEVOS: Columna[] = [
   { etapa: "instalado", titulo: "Recién instalado", ayuda: "Esperando la llamada (a los 7 días)", manual: true },
@@ -79,6 +93,9 @@ function etiquetaPlazo(fecha: string): { texto: string; clase: string } {
 function mensajeWhatsApp(t: Tarjeta): string {
   const nombre = t.clientes?.nombre.trim().split(/\s+/)[0] ?? "";
   const equipo = ETIQUETA_SISTEMA[t.sistemas_instalados?.tipo ?? ""] ?? "equipo";
+  if (["realizado", "facturado", "pagado"].includes(t.etapa) && t.servicio_id) {
+    return `Hola ${nombre}, gracias por confiar en Blufil. Aquí está el informe del servicio a tu ${equipo}: lo que hicimos, los filtros o repuestos cambiados y la fecha de tu próximo mantenimiento con tu descuento del Club Blufil. https://portal.blufil.com/dashboard/servicios/${t.servicio_id}`;
+  }
   if (t.tipo === "nuevo_cliente") {
     return `Hola ${nombre}, te escribimos de Blufil. ¿Cómo va todo con tu ${equipo}? Queremos saber si quedaste a gusto con la instalación.`;
   }
@@ -111,6 +128,12 @@ function CartaTarjeta({
   const plazo = etiquetaPlazo(tarjeta.fecha_objetivo);
   const cerrada = Boolean(tarjeta.cerrado_at);
   const wa = enlaceWhatsApp(cliente?.telefono ?? null, mensajeWhatsApp(tarjeta));
+  const servicio = tarjeta.servicios;
+  const conServicio = Boolean(servicio && tarjeta.servicio_id);
+  const mostrarPlazo = ETAPAS_CON_PLAZO.includes(columna.etapa);
+  // Contactos y fecha solo tienen sentido mientras el mantenimiento aún no se agenda.
+  const gestionable = tarjeta.tipo === "nuevo_cliente" || ETAPAS_CON_PLAZO.includes(columna.etapa);
+  const etiquetaWa = ["realizado", "facturado", "pagado"].includes(columna.etapa) ? "Informe por WhatsApp" : "WhatsApp";
   const arrastrable = puedeEscribir && columna.manual && !cerrada;
   const columnasManuales = (tarjeta.tipo === "mantenimiento" ? COLUMNAS_MANTENIMIENTO : COLUMNAS_NUEVOS).filter(
     (c) => c.manual,
@@ -157,15 +180,30 @@ function CartaTarjeta({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        {!cerrada && columna.etapa !== "agendado" && columna.etapa !== "en_servicio" && (
+        {!cerrada && mostrarPlazo && (
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${plazo.clase}`}>{plazo.texto}</span>
+        )}
+        {!cerrada && columna.etapa === "programado" && servicio && (
+          <span className="rounded-full bg-[#eaf7fb] px-2 py-0.5 text-xs font-medium text-[#123C5B]">
+            {servicio.inicio_programado
+              ? `Cita: ${formatoFechaHora.format(new Date(servicio.inicio_programado))}`
+              : "Servicio en curso"}
+          </span>
+        )}
+        {!cerrada && columna.etapa === "contactado" && !tarjeta.ultimo_contacto_at && conServicio && (
+          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">Pidió el servicio</span>
+        )}
+        {servicio?.informe_enviado_at && ["realizado", "facturado", "pagado"].includes(columna.etapa) && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+            Informe enviado el {formatoFecha.format(new Date(servicio.informe_enviado_at))}
+          </span>
         )}
         {cerrada && (
           <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
             Cerrada el {formatoFecha.format(new Date(tarjeta.cerrado_at as string))}
           </span>
         )}
-        {tarjeta.recordatorio_enviado_at && (
+        {tarjeta.recordatorio_enviado_at && mostrarPlazo && (
           <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
             Último correo: {formatoFecha.format(new Date(tarjeta.recordatorio_enviado_at))}
           </span>
@@ -178,7 +216,7 @@ function CartaTarjeta({
         </p>
       )}
 
-      {!cerrada && (
+      {(!cerrada || columna.etapa === "pagado") && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {wa && (
             <a
@@ -187,10 +225,38 @@ function CartaTarjeta({
               rel="noreferrer"
               className="rounded-md bg-green-600 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-green-700"
             >
-              WhatsApp
+              {etiquetaWa}
             </a>
           )}
-          {puedeEscribir && tarjeta.tipo === "mantenimiento" && cliente && (
+          {puedeEscribir && columna.etapa === "realizado" && servicio && (
+            <button
+              type="button"
+              disabled={pendiente}
+              onClick={() => ejecutar(() => enviarInformeServicio(servicio.id))}
+              className="rounded-md bg-[#1EBBEB] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[#17a3cf] disabled:opacity-60"
+            >
+              {servicio.informe_enviado_at ? "Reenviar informe" : "Enviar informe"}
+            </button>
+          )}
+          {puedeEscribir && columna.etapa === "facturado" && servicio && (
+            <button
+              type="button"
+              disabled={pendiente}
+              onClick={() => ejecutar(() => marcarFacturaPagada(servicio.id))}
+              className="rounded-md bg-[#123C5B] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[#0d2c44] disabled:opacity-60"
+            >
+              Marcar pagada
+            </button>
+          )}
+          {servicio && ["programado", "realizado", "facturado", "pagado"].includes(columna.etapa) && (
+            <Link
+              href={`/admin/solicitudes/${servicio.id}`}
+              className="rounded-md bg-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-700 transition hover:bg-neutral-300"
+            >
+              Ver servicio
+            </Link>
+          )}
+          {puedeEscribir && ETAPAS_CON_PLAZO.includes(columna.etapa) && tarjeta.tipo === "mantenimiento" && cliente && !conServicio && (
             <Link
               href={`/admin/solicitudes/nueva?cliente=${cliente.id}`}
               className="rounded-md bg-[#123C5B] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[#0d2c44]"
@@ -207,6 +273,7 @@ function CartaTarjeta({
 
           {puedeEscribir && !cerrada && (
             <>
+              {gestionable && (
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-neutral-700">Registrar contacto</p>
                 <div className="flex gap-1.5">
@@ -239,7 +306,7 @@ function CartaTarjeta({
                     }
                     className="rounded-md bg-[#1EBBEB] px-2.5 py-1 text-xs font-medium text-white hover:bg-[#17a3cf] disabled:opacity-60"
                   >
-                    Hablamos
+                    {tarjeta.tipo === "mantenimiento" ? "Respondió" : "Hablamos"}
                   </button>
                   {tarjeta.tipo === "mantenimiento" && (
                     <button
@@ -255,8 +322,9 @@ function CartaTarjeta({
                   )}
                 </div>
               </div>
+              )}
 
-              {tarjeta.tipo === "mantenimiento" && (
+              {gestionable && tarjeta.tipo === "mantenimiento" && (
                 <div className="flex flex-col gap-1.5">
                   <p className="text-xs font-medium text-neutral-700">Posponer hasta</p>
                   <div className="flex gap-1.5">
@@ -351,6 +419,7 @@ export function Tablero({
   const [estado, setEstado] = useState(tarjetas);
   const [error, setError] = useState<string | null>(null);
   const [columnaSobre, setColumnaSobre] = useState<string | null>(null);
+  const [verLejanos, setVerLejanos] = useState(false);
   const [, startTransition] = useTransition();
   const columnas = nuevos ? COLUMNAS_NUEVOS : COLUMNAS_MANTENIMIENTO;
 
@@ -380,7 +449,7 @@ export function Tablero({
       <p className="rounded-xl bg-white p-6 text-center text-sm text-neutral-500 shadow-sm ring-1 ring-black/5">
         {nuevos
           ? "Todavía no hay clientes recién instalados. Aparecen solos cuando se completa una instalación."
-          : "No hay mantenimientos por vencer. Las tarjetas aparecen solas cuando a un equipo le faltan 30 días o menos."}
+          : "No hay mantenimientos en seguimiento. Las tarjetas aparecen solas cuando se completa un servicio (el siguiente queda a 6 meses) o a un equipo le faltan 30 días o menos."}
       </p>
     );
   }
@@ -390,7 +459,11 @@ export function Tablero({
       {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       <div className="flex gap-3 overflow-x-auto pb-3">
         {columnas.map((columna) => {
-          const enColumna = estado.filter((t) => t.etapa === columna.etapa);
+          const todasEnColumna = estado.filter((t) => t.etapa === columna.etapa);
+          // Los próximos mantenimientos a 6 meses se crean al cerrar el servicio: no estorban hasta que se acercan.
+          const ocultaLejanos = !nuevos && columna.etapa === "por_vencer" && !verLejanos;
+          const lejanos = ocultaLejanos ? todasEnColumna.filter((t) => diasHasta(t.fecha_objetivo) > DIAS_CERCANO) : [];
+          const enColumna = ocultaLejanos ? todasEnColumna.filter((t) => !lejanos.includes(t)) : todasEnColumna;
           const soltable = puedeEscribir && columna.manual;
           return (
             <section
@@ -417,6 +490,15 @@ export function Tablero({
                   <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-neutral-500">{enColumna.length}</span>
                 </h2>
                 <p className="text-xs text-neutral-400">{columna.ayuda}</p>
+                {lejanos.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setVerLejanos(true)}
+                    className="mt-1 text-xs font-medium text-[#1a8fac] hover:underline"
+                  >
+                    Ver {lejanos.length} programado{lejanos.length === 1 ? "" : "s"} a más de {DIAS_CERCANO} días
+                  </button>
+                )}
               </header>
               {enColumna.length === 0 ? (
                 <p className="rounded-lg border border-dashed border-neutral-300 p-3 text-center text-xs text-neutral-400">
@@ -464,8 +546,10 @@ export function AjusteRecordatorios({ activo, puedeEditar }: { activo: boolean; 
         <span>
           Enviar recordatorios por correo: 15, 10 y 5 días antes y el día del vencimiento
           <span className="block text-xs text-neutral-400">
-            Máximo 4 correos por equipo, a las 8:00 a. m., con el descuento del Club Blufil. Si el cliente agenda, no se le insiste. Con el
-            interruptor apagado las tarjetas se crean igual, pero no se envía nada.
+            Máximo 4 correos por equipo, a las 8:00 a. m., con el descuento del Club Blufil. Si el cliente responde o agenda, no se le
+            insiste. Cuando vence sin respuesta, la tarjeta pasa a «Vencido sin respuesta» y se avisa por correo al encargado para que le
+            llame (ese aviso sale aunque el interruptor esté apagado). Con el interruptor apagado las tarjetas se crean igual, pero no se
+            envía nada al cliente.
             {!puedeEditar && " Solo un superadmin puede cambiarlo."}
           </span>
         </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { EvidenciasGaleria } from "@/app/evidencias-galeria";
+import Link from "next/link";
 import { useState } from "react";
 import type { Servicio } from "./tipos";
 import { formatoFecha, formatoMoneda } from "./tipos";
@@ -108,6 +109,14 @@ export function HistorialServicios({
             {formatoMoneda.format(activo.valor_cobrado)}
             {activo.descuento_aplicado > 0 && ` · ${activo.descuento_aplicado}% de descuento aplicado`}
           </p>
+        )}
+        {activo.estado === "completada" && (
+          <Link
+            href={`/dashboard/servicios/${activo.id}`}
+            className="mt-3 inline-block text-xs font-medium text-[#1a8fac] underline underline-offset-2 hover:text-[#123C5B]"
+          >
+            Ver el informe completo del servicio
+          </Link>
         )}
         {activo.proxima_fecha_mantenimiento && (
           <p className="mt-2 text-xs text-[#1a8fac]">

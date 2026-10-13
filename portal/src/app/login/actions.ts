@@ -41,5 +41,7 @@ export async function iniciarSesion(
     return "No pudimos iniciar tu sesión. Intenta de nuevo.";
   }
 
-  redirect("/dashboard");
+  // Solo se vuelve a rutas internas del cliente (p. ej. un informe de servicio), nunca a otra dirección.
+  const siguiente = String(formData.get("siguiente") ?? "");
+  redirect(/^\/dashboard\/[A-Za-z0-9\/_-]*$/.test(siguiente) ? siguiente : "/dashboard");
 }

@@ -38,7 +38,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !esRutaPublica) {
     const url = request.nextUrl.clone();
+    const destino = request.nextUrl.pathname;
     url.pathname = esRutaAdmin ? "/admin/login" : esRutaTecnico ? "/tecnico/login" : "/login";
+    url.search = "";
+    // Un enlace directo a una página del cliente (p. ej. el informe de servicio) vuelve a ella tras el login.
+    if (url.pathname === "/login" && destino.startsWith("/dashboard/")) url.searchParams.set("siguiente", destino);
     return NextResponse.redirect(url);
   }
 

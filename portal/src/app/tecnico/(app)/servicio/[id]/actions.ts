@@ -143,8 +143,26 @@ export async function completarServicio(
   }
 
   await facturarSiTodoCompletado(servicioActualizado.visita_id);
+  await enviarInformeAlCliente(servicioId);
 
   redirect("/tecnico/dashboard");
+}
+
+// Entrega el informe del servicio al correo del cliente. Como la factura, falla en
+// silencio hacia el técnico: el administrador puede reenviarlo desde el seguimiento.
+async function enviarInformeAlCliente(servicioId: string) {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.access_token) return;
+
+  await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/informe-servicio`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({ servicio_id: servicioId }),
+    signal: AbortSignal.timeout(20000),
+  }).catch(() => {});
 }
 
 // Si esta visita ya no tiene servicios pendientes/asignados/en progreso,

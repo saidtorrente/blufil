@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { esSuperadmin, obtenerAdmin, puedeEscribir } from "../../admin";
 import { AjusteRecordatorios, Tablero, type Tarjeta } from "./tablero";
 
-const DIAS_HECHO_VISIBLE = 30;
+const DIAS_PAGADO_VISIBLE = 30;
 
 export default async function SeguimientoPage({ searchParams }: { searchParams: Promise<{ vista?: string }> }) {
   const { vista } = await searchParams;
@@ -11,13 +11,13 @@ export default async function SeguimientoPage({ searchParams }: { searchParams: 
   const supabase = await createClient();
   const admin = await obtenerAdmin(supabase);
 
-  const desde = new Date(Date.now() - DIAS_HECHO_VISIBLE * 24 * 3600 * 1000).toISOString();
+  const desde = new Date(Date.now() - DIAS_PAGADO_VISIBLE * 24 * 3600 * 1000).toISOString();
 
   const [{ data: tarjetas, error }, { data: ajustes }] = await Promise.all([
     supabase
       .from("seguimientos")
       .select(
-        "id, tipo, etapa, fecha_objetivo, notas, ultimo_contacto_at, recordatorio_enviado_at, cerrado_at, clientes(id, nombre, telefono, ciudad), sistemas_instalados(tipo, barrio), contactos_seguimiento(canal, nota, created_at)",
+        "id, tipo, etapa, fecha_objetivo, notas, ultimo_contacto_at, recordatorio_enviado_at, servicio_id, cerrado_at, clientes(id, nombre, telefono, ciudad), sistemas_instalados(tipo, barrio), servicios!seguimientos_servicio_id_fkey(id, numero_orden, inicio_programado, informe_enviado_at), contactos_seguimiento(canal, nota, created_at)",
       )
       .eq("tipo", nuevos ? "nuevo_cliente" : "mantenimiento")
       .or(`cerrado_at.is.null,cerrado_at.gte.${desde}`)
@@ -39,7 +39,7 @@ export default async function SeguimientoPage({ searchParams }: { searchParams: 
       <div>
         <h1 className="text-xl font-semibold text-[#123C5B]">Seguimiento</h1>
         <p className="text-sm text-neutral-500">
-          A quién hay que escribirle o llamarle: mantenimientos por vencer y clientes recién instalados.
+          El ciclo de cada mantenimiento, de «por vencer» a «pagado», y a quién hay que llamarle.
         </p>
       </div>
 

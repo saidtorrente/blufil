@@ -18,6 +18,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [error, formAction, pending] = useActionState(iniciarSesion, null);
 
+  const siguiente = searchParams.get("siguiente") ?? "";
+
   const mensajeConfirmacion =
     searchParams.get("error") === "confirmacion"
       ? "El enlace de confirmación venció o ya se usó. Contáctanos si necesitas uno nuevo."
@@ -43,6 +45,7 @@ function LoginForm() {
         </div>
 
         <form action={formAction} className="mt-4 flex flex-col gap-4">
+          <input type="hidden" name="siguiente" value={siguiente} />
           <label className="flex flex-col gap-1 text-sm text-neutral-700">
             Número de cédula
             <input

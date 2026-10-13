@@ -235,6 +235,82 @@ function plantilla(nombre: string, equipos: Equipo[], paso: number): string {
   );
 }
 
+// ---- Aviso al encargado ----------------------------------------------------------
+// Los clientes cuyo mantenimiento ya vencio y no han respondido pasan a «Vencido sin
+// respuesta»; el encargado recibe un solo correo con la lista para que los llame.
+function enlaceWhatsApp(telefono: string | null, mensaje: string): string | null {
+  if (!telefono) return null;
+  let digitos = telefono.replace(/\D/g, "");
+  if (digitos.length === 10 && digitos.startsWith("3")) digitos = `57${digitos}`;
+  if (digitos.length < 11 || digitos.length > 15) return null;
+  return `https://wa.me/${digitos}?text=${encodeURIComponent(mensaje)}`;
+}
+
+async function avisarEncargado(
+  admin: ReturnType<typeof createClient>,
+  enviar: (para: string, asunto: string, html: string) => Promise<void>,
+  hoy: string,
+): Promise<number> {
+  const { data: ajustes } = await admin.from("ajustes_seguimiento").select("correo_encargado").maybeSingle();
+  const correo = ajustes?.correo_encargado;
+  if (!correo) return 0;
+
+  const { data: tarjetas } = await admin
+    .from("seguimientos")
+    .select("id, fecha_objetivo, clientes(nombre, telefono), sistemas_instalados(tipo, barrio)")
+    .eq("tipo", "mantenimiento")
+    .is("cerrado_at", null)
+    .eq("etapa", "vencido_sin_respuesta")
+    .is("encargado_notificado_at", null)
+    .order("fecha_objetivo")
+    .limit(40);
+  if (!tarjetas || tarjetas.length === 0) return 0;
+
+  const filas = tarjetas
+    .map((t) => {
+      const cliente = Array.isArray(t.clientes) ? t.clientes[0] : t.clientes;
+      const sistema = Array.isArray(t.sistemas_instalados) ? t.sistemas_instalados[0] : t.sistemas_instalados;
+      const dias = Math.round((Date.parse(`${hoy}T00:00:00Z`) - Date.parse(`${t.fecha_objetivo}T00:00:00Z`)) / 86400000);
+      const equipo = `${ETIQUETA_SISTEMA[sistema?.tipo ?? ""] ?? sistema?.tipo ?? "Equipo"}${sistema?.barrio ? " · " + sistema.barrio : ""}`;
+      const wa = enlaceWhatsApp(
+        cliente?.telefono ?? null,
+        `Hola ${(cliente?.nombre ?? "").trim().split(/\s+/)[0]}, te escribimos de Blufil: el mantenimiento de tu equipo ya venció. ¿Te agendamos una visita?`,
+      );
+      return (
+        `<tr><td style="padding:12px 0;border-bottom:1px solid #eef2f5;">` +
+        `<p style="margin:0;font-size:15px;font-weight:600;color:#111827;">${escapar(cliente?.nombre ?? "Cliente")}</p>` +
+        `<p style="margin:2px 0 0;font-size:13px;color:#6b7280;">${escapar(equipo)} · venció hace ${dias} día${dias === 1 ? "" : "s"}</p>` +
+        `<p style="margin:4px 0 0;font-size:14px;color:#374151;">${cliente?.telefono ? "Tel. " + escapar(cliente.telefono) : "Sin teléfono registrado"}` +
+        (wa ? ` &middot; <a href="${wa}" style="color:#1a8fac;">WhatsApp</a>` : "") +
+        `</p></td></tr>`
+      );
+    })
+    .join("");
+
+  const html =
+    `<!DOCTYPE html><html><body style="margin:0;padding:0;background-color:#f5f9fb;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f9fb;padding:32px 16px;"><tr><td align="center">` +
+    `<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">` +
+    `<tr><td style="background-color:#ffffff;padding:24px 32px;border-bottom:1px solid #eef2f5;"><img src="${LOGO_URL}" alt="Blufil" width="120" style="display:block;" /></td></tr>` +
+    `<tr><td style="padding:32px;">` +
+    `<p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:${CIAN_MARCA};">Vencido sin respuesta</p>` +
+    `<h1 style="margin:0 0 12px;font-size:20px;color:${AZUL_MARCA};">Hay que llamar a ${tarjetas.length} cliente${tarjetas.length === 1 ? "" : "s"}</h1>` +
+    `<p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#374151;">Su mantenimiento ya venció y no han agendado ni respondido a los recordatorios. Contáctalos por teléfono:</p>` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eef2f5;">${filas}</table>` +
+    `<a href="https://portal.blufil.com/admin/seguimiento" style="display:inline-block;margin-top:24px;background-color:${AZUL_MARCA};color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;">Abrir el seguimiento</a>` +
+    `</td></tr>` +
+    `<tr><td style="padding:16px 32px;background-color:#f5f9fb;"><p style="margin:0;font-size:12px;color:#9ca3af;">Blufil &middot; Aviso automático del portal, no responder a este correo.</p></td></tr>` +
+    `</table></td></tr></table></body></html>`;
+
+  const asunto = `Llamar a ${tarjetas.length} cliente${tarjetas.length === 1 ? "" : "s"} con mantenimiento vencido`;
+  await enviar(correo, asunto, html);
+  await admin
+    .from("seguimientos")
+    .update({ encargado_notificado_at: new Date().toISOString() })
+    .in("id", tarjetas.map((t) => t.id));
+  return tarjetas.length;
+}
+
 // El paso que corresponde a los dias que faltan: el menor de 15, 10, 5 y 0 que sea
 // mayor o igual a los dias restantes (vencido cuenta como 0). Mas de 15 dias: ninguno.
 function pasoPara(dias: number): number | null {
@@ -309,11 +385,32 @@ Deno.serve(async (req) => {
   }
 
   // ---- Ejecucion normal ----
-  const { data: ajustes } = await admin.from("ajustes_seguimiento").select("enviar_recordatorios").maybeSingle();
-  if (!ajustes?.enviar_recordatorios) return respuesta({ status: "apagado" }, 200);
   if (!smtpPassword) return respuesta({ error: "falta el secreto notificaciones_smtp_password" }, 503);
-
   const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
+
+  async function enviarCorreo(para: string, asuntoCorreo: string, html: string): Promise<void> {
+    const client = crearCliente();
+    try {
+      await client.send({ from: `Blufil <${REMITENTE}>`, to: [para], subject: asuntoCorreo, html, content: "auto" });
+    } finally {
+      try {
+        await client.close();
+      } catch {
+        // cerrar la conexion no debe tumbar la respuesta
+      }
+    }
+  }
+
+  // El aviso al encargado es interno: sale aunque los recordatorios a clientes esten apagados.
+  let avisadosEncargado = 0;
+  try {
+    avisadosEncargado = await avisarEncargado(admin, enviarCorreo, hoy);
+  } catch (err) {
+    console.error("aviso al encargado fallo", String(err));
+  }
+
+  const { data: ajustes } = await admin.from("ajustes_seguimiento").select("enviar_recordatorios").maybeSingle();
+  if (!ajustes?.enviar_recordatorios) return respuesta({ status: "apagado", avisados_encargado: avisadosEncargado }, 200);
   const sumarDias = (fecha: string, dias: number) => {
     const d = new Date(`${fecha}T12:00:00Z`);
     d.setUTCDate(d.getUTCDate() + dias);
@@ -329,7 +426,8 @@ Deno.serve(async (req) => {
     )
     .eq("tipo", "mantenimiento")
     .is("cerrado_at", null)
-    .in("etapa", ["por_vencer", "contactado", "sin_respuesta"])
+    // «Contactado» = ya hablamos o pidió el servicio: no se le insiste por correo.
+    .in("etapa", ["por_vencer", "vencido_sin_respuesta"])
     .lte("fecha_objetivo", sumarDias(hoy, 15))
     .gte("fecha_objetivo", sumarDias(hoy, -DIAS_MAXIMOS_VENCIDO))
     .order("fecha_objetivo");
@@ -372,19 +470,6 @@ Deno.serve(async (req) => {
   const fallos: string[] = [];
   const grupos = [...porCliente.entries()].slice(0, MAX_CLIENTES_POR_CORRIDA);
 
-  async function enviarCorreo(para: string, asuntoCorreo: string, html: string): Promise<void> {
-    const client = crearCliente();
-    try {
-      await client.send({ from: `Blufil <${REMITENTE}>`, to: [para], subject: asuntoCorreo, html, content: "auto" });
-    } finally {
-      try {
-        await client.close();
-      } catch {
-        // cerrar la conexion no debe tumbar la respuesta
-      }
-    }
-  }
-
   for (const [clienteId, grupo] of grupos) {
     const paso = Math.min(...grupo.pendientes.map((p) => p.paso));
     const equipos = grupo.pendientes.map((p) => p.equipo);
@@ -419,8 +504,8 @@ Deno.serve(async (req) => {
 
   await admin
     .from("corridas_recordatorios")
-    .insert({ candidatas: grupos.length, enviados, fallos })
+    .insert({ candidatas: grupos.length, enviados, fallos, nota: avisadosEncargado > 0 ? `${avisadosEncargado} avisados al encargado` : null })
     .then(() => undefined, () => undefined);
 
-  return respuesta({ status: "ok", enviados, fallos }, 200);
+  return respuesta({ status: "ok", enviados, fallos, avisados_encargado: avisadosEncargado }, 200);
 });
