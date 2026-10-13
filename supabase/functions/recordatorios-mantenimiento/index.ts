@@ -96,26 +96,30 @@ type Equipo = { etiqueta: string; fecha: string; dias: number; club: Club };
 
 type Mensaje = { antetitulo: string; titulo: string; intro: string; boton: string };
 
+function enDias(dias: number): string {
+  return dias === 1 ? "1 día" : `${dias} días`;
+}
+
 function mensajeDelPaso(paso: number, varios: boolean, dias: number): Mensaje {
   const equipo = varios ? "tus equipos" : "tu equipo";
   switch (paso) {
     case 15:
       return {
-        antetitulo: "Mantenimiento en 15 días",
+        antetitulo: `Mantenimiento en ${enDias(dias)}`,
         titulo: "Tu agua merece su revisión a tiempo",
-        intro: `En unos 15 días ${varios ? "les toca" : "le toca"} el mantenimiento a ${equipo} Blufil. Agéndalo ahora y escoge el día y la hora que mejor te queden: un equipo al día rinde más y te protege de daños costosos.`,
+        intro: `En ${enDias(dias)} ${varios ? "les toca" : "le toca"} el mantenimiento a ${equipo} Blufil. Agéndalo ahora y escoge el día y la hora que mejor te queden: un equipo al día rinde más y te protege de daños costosos.`,
         boton: "Agendar mi mantenimiento",
       };
     case 10:
       return {
-        antetitulo: "Quedan 10 días",
+        antetitulo: dias === 1 ? "Queda 1 día" : `Quedan ${dias} días`,
         titulo: "Asegura tu mantenimiento esta semana",
         intro: `Un mantenimiento a tiempo mantiene tu agua en las mejores condiciones y alarga la vida de ${equipo}. Agéndalo hoy: son dos minutos desde tu portal.`,
         boton: "Elegir mi fecha",
       };
     case 5:
       return {
-        antetitulo: "Faltan 5 días",
+        antetitulo: dias === 1 ? "Falta 1 día" : `Faltan ${dias} días`,
         titulo: "Es el momento de agendar",
         intro: `Ya casi llega la fecha del mantenimiento de ${equipo}. Si lo agendas ahora, conservas tu racha y tu descuento del Club Blufil.`,
         boton: "Agendar ahora",
@@ -168,14 +172,19 @@ function bloqueClub(club: Club): string {
 // cabeceras y el correo llega con ellas a la vista dentro del cuerpo.
 function asunto(paso: number, equipos: Equipo[]): string {
   const mayor = Math.max(...equipos.map((e) => (e.club.racha_vencida ? 0 : e.club.descuento)));
-  const vencido = equipos.some((e) => e.dias < 0);
+  const dias = Math.min(...equipos.map((e) => e.dias));
+  const vencido = dias < 0;
   switch (paso) {
     case 15:
       return mayor > 0 ? `Tu mantenimiento Blufil: ${mayor}% de descuento` : "Agenda el mantenimiento de tu equipo Blufil";
     case 10:
-      return mayor > 0 ? `Quedan 10 días: ${mayor}% de descuento Club Blufil` : "Quedan 10 días para tu mantenimiento Blufil";
+      return mayor > 0
+        ? `${dias === 1 ? "Queda 1 día" : "Quedan " + dias + " días"}: ${mayor}% de descuento Club Blufil`
+        : `${dias === 1 ? "Queda 1 día" : "Quedan " + dias + " días"} para tu mantenimiento Blufil`;
     case 5:
-      return mayor > 0 ? `Faltan 5 días: no pierdas tu ${mayor}% de descuento` : "Faltan 5 días para tu mantenimiento Blufil";
+      return mayor > 0
+        ? `${dias === 1 ? "Falta 1 día" : "Faltan " + dias + " días"}: no pierdas tu ${mayor}% de descuento`
+        : `${dias === 1 ? "Falta 1 día" : "Faltan " + dias + " días"} para tu mantenimiento Blufil`;
     default:
       if (vencido) return "Tu mantenimiento Blufil ya venció";
       return mayor > 0 ? `Hoy es tu mantenimiento: ${mayor}% de descuento` : "Hoy le toca mantenimiento a tu equipo";
@@ -357,48 +366,61 @@ Deno.serve(async (req) => {
     porCliente.set(t.cliente_id, entrada);
   }
 
-  const client = crearCliente();
+  // Un fallo momentaneo del servidor de correo no debe costar un dia: cada envio se
+  // reintenta una vez con una conexion nueva, y toda la corrida queda en la bitacora.
   let enviados = 0;
   const fallos: string[] = [];
-  try {
-    for (const [clienteId, grupo] of [...porCliente.entries()].slice(0, MAX_CLIENTES_POR_CORRIDA)) {
-      // Si un cliente tiene varios equipos, un solo correo con el tono del mas urgente.
-      const paso = Math.min(...grupo.pendientes.map((p) => p.paso));
-      const equipos = grupo.pendientes.map((p) => p.equipo);
+  const grupos = [...porCliente.entries()].slice(0, MAX_CLIENTES_POR_CORRIDA);
+
+  async function enviarCorreo(para: string, asuntoCorreo: string, html: string): Promise<void> {
+    const client = crearCliente();
+    try {
+      await client.send({ from: `Blufil <${REMITENTE}>`, to: [para], subject: asuntoCorreo, html, content: "auto" });
+    } finally {
       try {
-        await client.send({
-          from: `Blufil <${REMITENTE}>`,
-          to: [grupo.correo],
-          subject: asunto(paso, equipos),
-          html: plantilla(grupo.nombre, equipos, paso),
-          content: "auto",
-        });
-        await admin
-          .from("recordatorios_mantenimiento")
-          .upsert(grupo.pendientes.map((p) => ({ seguimiento_id: p.id, paso: p.paso })), { onConflict: "seguimiento_id,paso" });
-        await admin
-          .from("seguimientos")
-          .update({ recordatorio_enviado_at: new Date().toISOString() })
-          .in("id", grupo.pendientes.map((p) => p.id));
-        await admin.from("contactos_seguimiento").insert(
-          grupo.pendientes.map((p) => ({
-            seguimiento_id: p.id,
-            canal: "correo",
-            nota: `Recordatorio automático enviado por correo (${p.paso === 0 ? "día del vencimiento" : p.paso + " días antes"}).`,
-          })),
-        );
-        enviados++;
-      } catch (err) {
-        fallos.push(`${clienteId}: ${String(err).slice(0, 120)}`);
+        await client.close();
+      } catch {
+        // cerrar la conexion no debe tumbar la respuesta
       }
     }
-  } finally {
+  }
+
+  for (const [clienteId, grupo] of grupos) {
+    const paso = Math.min(...grupo.pendientes.map((p) => p.paso));
+    const equipos = grupo.pendientes.map((p) => p.equipo);
+    const asuntoCorreo = asunto(paso, equipos);
+    const html = plantilla(grupo.nombre, equipos, paso);
     try {
-      await client.close();
-    } catch {
-      // cerrar la conexion no debe tumbar la respuesta
+      try {
+        await enviarCorreo(grupo.correo, asuntoCorreo, html);
+      } catch {
+        await new Promise((r) => setTimeout(r, 3000));
+        await enviarCorreo(grupo.correo, asuntoCorreo, html);
+      }
+      await admin
+        .from("recordatorios_mantenimiento")
+        .upsert(grupo.pendientes.map((p) => ({ seguimiento_id: p.id, paso: p.paso })), { onConflict: "seguimiento_id,paso" });
+      await admin
+        .from("seguimientos")
+        .update({ recordatorio_enviado_at: new Date().toISOString() })
+        .in("id", grupo.pendientes.map((p) => p.id));
+      await admin.from("contactos_seguimiento").insert(
+        grupo.pendientes.map((p) => ({
+          seguimiento_id: p.id,
+          canal: "correo",
+          nota: `Recordatorio automático enviado por correo (${p.paso === 0 ? "día del vencimiento" : p.paso + " días antes"}).`,
+        })),
+      );
+      enviados++;
+    } catch (err) {
+      fallos.push(`${clienteId}: ${String(err).slice(0, 160)}`);
     }
   }
+
+  await admin
+    .from("corridas_recordatorios")
+    .insert({ candidatas: grupos.length, enviados, fallos })
+    .then(() => undefined, () => undefined);
 
   return respuesta({ status: "ok", enviados, fallos }, 200);
 });
