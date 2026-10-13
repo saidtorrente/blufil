@@ -1,8 +1,9 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-// Secuencia de recordatorios de mantenimiento por correo: 15, 10 y 5 dias antes y
-// el dia del vencimiento (4 correos como maximo por equipo, nunca diarios). La
+// Secuencia de recordatorios de mantenimiento por correo: 15, 10 y 5 dias antes, el
+// dia del vencimiento y 30 y 60 dias despues (6 correos como maximo por equipo,
+// nunca diarios). La
 // llama el reloj de la base de datos (pg_cron) todos los dias a las 8:00 a. m.;
 // solo envia si `ajustes_seguimiento.enviar_recordatorios` esta encendido.
 // Cada mensaje busca que el cliente agende e incluye el descuento del Club Blufil.
@@ -11,8 +12,11 @@ const REMITENTE = "notificaciones@blufil.com";
 const LOGO_URL = "https://portal.blufil.com/logo-blufil.png";
 const AZUL_MARCA = "#123C5B";
 const CIAN_MARCA = "#1EBBEB";
-const PASOS = [15, 10, 5, 0];
-const DIAS_MAXIMOS_VENCIDO = 30; // no se insiste por tarjetas viejas
+// Pasos antes del vencimiento (15, 10 y 5 dias antes y el dia) y despues (30 y 60 dias vencido).
+const PASOS_ANTES = [15, 10, 5, 0];
+const PASOS = [...PASOS_ANTES, -30, -60];
+// Margen para reintentar el ultimo paso (-60) si un envio fallo; mas viejas no se insiste.
+const DIAS_MAXIMOS_VENCIDO = 90;
 const MAX_CLIENTES_POR_CORRIDA = 40;
 
 const ETIQUETA_SISTEMA: Record<string, string> = {
@@ -124,6 +128,20 @@ function mensajeDelPaso(paso: number, varios: boolean, dias: number): Mensaje {
         intro: `Ya casi llega la fecha del mantenimiento de ${equipo}. Si lo agendas ahora, conservas tu racha y tu descuento del Club Blufil.`,
         boton: "Agendar ahora",
       };
+    case -30:
+      return {
+        antetitulo: "Mantenimiento vencido",
+        titulo: "Tu equipo sigue sin mantenimiento",
+        intro: `El mantenimiento de ${equipo} ${varios ? "vencieron" : "venció"} hace ${enDias(-dias)}. Mientras más se retrasa, menos rinden los filtros y más riesgo hay de daños. Agéndalo ahora y empieza de nuevo tu racha con descuento en el Club Blufil.`,
+        boton: "Agendar mi mantenimiento",
+      };
+    case -60:
+      return {
+        antetitulo: "Último aviso",
+        titulo: "Todavía estamos a tiempo",
+        intro: `Han pasado ${enDias(-dias)} desde la fecha de mantenimiento de ${equipo}. No queremos que tu agua pierda calidad: agenda tu visita cuando quieras o, si prefieres, te ayudamos por WhatsApp. Este es nuestro último aviso automático.`,
+        boton: "Agendar mi mantenimiento",
+      };
     default:
       return dias < 0
         ? {
@@ -185,6 +203,10 @@ function asunto(paso: number, equipos: Equipo[]): string {
       return mayor > 0
         ? `${dias === 1 ? "Falta 1 día" : "Faltan " + dias + " días"}: no pierdas tu ${mayor}% de descuento`
         : `${dias === 1 ? "Falta 1 día" : "Faltan " + dias + " días"} para tu mantenimiento Blufil`;
+    case -30:
+      return "Tu equipo Blufil sigue sin mantenimiento";
+    case -60:
+      return "Último aviso de mantenimiento de tu Blufil";
     default:
       if (vencido) return "Tu mantenimiento Blufil ya venció";
       return mayor > 0 ? `Hoy es tu mantenimiento: ${mayor}% de descuento` : "Hoy le toca mantenimiento a tu equipo";
@@ -312,11 +334,14 @@ async function avisarEncargado(
 }
 
 // El paso que corresponde a los dias que faltan: el menor de 15, 10, 5 y 0 que sea
-// mayor o igual a los dias restantes (vencido cuenta como 0). Mas de 15 dias: ninguno.
+// mayor o igual a los dias restantes. Vencido: 0 hasta 29 dias, -30 hasta 59 y -60
+// desde 60. Mas de 15 dias para el vencimiento: ninguno.
 function pasoPara(dias: number): number | null {
   if (dias > 15) return null;
+  if (dias <= -60) return -60;
+  if (dias <= -30) return -30;
   if (dias <= 0) return 0;
-  return Math.min(...PASOS.filter((p) => p >= dias));
+  return Math.min(...PASOS_ANTES.filter((p) => p >= dias));
 }
 
 Deno.serve(async (req) => {
@@ -362,7 +387,7 @@ Deno.serve(async (req) => {
             etiqueta: "Ósmosis Inversa · El Prado",
             fecha: sumar(paso),
             dias: paso,
-            club: { descuento: 15, descuento_siguiente: 25, numero: 3, racha_hasta: sumar(paso + 20), racha_vencida: false },
+            club: { descuento: 15, descuento_siguiente: 25, numero: 3, racha_hasta: sumar(paso + 20), racha_vencida: paso < 0 },
           },
         ];
         await client.send({
@@ -493,7 +518,7 @@ Deno.serve(async (req) => {
         grupo.pendientes.map((p) => ({
           seguimiento_id: p.id,
           canal: "correo",
-          nota: `Recordatorio automático enviado por correo (${p.paso === 0 ? "día del vencimiento" : p.paso + " días antes"}).`,
+          nota: `Recordatorio automático enviado por correo (${p.paso === 0 ? "día del vencimiento" : p.paso < 0 ? -p.paso + " días después del vencimiento" : p.paso + " días antes"}).`,
         })),
       );
       enviados++;
